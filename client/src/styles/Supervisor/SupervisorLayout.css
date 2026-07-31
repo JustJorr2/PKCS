@@ -1,0 +1,42 @@
+/* ===== MANAGER LAYOUT ===== */
+.supervisor-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  transition: margin-left 0.3s ease;
+  overflow-y: auto;
+  background: #f5f5f5;
+}
+
+/* When sidebar is collapsed, shift main content */
+.main-content.collapsed {
+  margin-left: 70px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .main-content {
+    margin-left: 220px;
+  }
+
+  .main-content.collapsed {
+    margin-left: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding-bottom: 88px;
+  }
+
+  .main-content.collapsed {
+    margin-left: 0;
+  }
+}

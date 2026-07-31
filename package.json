@@ -1,0 +1,16 @@
+{
+  "name": "r-v",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix client",
+    "server": "npm start --prefix backend",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm install --prefix backend && npm install --prefix client && npm run build --prefix client",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
