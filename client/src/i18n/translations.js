@@ -452,7 +452,9 @@ export const translations = {
 
       supervisor: "Supervisor",
       peer: "Peer",
-      unknown: "Unknown"
+      unknown: "Unknown",
+      ratedBy: "Rated by",
+      worker: "Worker"
     },
   },
   id: {
@@ -907,7 +909,9 @@ export const translations = {
 
       supervisor: "Supervisor",
       peer: "Rekan Kerja",
-      unknown: "Tidak Diketahui"
+      unknown: "Tidak Diketahui",
+      ratedBy: "Dinilai oleh",
+      worker: "Pekerja"
     },
   }
 };

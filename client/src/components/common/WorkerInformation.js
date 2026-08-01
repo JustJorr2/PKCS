@@ -193,11 +193,9 @@ function WorkerInformation() {
                             year: "numeric", month: "short", day: "numeric"
                           })}
                         </span>
-                        <span className="wi-card-ratedby">
-                          {r.ratedBy?.role === "supervisor"
-                            ? `${t("workerInformation.supervisor")} • ${r.ratedBy?.name || t("workerInformation.unknown")}`
-                            : `${t("workerInformation.peer")} • ${r.ratedBy?.name || t("workerInformation.unknown")}`}
-                        </span>
+                       <span className="wi-card-ratedby">
+                        {t("workerInformation.ratedBy")}: {r.ratedBy?.name ?? t("workerInformation.unknown")}
+                      </span>
                       </div>
                     </div>
                     <div className="wi-card-right">
