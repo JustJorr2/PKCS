@@ -135,7 +135,6 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
         <div className="profile-header">
           <div className="profile-picture-container">
             <div className="profile-avatar-wrapper">
-
               {profilePicturePreview || currentWorker?.profilePicture ? (
                 <img
                   src={
@@ -156,7 +155,6 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
               <span className="profile-status-dot"></span>
 
               <label className="profile-upload-overlay">
-
                 <input
                   type="file"
                   accept="image/*"
@@ -175,9 +173,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
                     </span>
                   </>
                 )}
-
               </label>
-
             </div>
           </div>
           <div className="profile-header-info">
@@ -219,12 +215,6 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
               <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsGiven")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
             </div>
           </div>
-        </div>
-
-        <div className="profile-card full-width">
-          <h3>{t("profile.preferences")}</h3>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.receiveEmail")}</label><p className="preference-desc">{t("profile.receiveEmailSupervisorDesc")}</p></div></div>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.showTipsSupervisor")}</label><p className="preference-desc">{t("profile.showTipsSupervisorDesc")}</p></div></div>
         </div>
 
         <div className="profile-actions">
