@@ -118,11 +118,11 @@ function SupervisorDataVisuals({ worker }) {
       if (w._score === null || (!useMonthlyAvg && (!w.totalRatings || w.totalRatings === 0))) {
         distribution.notRated += 1;
       } else {
-        if (w._score >= 3.5)
+        if (w._score > 3.5)
             distribution.excellent++;
-        else if (w._score >= 2.5)
+        else if (w._score >= 3)
             distribution.good++;
-        else if (w._score >= 1.5)
+        else if (w._score >= 2.5)
             distribution.average++;
         else
             distribution.poor++;
