@@ -32,7 +32,7 @@ function RatingForm({
 
   const [ratings, setRatings] = useState(
     ratingFields.reduce((acc, f) => {
-      acc[f.key] = initialValues?.[f.key] ?? 3;
+      acc[f.key] = initialValues?.[f.key] ?? 2;
       return acc;
     }, {})
   );
@@ -45,7 +45,7 @@ function RatingForm({
     if (initialValues) {
       const updated = {};
       ratingFields.forEach(f => {
-        updated[f.key] = initialValues[f.key] ?? 3;
+        updated[f.key] = initialValues[f.key] ?? 2;
       });
       setRatings(updated);
       setComment(initialValues.comment || "");
@@ -118,7 +118,7 @@ function RatingForm({
                 <input
                   type="range"
                   min="0"
-                  max="5"
+                  max="4"
                   step="0.5"
                   value={ratings[field.key]}
                   onChange={(e) =>
@@ -136,7 +136,6 @@ function RatingForm({
                   <span>2</span>
                   <span>3</span>
                   <span>4</span>
-                  <span>5</span>
                 </div>
               </div>
             </div>

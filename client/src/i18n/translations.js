@@ -145,7 +145,9 @@ export const translations = {
       submitting: "Submitting...",
       updating: "Updating...",
       submit: "Submit Rating",
-      update: "Update Rating"
+      update: "Update Rating",
+      rateTitle: "Rate",
+      overallAverage: "Average rating"
     },
     workerFeedback: {
       title: "Feedback",
@@ -428,7 +430,30 @@ export const translations = {
       logout: "Logout",
       expand: "Expand",
       collapse: "Collapse"
-    }
+    },
+    workerInformation: {
+      loadingProfile: "Loading worker profile...",
+      workerNotFound: "Worker not found",
+      goBack: "Go back",
+      back: "Back",
+      workers: "Workers",
+
+      avg: "avg",
+
+      totalSessions: "Total Sessions",
+      averageScore: "Average Score",
+      performance: "Performance",
+
+      ratingHistory: "Rating History",
+      month: "month",
+      months: "months",
+
+      noRatingsRecorded: "No ratings recorded yet.",
+
+      supervisor: "Supervisor",
+      peer: "Peer",
+      unknown: "Unknown"
+    },
   },
   id: {
     common: {
@@ -575,7 +600,9 @@ export const translations = {
       submitting: "Mengirim...",
       updating: "Memperbarui...",
       submit: "Kirim Penilaian",
-      update: "Perbarui Penilaian"
+      update: "Perbarui Penilaian",
+      rateTitle: "Nilai",
+      overallAverage: "Nilai rata-rata"
     },
     workerFeedback: {
       title: "Umpan Balik",
@@ -858,6 +885,29 @@ export const translations = {
       logout: "Keluar",
       expand: "Perluas",
       collapse: "Ciutkan"
-    }
+    },
+    workerInformation: {
+      loadingProfile: "Memuat profil pekerja...",
+      workerNotFound: "Pekerja tidak ditemukan",
+      goBack: "Kembali",
+      back: "Kembali",
+      workers: "Pekerja",
+
+      avg: "rata-rata",
+
+      totalSessions: "Total Sesi",
+      averageScore: "Rata-rata Nilai",
+      performance: "Performa",
+
+      ratingHistory: "Riwayat Penilaian",
+      month: "bulan",
+      months: "bulan",
+
+      noRatingsRecorded: "Belum ada penilaian yang tercatat.",
+
+      supervisor: "Supervisor",
+      peer: "Rekan Kerja",
+      unknown: "Tidak Diketahui"
+    },
   }
 };

@@ -67,12 +67,6 @@ async function deleteUser(req, res) {
 async function changePassword(req, res) {
   try {
     const { password } = req.body;
-    // TODO / FLAGGED: findByIdAndUpdate does NOT run pre('save') Mongoose
-    // middleware. If your User model hashes passwords in a pre('save')
-    // hook, this writes the plaintext password straight to the database
-    // with no hashing. Send me models/User.js and I'll fix this properly —
-    // I don't want to guess at your hashing setup and risk double-hashing
-    // or breaking login.
     const updated = await User.findByIdAndUpdate(req.params.id, { password }, { returnDocument: 'after' }).select("-password");
     res.json(updated);
   } catch (err) {

@@ -1,16 +1,16 @@
 // Helper functions for ratings and status
 
 export const getRatingColor = (rating) => {
-  if (rating >= 4) return "#27ae60";
-  if (rating >= 3) return "#f39c12";
+  if (rating >= 3.2) return "#27ae60";
+  if (rating >= 2.4) return "#f39c12";
   return "#e74c3c";
 };
 
 export const getRatingStatus = (rating) => {
   if (rating === 0) return "No ratings yet";
-  if (rating >= 4) return "Excellent";
-  if (rating >= 3) return "Good";
-  if (rating >= 2) return "Average";
+  if (rating >= 3.2) return "Excellent";
+  if (rating >= 2.4) return "Good";
+  if (rating >= 1.6) return "Average";
   return "Needs Improvement";
 };
 
