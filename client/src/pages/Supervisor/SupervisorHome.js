@@ -19,6 +19,16 @@ const ratingFields = [
   { key: "leaveOnTime", short: "LT" }
 ];
 
+function getPreviousMonthKey() {
+  const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+
+  return `${year}-${month}`;
+}
+
 function SupervisorHome({ worker }) {
   const { t } = useLanguage();
   const [workers, setWorkers] = useState([]);
@@ -28,7 +38,10 @@ function SupervisorHome({ worker }) {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await supervisorService.getDashboard(undefined, worker?._id);
+      const response = await supervisorService.getDashboard(
+      getPreviousMonthKey(),
+      worker?._id
+    );
       setWorkers(response.data || []);
     } catch (err) {
       console.error("Error fetching home data:", err);

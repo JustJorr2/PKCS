@@ -726,7 +726,7 @@ export const translations = {
       kpiAverages: "Rata-rata KPI Performa",
       kpiNote: "Berdasarkan pekerja dengan penilaian bulanan yang sudah dikirim: {count}",
       excellentLabel: "Sangat Baik (3.51-4.00)",
-      goodLabel: "Baik (2.76-3.5)",
+      goodLabel: "Baik (2.76-3.50)",
       averageLabel: "Cukup (2.00-2.75)",
       poorLabel: "Kurang (<2.00)",
       notRatedLabel: "Belum Dinilai",
