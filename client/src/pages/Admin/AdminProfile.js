@@ -137,7 +137,6 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
         <div className="admin-profile-header">
           <div className="admin-profile-avatar-container">
             <div className="profile-avatar-wrapper">
-
               {profilePicturePreview || currentWorker?.profilePicture ? (
                 <img
                   src={
@@ -158,7 +157,6 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
               <span className="profile-status-dot admin"></span>
 
               <label className="profile-upload-overlay">
-
                 <input
                   type="file"
                   accept="image/*"
@@ -177,9 +175,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
                     </span>
                   </>
                 )}
-
               </label>
-
             </div>
           </div>
           <div className="admin-profile-headline">
@@ -243,12 +239,6 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
               <div className="admin-profile-stat"><span>{t("profile.accountId")}</span><strong>{worker?._id ? String(worker._id).slice(-8) : "N/A"}</strong></div>
             </div>
           </div>
-        </div>
-
-        <div className="admin-card admin-profile-full">
-          <h3>{t("profile.preferences")}</h3>
-          <div className="admin-profile-pref">{t("profile.receiveEmail")}</div>
-          <div className="admin-profile-pref">{t("profile.showTipsAdmin")}</div>
         </div>
 
         <div className="admin-profile-actions" style={{ marginTop: "20px", display: "flex", gap: "10px" }}>

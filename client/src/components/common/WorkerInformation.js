@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
+import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/common/WorkerInformation.css";
 
 const KPI_FIELDS = [
@@ -30,6 +31,7 @@ function formatMonthKey(monthKey) {
 function WorkerInformation() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [worker, setWorker] = useState(null);
   const [ratings, setRatings] = useState([]);
@@ -64,15 +66,15 @@ function WorkerInformation() {
   if (loading) return (
     <div className="wi-loading-screen">
       <div className="wi-spinner" />
-      <p>Loading worker profile…</p>
+      <p>{t("workerInformation.loadingProfile")}</p>
     </div>
   );
 
   if (!worker) return (
     <div className="wi-error-screen">
       <span className="wi-error-icon">⚠️</span>
-      <p>Worker not found</p>
-      <button className="wi-back-btn" onClick={() => navigate(-1)}>← Go back</button>
+      <p>{t("workerInformation.workerNotFound")}</p>
+      <button className="wi-back-btn" onClick={() => navigate(-1)}>← {t("workerInformation.goBack")}</button>
     </div>
   );
 
@@ -88,10 +90,10 @@ function WorkerInformation() {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          Back
+          {t("workerInformation.back")}
         </button>
         <span className="wi-crumb-sep">/</span>
-        <span className="wi-crumb-inactive">Workers</span>
+        <span className="wi-crumb-inactive">{t("workerInformation.workers")}</span>
         <span className="wi-crumb-sep">/</span>
         <span className="wi-crumb-active">{worker.name}</span>
       </nav>
@@ -120,7 +122,7 @@ function WorkerInformation() {
               {avgRating.toFixed(1)}
             </span>
             <span className="wi-score-star">★</span>
-            <span className="wi-score-label">avg</span>
+            <span className="wi-score-label">{t("workerInformation.avg")}</span>
           </div>
         )}
       </div>
@@ -131,7 +133,7 @@ function WorkerInformation() {
           <div className="wi-stat-icon">📋</div>
           <div>
             <div className="wi-stat-value">{worker.totalRatings}</div>
-            <div className="wi-stat-label">Total Sessions</div>
+            <div className="wi-stat-label">{t("workerInformation.totalSessions")}</div>
           </div>
         </div>
         <div className="wi-stat-card">
@@ -140,14 +142,14 @@ function WorkerInformation() {
             <div className="wi-stat-value" style={{ color: hasRatings ? getRatingColor(avgRating) : undefined }}>
               {hasRatings ? avgRating.toFixed(1) : "—"}
             </div>
-            <div className="wi-stat-label">Average Score</div>
+            <div className="wi-stat-label">{t("workerInformation.averageScore")}</div>
           </div>
         </div>
         <div className="wi-stat-card">
           <div className="wi-stat-icon">🏷️</div>
           <div>
             <div className="wi-stat-value wi-stat-status">{getRatingStatus(avgRating)}</div>
-            <div className="wi-stat-label">Performance</div>
+            <div className="wi-stat-label">{t("workerInformation.performance")}</div>
           </div>
         </div>
       </div>
@@ -155,16 +157,18 @@ function WorkerInformation() {
       {/* RATING HISTORY */}
       <div className="wi-history">
         <div className="wi-history-header">
-          <h2>Rating History</h2>
+          <h2>{t("workerInformation.ratingHistory")}</h2>
           {ratings.length > 0 && (
-            <span className="wi-history-count">{ratings.length} month{ratings.length !== 1 ? "s" : ""}</span>
+            <span className="wi-history-count">
+              {ratings.length} {ratings.length !== 1 ? t("workerInformation.months") : t("workerInformation.month")}
+            </span>
           )}
         </div>
 
         {ratings.length === 0 ? (
           <div className="wi-empty">
             <span className="wi-empty-icon">📭</span>
-            <p>No ratings recorded yet.</p>
+            <p>{t("workerInformation.noRatingsRecorded")}</p>
           </div>
         ) : (
           <div className="wi-cards">
@@ -189,11 +193,9 @@ function WorkerInformation() {
                             year: "numeric", month: "short", day: "numeric"
                           })}
                         </span>
-                        <span className="wi-card-ratedby">
-                          {r.ratedBy?.role === "supervisor"
-                            ? `Supervisor • ${r.ratedBy?.name || "Unknown"}`
-                            : `Peer • ${r.ratedBy?.name || "Unknown"}`}
-                        </span>
+                       <span className="wi-card-ratedby">
+                        {t("workerInformation.ratedBy")}: {r.ratedBy?.name ?? t("workerInformation.unknown")}
+                      </span>
                       </div>
                     </div>
                     <div className="wi-card-right">

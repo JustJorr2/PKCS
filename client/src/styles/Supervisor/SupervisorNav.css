@@ -290,12 +290,12 @@
   }
 }
 
-/* Icon-only on very small screens */
 @media (max-width: 400px) {
   .nav-item {
     min-height: 46px;
-    padding: 6px 0;
+    padding: 6px 2px;
     gap: 0;
+    flex: 1 1 0;
   }
 
   .nav-icon {
@@ -304,6 +304,25 @@
 
   .nav-label {
     display: none;
+  }
+
+  .nav-item.active {
+    flex-direction: row;
+    flex: 1.7 1 0;
+    gap: 5px;
+    padding: 6px 8px;
+  }
+
+  .nav-item.active .nav-icon {
+    font-size: 16px;
+  }
+
+  .nav-item.active .nav-label {
+    display: block;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .supervisor-nav.collapsed .nav-label {

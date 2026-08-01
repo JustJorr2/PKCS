@@ -118,10 +118,14 @@ function SupervisorDataVisuals({ worker }) {
       if (w._score === null || (!useMonthlyAvg && (!w.totalRatings || w.totalRatings === 0))) {
         distribution.notRated += 1;
       } else {
-        if (w._score >= 4.5) distribution.excellent += 1;
-        else if (w._score >= 3.5) distribution.good += 1;
-        else if (w._score >= 2.5) distribution.average += 1;
-        else distribution.poor += 1;
+        if (w._score >= 3.5)
+            distribution.excellent++;
+        else if (w._score >= 2.5)
+            distribution.good++;
+        else if (w._score >= 1.5)
+            distribution.average++;
+        else
+            distribution.poor++;
       }
     });
 
@@ -507,7 +511,7 @@ function SupervisorDataVisuals({ worker }) {
                     <div className="skill-bar">
                       <div
                         className="skill-fill"
-                        style={{ width: `${(avg / 5) * 100}%` }}
+                        style={{ width: `${(avg / 4) * 100}%` }}
                       />
                     </div>
                     <span className="skill-value">{avg.toFixed(1)}</span>
