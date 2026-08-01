@@ -62,7 +62,11 @@ export const translations = {
       updateFailed: "Failed to update profile.",
       logoutTitle: "Logout",
       logoutConfirm: "Are you sure you want to logout?",
-      changePhoto:"Change profile picture"
+      changePhoto:"Change profile picture",
+      fileTooLarge : "File too large!",
+      invalidFileType: "Invalid file type. Please upload an image.",
+      pictureUpdatedSuccess: "Profile picture updated successfully.",
+      pictureUploadFailed: "Failed to upload profile picture."
     },
     workerHome: {
       loading: "Loading...",
@@ -519,7 +523,11 @@ export const translations = {
       updateFailed: "Gagal memperbarui profil.",
       logoutTitle: "Keluar",
       logoutConfirm: "Apakah Anda yakin ingin keluar?",
-      changePhoto:"Ganti Foto Profil"
+      changePhoto:"Ganti Foto Profil",
+      fileTooLarge: "Ukuran foto terlalu besar!",
+      invalidFileType: "Jenis file tidak valid. Silakan unggah gambar.",
+      pictureUpdatedSuccess: "Foto profil berhasil diperbarui.",
+      pictureUploadFailed: "Gagal mengunggah foto profil."
     },
     workerHome: {
       loading: "Memuat...",
