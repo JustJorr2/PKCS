@@ -23,10 +23,13 @@ const KPI_FIELDS = [
   { key: "leaveOnTime", label: "Leave Work On Time", short: "LT" }
 ];
 
-function getCurrentMonthKey() {
+function getPreviousMonthKey() {
   const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
+
   return `${year}-${month}`;
 }
 
@@ -58,11 +61,11 @@ function SupervisorRatings({ worker: supervisor }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
+  const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
   const navigate = useNavigate();
-  const currentMonth = getCurrentMonthKey();
+  const defaultMonth = getPreviousMonthKey();
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -96,7 +99,7 @@ function SupervisorRatings({ worker: supervisor }) {
   }, [fetchDashboardData, fetchSupervisorRatings]);
 
   const handleApplyFilter = () => {
-    const month = filterMonth || currentMonth;
+    const month = filterMonth || defaultMonth;
     setSelectedMonth(month);
     setActiveFilter(filterMonth ? `Month: ${filterMonth}` : "");
   };
@@ -104,7 +107,7 @@ function SupervisorRatings({ worker: supervisor }) {
   const handleResetFilter = () => {
     setFilterMonth("");
     setActiveFilter("");
-    setSelectedMonth(currentMonth);
+    setSelectedMonth(defaultMonth);
   };
 
   const handleRatingSuccess = () => {
