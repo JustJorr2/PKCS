@@ -52,7 +52,7 @@ function formatMonthLabel(monthKey) {
 }
 
 function SupervisorRatings({ worker: supervisor }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -347,7 +347,7 @@ function SupervisorRatings({ worker: supervisor }) {
                   <td className="center" data-label={t("supervisorRatings.sessions")}>{worker.totalRatings}</td>
                   <td className="center" data-label={t("supervisorRatings.status")}>
                     <span className={`status-badge ${getRatingStatus(worker.averageRating).toLowerCase().replace(/\s+/g, "-")}`}>
-                      {getRatingStatus(worker.averageRating)}
+                      {getRatingStatus(worker.averageRating, language)}
                     </span>
                   </td>
                   <td className="latest-rating-cell" data-label={t("supervisorRatings.latestRating")}>

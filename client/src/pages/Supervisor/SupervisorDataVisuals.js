@@ -118,7 +118,7 @@ function SupervisorDataVisuals({ worker }) {
       if (w._score === null || (!useMonthlyAvg && (!w.totalRatings || w.totalRatings === 0))) {
         distribution.notRated += 1;
       } else {
-        if (w._score > 3.51)
+        if (w._score >= 3.51)
             distribution.excellent++;
         else if (w._score >= 2.76)
             distribution.good++;
@@ -402,7 +402,7 @@ function SupervisorDataVisuals({ worker }) {
         <div className="summary-card">
           <h3>{t("supervisorVisuals.excellentPerformers")}</h3>
           <div className="big-stat">{stats.ratingDistribution.excellent}</div>
-          <p className="summary-note">{t("supervisorVisuals.ratingFourFive")}</p>
+          <p className="summary-note">{t("supervisorVisuals.ratingThreeFour")}</p>
         </div>
         <div className="summary-card">
           <h3>{t("supervisorVisuals.notRatedSummary")}</h3>

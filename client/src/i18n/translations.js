@@ -255,7 +255,7 @@ export const translations = {
       totalWorkersEvaluated: "Total Workers Evaluated",
       activeInSystem: "Active in system",
       excellentPerformers: "Excellent Performers",
-      ratingFourFive: "Rating 4.5+",
+      ratingThreeFour: "Rating 3.5+",
       noDataFilter: "No data matches the selected filter.",
       ratingDistribution: "Rating Distribution",
       pieTitle: "Rating Distribution Pie",
@@ -307,6 +307,20 @@ export const translations = {
       punctuality: "PU",
       attendance: "AT",
       leaveOnTime: "LT"
+    },
+    kpiRatingForm: {
+      workAreaCompliance: "Work Area Compliance (WA)",
+      taskCompletion: "Task Completion (TC)",
+      cleanliness: "Cleanliness (CL)",
+      wasteManagement: "Waste Management (WM)",
+      organization: "Organization (OR)",
+      uniformCompliance: "Uniform Compliance (UC)",
+      independence: "Independence (IN)",
+      initiative: "Initiative (IV)",
+      teamworkSupport: "Teamwork Support (TS)",
+      punctuality: "Punctuality (PU)",
+      attendance: "Attendance (AT)",
+      leaveOnTime: "Leave Work On Time (LT)"
     },
     kpiDescription: {
       workAreaCompliance: "Keeps their assigned work area organized, clean, and free of hazards throughout the shift.",
@@ -460,6 +474,13 @@ export const translations = {
       ratedBy: "Rated by",
       worker: "Worker"
     },
+    ratingStatus: {
+      noRatings: "No ratings yet",
+      excellent: "Excellent",
+      good: "Good",
+      average: "Average",
+      needsImprovement: "Needs Improvement"
+    }
   },
   id: {
     common: {
@@ -716,7 +737,7 @@ export const translations = {
       totalWorkersEvaluated: "Total Pekerja Dievaluasi",
       activeInSystem: "Aktif di sistem",
       excellentPerformers: "Performa Sangat Baik",
-      ratingFourFive: "Nilai 4.5+",
+      ratingThreeFour: "Nilai 3.5+",
       noDataFilter: "Tidak ada data yang cocok dengan filter terpilih.",
       ratingDistribution: "Distribusi Penilaian",
       pieTitle: "Diagram Lingkaran Distribusi",
@@ -743,45 +764,59 @@ export const translations = {
     },
     kpi: {
       workAreaCompliance: "Kepatuhan Area Kerja",
-      taskCompletion: "Penyelesaian Tugas",
-      cleanliness: "Kebersihan",
+      taskCompletion: "Kualitas & Standar Kerja",
+      cleanliness: "Kebersihan Area",
       wasteManagement: "Pengelolaan Sampah",
-      organization: "Kerapihan",
-      uniformCompliance: "Kepatuhan Seragam",
-      independence: "Kemandirian",
-      initiative: "Inisiatif",
-      teamworkSupport: "Kerja Sama Tim",
+      organization: "Kerapian & Estetika Area",
+      uniformCompliance: "Kedislipinan Seragam & APD",
+      independence: "Kemandirian Kerja",
+      initiative: "Inisiatif & Responsivitas",
+      teamworkSupport: "Kerja Sama & Fleksibilitas",
       punctuality: "Ketepatan Waktu",
-      attendance: "Kehadiran",
-      leaveOnTime: "Pulang Sesuai Jam Kerja"
+      attendance: "Kepatuhan Jam Kerja",
+      leaveOnTime: "Kehadiran & Komitmen"
     },
     kpiShort: {
       workAreaCompliance: "KAK",
-      taskCompletion: "PT",
-      cleanliness: "KB",
-      wasteManagement: "PS",
-      organization: "KR",
-      uniformCompliance: "KS",
-      independence: "KM",
-      initiative: "IS",
-      teamworkSupport: "KST",
-      punctuality: "KW",
-      attendance: "KH",
-      leaveOnTime: "PSJ"
+      taskCompletion: "KSK",
+      cleanliness: "KBA",
+      wasteManagement: "PSA",
+      organization: "KEA",
+      uniformCompliance: "KSA",
+      independence: "KDK",
+      initiative: "IR",
+      teamworkSupport: "KSF",
+      punctuality: "KTW",
+      attendance: "KJK",
+      leaveOnTime: "KHK"
+    },
+    kpiRatingForm: {
+      workAreaCompliance: "Kepatuhan Area Kerja (KAK)",
+      taskCompletion: "Kualitas & Standar Kerja (KSK)",
+      cleanliness: "Kebersihan Area (KBA)",
+      wasteManagement: "Pengelolaan Sampah (PSA)",
+      organization: "Kerapian & Estetika Area (KEA)",
+      uniformCompliance: "Kedislipinan Seragam & APD (KSA)",
+      independence: "Kemandirian Kerja (KDK)",
+      initiative: "Inisiatif & Responsivitas (IR)",
+      teamworkSupport: "Kerja Sama & Fleksibilitas (KSF)",
+      punctuality: "Ketepatan Waktu (KTW)",
+      attendance: "Kepatuhan Jam Kerja (KJK)",
+      leaveOnTime: "Kehadiran & Komitmen (KHK)"
     },
     kpiDescription: {
-      workAreaCompliance: "Menjaga area kerja yang ditugaskan tetap rapi, bersih, dan bebas bahaya selama shift.",
-      taskCompletion: "Menyelesaikan tugas yang diberikan secara penuh dan tepat waktu, tanpa perlu diingatkan.",
-      cleanliness: "Menjaga standar kebersihan yang tinggi dan teliti dalam pekerjaan yang dilakukan.",
-      wasteManagement: "Memilah, membuang, dan menangani sampah dengan benar sesuai prosedur.",
-      organization: "Menjaga alat, perlengkapan, dan bahan tersusun rapi dan siap digunakan.",
-      uniformCompliance: "Mengenakan seragam dan alat pelindung yang diwajibkan dengan benar dan konsisten.",
-      independence: "Melaksanakan tugas dengan percaya diri tanpa perlu pengawasan terus-menerus.",
-      initiative: "Mengenali masalah atau tugas tambahan dan bertindak tanpa harus diminta.",
-      teamworkSupport: "Bekerja sama dan mendukung rekan kerja untuk menyelesaikan pekerjaan bersama.",
-      punctuality: "Datang dan mulai bekerja tepat waktu untuk shift dan tugas terjadwal.",
-      attendance: "Hadir secara konsisten pada shift terjadwal dengan absensi tanpa keterangan yang minim.",
-      leaveOnTime: "Pulang sesuai jam kerja yang ditentukan kecuali mendapat tugas lembur."
+      workAreaCompliance: "Melaksanakan pekerjaan sesuai area yang ditentukan",
+      taskCompletion: "Menyelesaikan tugas sesuai standar kerja",
+      cleanliness: "Area tanggung jawab bebas debu dan noda",
+      wasteManagement: "Sampah dibuang dan dikelola dengan benar",
+      organization: "Area tanggung jawab tertata dan enak dipandang",
+      uniformCompliance: "Menggunakan seragam kerja / APD dengan rapi",
+      independence: "Bekerja tanpa harus selalu diarahkan",
+      initiative: "Tanggap melihat area kotor tanpa disuruh",
+      teamworkSupport: "Bersedia membantu area lain bila dibutuhkan",
+      punctuality: "Hadir tepat waktu sesuai jadwal",
+      leaveOnTime: "Pulang sesuai jam kerja / tidak meninggalkan kerja tanpa izin",
+      attendance: "Tingkat kehadiran (jarang absen / izin)"
     },
     adminHome: {
       loading: "Memuat dashboard...",
@@ -921,5 +956,12 @@ export const translations = {
       ratedBy: "Dinilai oleh",
       worker: "Pekerja"
     },
+    ratingStatus: {
+      noRatings: "Belum ada penilaian",
+      excellent: "Sangat Baik",
+      good: "Baik",
+      average: "Cukup",
+      needsImprovement: "Kurang"
+    }
   }
 };

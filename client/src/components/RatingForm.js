@@ -105,7 +105,7 @@ function RatingForm({
           {ratingFields.map(field => (
             <div className="rating-field" key={field.key}>
               <label>
-              {t(`kpi.${field.key}`)}
+              {t(`kpiRatingForm.${field.key}`)}
               <span className="rating-value">
                 {ratings[field.key]}★
               </span>

@@ -31,7 +31,7 @@ function formatMonthKey(monthKey) {
 function WorkerInformation() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [worker, setWorker] = useState(null);
   const [ratings, setRatings] = useState([]);
@@ -112,7 +112,7 @@ function WorkerInformation() {
                 className="wi-status-dot"
                 style={{ background: getRatingColor(avgRating) }}
               />
-              {getRatingStatus(avgRating)}
+              {getRatingStatus(avgRating, language)}
             </div>
           )}
         </div>
