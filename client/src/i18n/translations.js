@@ -241,7 +241,9 @@ export const translations = {
       rate: "Rate",
       dash: "-",
       avgShort: "avg",
-      lowShort: "low"
+      lowShort: "low",
+      avgRating: "Cumulative Average",       // was "Average Rating" or similar
+      statusCumulative: "Cumulative Status"
     },
     supervisorVisuals: {
       loading: "Loading analytics...",
@@ -723,7 +725,9 @@ export const translations = {
       rate: "Nilai",
       dash: "-",
       avgShort: "rata-rata",
-      lowShort: "rendah"
+      lowShort: "rendah",
+      avgRating: "Rata-Rata Kumulatif",      // was "Rata-Rata Nilai"
+      statusCumulative: "Status Kumulatif"
     },
     supervisorVisuals: {
       loading: "Memuat analitik...",

@@ -51,6 +51,14 @@ function formatMonthLabel(monthKey) {
   });
 }
 
+// NEW: 2-decimal formatting, using a comma as the decimal separator in
+// Indonesian (e.g. "3,51") and a period in English (e.g. "3.51").
+function formatRating(value, language) {
+  if (value === null || value === undefined || isNaN(value)) return "-";
+  const formatted = Number(value).toFixed(2);
+  return language === "id" ? formatted.replace(".", ",") : formatted;
+}
+
 function SupervisorRatings({ worker: supervisor }) {
   const { t, language } = useLanguage();
   const [workers, setWorkers] = useState([]);
@@ -130,7 +138,6 @@ function SupervisorRatings({ worker: supervisor }) {
       setEditingRating(response.data || null);
       setRatingWorker(worker);
     } catch (err) {
-      // If no rating exists for this month, open as a new rating instead
       if (err.response?.status === 404) {
         setEditingRating(null);
         setRatingWorker(worker);
@@ -299,10 +306,9 @@ function SupervisorRatings({ worker: supervisor }) {
               <tr>
                 <th>#</th>
                 <th>{t("supervisorRatings.name")}</th>
-                <th>{t("supervisorRatings.email")}</th>
                 <th>{t("supervisorRatings.avgRating")}</th>
                 <th>{t("supervisorRatings.sessions")}</th>
-                <th>{t("supervisorRatings.status")}</th>
+                <th>{t("supervisorRatings.statusCumulative")}</th>
                 <th>{t("supervisorRatings.latestRating")}</th>
                 <th>{t("supervisorRatings.selectedMonth")}</th>
                 <th>{t("supervisorRatings.lastComment")}</th>
@@ -331,23 +337,22 @@ function SupervisorRatings({ worker: supervisor }) {
                       {worker.name}
                     </div>
                   </td>
-                  <td className="worker-email" data-label={t("supervisorRatings.email")}>{worker.email}</td>
                   <td data-label={t("supervisorRatings.avgRating")}>
-                    {typeof worker.monthAverageRating === "number" ? (
+                    {typeof worker.cumulativeAverageRating === "number" ? (
                       <span
                         className="rating-badge"
-                        style={{ backgroundColor: getRatingColor(worker.monthAverageRating) }}
+                        style={{ backgroundColor: getRatingColor(worker.cumulativeAverageRating) }}
                       >
-                        {Number(worker.monthAverageRating).toFixed(1)} *
+                        {formatRating(worker.cumulativeAverageRating, language)}
                       </span>
                     ) : (
                       <span className="rating-badge rating-badge--none">-</span>
                     )}
                   </td>
                   <td className="center" data-label={t("supervisorRatings.sessions")}>{worker.totalRatings}</td>
-                  <td className="center" data-label={t("supervisorRatings.status")}>
-                    <span className={`status-badge ${getRatingStatus(worker.averageRating).toLowerCase().replace(/\s+/g, "-")}`}>
-                      {getRatingStatus(worker.averageRating, language)}
+                  <td className="center" data-label={t("supervisorRatings.statusCumulative")}>
+                    <span className={`status-badge ${getRatingStatus(worker.cumulativeAverageRating ?? 0).toLowerCase().replace(/\s+/g, "-")}`}>
+                      {getRatingStatus(worker.cumulativeAverageRating ?? 0, language)}
                     </span>
                   </td>
                   <td className="latest-rating-cell" data-label={t("supervisorRatings.latestRating")}>
@@ -363,7 +368,7 @@ function SupervisorRatings({ worker: supervisor }) {
                             className="summary-avg"
                             style={{ backgroundColor: getRatingColor(avg) }}
                           >
-                            {avg.toFixed(1)} {t("supervisorRatings.avgShort")}
+                            {formatRating(avg, language)}
                           </div>
                           <div className="summary-low">
                             {t("supervisorRatings.lowShort")} {t(`kpiShort.${lowest.key}`)}: {lowest.value}
@@ -383,7 +388,7 @@ function SupervisorRatings({ worker: supervisor }) {
                   <td className="action-cell" data-label={t("supervisorRatings.action")}>
                     {isAlreadyRated(worker._id) ? (
                       <button
-                        className="btn btn-primary"
+                        className="btn btn-edit"
                         onClick={() => handleEditWorker(worker)}
                         title={`Edit this worker's rating for ${selectedMonth}`}
                       >
