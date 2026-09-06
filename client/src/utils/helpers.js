@@ -1,14 +1,14 @@
 import { translations } from "../i18n/translations.js";
 
-
 const resolve = (obj, key) =>
   key.split(".").reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), obj);
 
 export const getRatingColor = (rating) => {
-  if (rating >= 3.51) return "#27ae60";
-  if (rating >= 2.76) return "#f39c12";
-  if (rating >= 2.0) return "#e67e22";
-  return "#e74c3c";
+  if (rating === 0) return "#95a5a6";  // gray — no ratings yet, matches ratingStatus.noRatings
+  if (rating >= 3.51) return "#27ae60"; // green — Excellent / Sangat Baik
+  if (rating >= 2.76) return "#2f80ed"; // blue — Good / Baik
+  if (rating >= 2.0) return "#f39c12";  // orange — Average / Cukup
+  return "#e74c3c";                     // red — Needs Improvement / Kurang
 };
 
 export const getRatingStatus = (rating, language = "en") => {
@@ -25,7 +25,7 @@ export const getRatingStatus = (rating, language = "en") => {
       ? "ratingStatus.average"
       : "ratingStatus.needsImprovement";
 
-  return resolve(dict, key) ?? key; 
+  return resolve(dict, key) ?? key;
 };
 
 export const formatDate = (dateString) => {

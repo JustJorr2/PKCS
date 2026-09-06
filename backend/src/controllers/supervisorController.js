@@ -6,14 +6,19 @@ const { getMonthKey, getPreviousMonthKey, getAllowedMonthsForRole } = require(".
 async function getDashboard(req, res) {
   try {
     const selectedMonth = req.query.month;
+    const viewerId = req.query.viewerId;
 
     let viewerRole = null;
-    if (req.query.viewerId) {
-      const viewer = await User.findById(req.query.viewerId).select("role").lean();
+    if (viewerId) {
+      const viewer = await User.findById(viewerId).select("role").lean();
       viewerRole = viewer ? viewer.role : null;
     }
     const canSeeRatings = viewerRole === "supervisor" || viewerRole === "admin";
     const isWorkerViewer = viewerRole === "worker";
+    // Only used to scope "latest rating" / "cumulative average" queries so a
+    // supervisor only ever sees their OWN submissions, not other
+    // supervisors' ratings for the same worker.
+    const scopeToOwnRatings = viewerRole === "supervisor";
 
     const workers = await User.find({ role: "worker" })
       .select("_id name email role profilePicture averageRating totalRatings createdAt")
@@ -21,7 +26,6 @@ async function getDashboard(req, res) {
       .sort({ averageRating: -1 });
 
     if (isWorkerViewer) {
-      // Workers may see each peer's latest comment, but never scores/averages.
       const workersWithComment = await Promise.all(
         workers.map(async (worker) => {
           const latestRatingFilter = selectedMonth
@@ -46,39 +50,62 @@ async function getDashboard(req, res) {
     }
 
     if (!canSeeRatings) {
-      // Unknown / unauthenticated viewer — safest default, no rating data at all.
       const safeWorkers = workers.map(({ averageRating, totalRatings, ...rest }) => rest);
       return res.json(safeWorkers);
     }
 
     const workersWithLatestRating = await Promise.all(
       workers.map(async (worker) => {
-        const latestRatingFilter = selectedMonth
-          ? { ratedUser: worker._id, dateKey: selectedMonth }
-          : { ratedUser: worker._id };
+        // Fetch every rating for this worker once (scoped to this
+        // supervisor's own submissions when the viewer is a supervisor),
+        // then derive the month-specific average AND the cumulative
+        // (all-time) average from the same result set instead of two
+        // separate queries.
+        const baseFilter = {
+          ratedUser: worker._id,
+          ...(scopeToOwnRatings ? { ratedBy: viewerId } : {})
+        };
 
-        const latestRating = await Rating.findOne(latestRatingFilter)
+        const allRatingsForWorker = await Rating.find(baseFilter)
           .populate("ratedBy", "name role")
           .lean()
           .sort({ createdAt: -1 });
 
+        const toKpiAverage = (r) => {
+          const total = KPI_FIELDS.reduce((sum, field) => sum + (Number(r[field]) || 0), 0);
+          return total / KPI_FIELDS.length;
+        };
+
+        const latestRating = selectedMonth
+          ? allRatingsForWorker.find((r) => r.dateKey === selectedMonth) || null
+          : allRatingsForWorker[0] || null;
+
         let monthAverageRating = null;
         if (selectedMonth) {
-          const monthRatings = await Rating.find({
-            ratedUser: worker._id,
-            dateKey: selectedMonth
-          }).lean();
-
+          const monthRatings = allRatingsForWorker.filter((r) => r.dateKey === selectedMonth);
           if (monthRatings.length > 0) {
-            const ratingAverages = monthRatings.map((r) => {
-              const total = KPI_FIELDS.reduce((sum, field) => sum + (Number(r[field]) || 0), 0);
-              return total / KPI_FIELDS.length;
-            });
-            monthAverageRating = ratingAverages.reduce((sum, val) => sum + val, 0) / ratingAverages.length;
+            const monthAverages = monthRatings.map(toKpiAverage);
+            monthAverageRating = monthAverages.reduce((sum, val) => sum + val, 0) / monthAverages.length;
           }
         }
 
-        return { ...worker, latestRating, monthAverageRating };
+        // NEW: cumulative average across ALL months this supervisor has
+        // rated this worker (e.g. Jan–Jun 2026 combined), used for the
+        // "Rata-Rata Kumulatif" / "Status Kumulatif" columns.
+        let cumulativeAverageRating = null;
+        if (allRatingsForWorker.length > 0) {
+          const cumulativeAverages = allRatingsForWorker.map(toKpiAverage);
+          cumulativeAverageRating =
+            cumulativeAverages.reduce((sum, val) => sum + val, 0) / cumulativeAverages.length;
+        }
+
+        return {
+          ...worker,
+          latestRating,
+          monthAverageRating,
+          cumulativeAverageRating,
+          cumulativeRatingsCount: allRatingsForWorker.length
+        };
       })
     );
 
@@ -97,8 +124,7 @@ async function getSupervisorRatings(req, res) {
     const previousMonth = getPreviousMonthKey();
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
-    
-    // Workers can only view current/previous month; supervisors can view any month
+
     let month = requestedMonth;
     if (rater.role === "worker") {
       const allowedMonths = getAllowedMonthsForRole(rater.role);
@@ -125,8 +151,7 @@ async function getExistingRating(req, res) {
     const previousMonth = getPreviousMonthKey();
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
-    
-    // Workers can only view current/previous month; supervisors can view any month
+
     let month = requestedMonth;
     if (rater.role === "worker") {
       const allowedMonths = getAllowedMonthsForRole(rater.role);

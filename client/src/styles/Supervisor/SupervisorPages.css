@@ -144,6 +144,56 @@
   background: #f0f2f5;
 }
 
+.month-group {
+  margin-bottom: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.month-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8fafc;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.month-group-header:hover {
+  background: #f1f5f9;
+}
+
+.month-group-header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.month-group-title {
+  margin: 0 !important;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.month-rating-count {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.month-toggle {
+  font-size: 12px;
+  color: #64748b;
+  min-width: 20px;
+  text-align: center;
+}
+
+.month-group .recent-list {
+  border-top: 1px solid #e5e7eb;
+}
+
 .recent-worker {
   display: flex;
   align-items: center;

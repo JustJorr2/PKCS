@@ -19,14 +19,28 @@ const ratingFields = [
   { key: "leaveOnTime", short: "LT" }
 ];
 
-function getPreviousMonthKey() {
+function getRecentMonthKeys(count = 6) {
+  const keys = [];
   const now = new Date();
-  now.setMonth(now.getMonth() - 1);
 
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
+  for (let i = 1; i <= count; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
 
-  return `${year}-${month}`;
+    keys.push(`${year}-${month}`);
+  }
+
+  return keys;
+}
+
+function monthLabelFor(monthKey) {
+  return /^\d{4}-\d{2}$/.test(monthKey)
+    ? new Date(`${monthKey}-01`).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+      })
+    : monthKey;
 }
 
 function SupervisorHome({ worker }) {
@@ -34,17 +48,37 @@ function SupervisorHome({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
+  const [monthlyRatings, setMonthlyRatings] = useState([]);
+  const [expandedMonths, setExpandedMonths] = useState({});
 
-  const fetchData = useCallback(async () => {
+
+
+ const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await supervisorService.getDashboard(
-      getPreviousMonthKey(),
-      worker?._id
-    );
-      setWorkers(response.data || []);
+
+      const monthKeys = getRecentMonthKeys(6);
+
+      const responses = await Promise.all(
+        monthKeys.map((monthKey) =>
+          supervisorService.getDashboard(monthKey, worker?._id)
+        )
+      );
+
+      // Keep the previous/latest month for the existing dashboard statistics
+      setWorkers(responses[0]?.data || []);
+
+      // Build monthly rating data
+      const monthlyData = responses.map((response, index) => ({
+        monthKey: monthKeys[index],
+        workers: response.data || [],
+      }));
+
+      setMonthlyRatings(monthlyData);
     } catch (err) {
       console.error("Error fetching home data:", err);
+      setWorkers([]);
+      setMonthlyRatings([]);
     } finally {
       setLoading(false);
     }
@@ -99,6 +133,28 @@ function SupervisorHome({ worker }) {
 
     const supportCount = ratedWorkersList.filter((w) => (Number(w.averageRating) || 0) < 3).length;
 
+    const ratingsByMonth = monthlyRatings
+    .map(({ monthKey, workers: monthWorkers }) => {
+      const entries = monthWorkers
+        .filter((w) => w.latestRating)
+        .sort(
+          (a, b) =>
+            new Date(b.latestRating.createdAt) -
+            new Date(a.latestRating.createdAt)
+        )
+        .map((w) => ({
+          worker: w,
+          rating: w.latestRating,
+        }));
+
+      return {
+        monthKey,
+        monthLabel: monthLabelFor(monthKey),
+        entries,
+      };
+    })
+    .filter((month) => month.entries.length > 0);
+
     return {
       totalWorkers: workers.length,
       avgRating: avgRatingRaw.toFixed(2),
@@ -108,9 +164,17 @@ function SupervisorHome({ worker }) {
       supportWorker,
       recentRatings,
       updatedInLastWeek,
-      supportCount
+      supportCount,
+      ratingsByMonth
     };
-  }, [workers]);
+  }, [workers, monthlyRatings]);
+
+  const toggleMonth = (monthKey) => {
+    setExpandedMonths((prev) => ({
+      ...prev,
+      [monthKey]: !prev[monthKey],
+    }));
+  };
 
   if (loading) {
     return (
@@ -172,48 +236,108 @@ function SupervisorHome({ worker }) {
       <div className="recent-section">
         <h2>{t("supervisorHome.recentRatings")}</h2>
 
-        {dashboard.recentRatings.length > 0 ? (
-          <div className="recent-list">
-            {dashboard.recentRatings.map((item) => {
-              const ratingAvg = (
-                ratingFields.reduce((sum, f) => sum + (Number(item.rating[f.key]) || 0), 0) /
-                ratingFields.length
-              ).toFixed(1);
-
-              const lowestFields = [...ratingFields]
-                .map((f) => ({ ...f, value: Number(item.rating[f.key]) || 0 }))
-                .sort((a, b) => a.value - b.value)
-                .slice(0, 3);
+        {dashboard.ratingsByMonth.length > 0 ? (
+          <div className="recent-list-by-month">
+            {dashboard.ratingsByMonth.map((month, index) => {
+              const isExpanded =
+                expandedMonths[month.monthKey] ?? index === 0;
 
               return (
-                <div key={`${item.worker._id}-${item.rating.createdAt}`} className="recent-item">
-                  <div className="recent-worker">
-                    <div className="worker-avatar">{item.worker.name.charAt(0).toUpperCase()}</div>
-                    <div className="worker-details">
-                      <h4>{item.worker.name}</h4>
-                      <p className="worker-email">{item.worker.email}</p>
+                <div key={month.monthKey} className="month-group">
+                  <div
+                    className="month-group-header"
+                    onClick={() => toggleMonth(month.monthKey)}
+                  >
+                    <div>
+                      <h3 className="month-group-title">
+                        {month.monthLabel}
+                      </h3>
+
+                      <span className="month-rating-count">
+                        {month.entries.length}{" "}
+                        {month.entries.length === 1 ? "rating" : "ratings"}
+                      </span>
                     </div>
+
+                    <span className="month-toggle">
+                      {isExpanded ? "▲" : "▼"}
+                    </span>
                   </div>
 
-                  <div className="recent-rating">
-                    <div className="rating-fields-small">
-                      <span className="field-badge main">
-                        AVG: {ratingAvg} ★
-                      </span>
-                      {lowestFields.map((f) => (
-                        <span key={f.key} className="field-badge warning">
-                          {t(`kpiShort.${f.key}`)}: {f.value} ★
-                        </span>
-                      ))}
+                  {isExpanded && (
+                    <div className="recent-list">
+                      {month.entries.map((item, idx) => {
+                        const ratingAvg = (
+                          ratingFields.reduce(
+                            (sum, f) =>
+                              sum + (Number(item.rating[f.key]) || 0),
+                            0
+                          ) / ratingFields.length
+                        ).toFixed(1);
+
+                        const lowestFields = [...ratingFields]
+                          .map((f) => ({
+                            ...f,
+                            value: Number(item.rating[f.key]) || 0,
+                          }))
+                          .sort((a, b) => a.value - b.value)
+                          .slice(0, 3);
+
+                        return (
+                          <div
+                            key={`${item.worker._id}-${item.rating.createdAt}-${idx}`}
+                            className="recent-item"
+                          >
+                            <div className="recent-worker">
+                              <div className="worker-avatar">
+                                {item.worker.name
+                                  ?.charAt(0)
+                                  .toUpperCase()}
+                              </div>
+
+                              <div className="worker-details">
+                                <h4>{item.worker.name}</h4>
+                                <p className="worker-email">
+                                  {item.worker.email}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="recent-rating">
+                              <div className="rating-fields-small">
+                                <span className="field-badge main">
+                                  AVG: {ratingAvg} ★
+                                </span>
+
+                                {lowestFields.map((f) => (
+                                  <span
+                                    key={f.key}
+                                    className="field-badge warning"
+                                  >
+                                    {t(`kpiShort.${f.key}`)}: {f.value} ★
+                                  </span>
+                                ))}
+                              </div>
+
+                              <p className="recent-time">
+                                {new Date(
+                                  item.rating.createdAt
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <p className="recent-time">{new Date(item.rating.createdAt).toLocaleDateString()}</p>
-                  </div>
+                  )}
                 </div>
               );
             })}
           </div>
         ) : (
-          <p className="no-data">{t("supervisorHome.noRatings")}</p>
+          <p className="no-data">
+            {t("supervisorHome.noRatings")}
+          </p>
         )}
       </div>
 
