@@ -167,7 +167,7 @@ export const adminService = {
 
   // FIX (Problem 6): was named RRkUSs6V3Eu6gxjGDbGzcS99F5WyKtggsw. Renamed,
   // and the param is a LateSubmissionRequest id now, not a rating id.
-  r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8: (requestId, adminId, action) =>
+  getLateSubmissionRequests: (requestId, adminId, action) =>
     apiClient.put(
       `/api/admin/late-submission-requests/${requestId}`,
       {

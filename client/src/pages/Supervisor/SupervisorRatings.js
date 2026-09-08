@@ -162,8 +162,8 @@ function SupervisorRatings({ worker: supervisor }) {
     const list = workers
       .filter((worker) => {
         const matchesSearch =
-          worker.name.toLowerCase().includes(normalizedSearch) ||
-          worker.email.toLowerCase().includes(normalizedSearch);
+          (worker.name ?? "").toLowerCase().includes(normalizedSearch) ||
+          (worker.email ?? "").toLowerCase().includes(normalizedSearch);
         const matchesFilter =
           filterStatus === "all" ||
           (filterStatus === "rated" && isAlreadyRated(worker._id)) ||
@@ -351,7 +351,11 @@ function SupervisorRatings({ worker: supervisor }) {
                   </td>
                   <td className="center" data-label={t("supervisorRatings.sessions")}>{worker.totalRatings}</td>
                   <td className="center" data-label={t("supervisorRatings.statusCumulative")}>
-                    <span className={`status-badge ${getRatingStatus(worker.cumulativeAverageRating ?? 0).toLowerCase().replace(/\s+/g, "-")}`}>
+                    <span
+                      className={`status-badge ${(getRatingStatus(worker.cumulativeAverageRating ?? 0, language) || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
                       {getRatingStatus(worker.cumulativeAverageRating ?? 0, language)}
                     </span>
                   </td>

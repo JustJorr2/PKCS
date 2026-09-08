@@ -14,7 +14,8 @@ export const translations = {
       editProfile: "Edit Profile",
       username: "Username",
       optional: "Optional",
-      name : "Full Name"
+      name : "Full Name",
+      close: "Close"
     },
     login: {
       createAccount: "Create Account",
@@ -192,7 +193,11 @@ export const translations = {
       totalWorkers: "Total Workers",
       averageRating: "Average Rating",
       topPerformer: "Top Performer",
-      supportNeeded: "Support Needed",
+      filterThisMonth: "This Month",
+      filterCumulative: "Cumulative",
+      belowTwoTitle: "Workers Below 2.0",
+      seeDetails: "See details",
+      noWorkersBelowTwo: "No workers below 2.0 right now.",
       recentRatings: "Recent Ratings",
       noRatings: "No ratings yet. Start rating workers to see recent activity.",
       workersRated: "Workers Rated",
@@ -202,7 +207,10 @@ export const translations = {
       legendTitle: "Rating Field Abbreviations",
       hide: "Hide",
       show: "Show",
-      notAvailable: "N/A"
+      notAvailable: "N/A",
+      highest: "Highest",
+      average: "Average",
+      weakest: "Weakest"
     },
     supervisorRatings: {
       title: "Worker Details and Ratings",
@@ -499,7 +507,8 @@ export const translations = {
       editProfile: "Edit Profil",
       username: "Nama Pengguna",
       optional: "Opsional",
-      name : "Nama Lengkap"
+      name : "Nama Lengkap",
+      close: "Tutup"
     },
     login: {
       createAccount: "Buat Akun",
@@ -674,19 +683,26 @@ export const translations = {
       welcomeBack: "Selamat Datang Kembali!",
       overview: "Berikut ringkasan performa Anda",
       totalWorkers: "Total Pekerja",
-      averageRating: "Rata-rata Nilai",
+      averageRating: "Rating Rata-rata",
       topPerformer: "Performa Terbaik",
-      supportNeeded: "Perlu Dukungan",
+      filterThisMonth: "Bulan Ini",
+      filterCumulative: "Kumulatif",
+      belowTwoTitle: "Pekerja Di Bawah 2.0",
+      seeDetails: "Lihat detail",
+      noWorkersBelowTwo: "Tidak ada pekerja di bawah 2.0 saat ini.",
       recentRatings: "Penilaian Terbaru",
       noRatings: "Belum ada penilaian. Mulai menilai pekerja untuk melihat aktivitas terbaru.",
-      workersRated: "Pekerja Sudah Dinilai",
+      workersRated: "Pekerja Dinilai",
       workersNotRated: "Pekerja Belum Dinilai",
-      updated7Days: "Diperbarui 7 Hari Terakhir",
-      belowThree: "Di Bawah Rata-rata 3.0",
-      legendTitle: "Singkatan Kolom Penilaian",
+      updated7Days: "Diperbarui dalam 7 Hari Terakhir",
+      belowThree: "Rata-rata Di Bawah 3.0",
+      legendTitle: "Singkatan Bidang Penilaian",
       hide: "Sembunyikan",
       show: "Tampilkan",
-      notAvailable: "N/A"
+      notAvailable: "T/A",
+      highest: "Tertinggi",
+      average: "Rata-rata",
+      weakest: "Terlemah"
     },
     supervisorRatings: {
       title: "Detail dan Penilaian Pekerja",
