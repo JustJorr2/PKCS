@@ -4,6 +4,7 @@ import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/common/ConfirmDialog.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { Users, Star, Trophy, AlertTriangle, Info } from "lucide-react";
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -316,7 +317,7 @@ function SupervisorHome({ worker }) {
       {/* STATS */}
       <div className="stats-grid">
         <div className="stat-card primary">
-          <div className="stat-icon">👥</div>
+          <div className="stat-icon"><Users size={20} /></div>
           <div className="stat-info">
             <h3>{t("supervisorHome.totalWorkers")}</h3>
             <p className="stat-number">{dashboard.totalWorkers}</p>
@@ -324,7 +325,7 @@ function SupervisorHome({ worker }) {
         </div>
 
         <div className="stat-card success">
-          <div className="stat-icon">⭐</div>
+          <div className="stat-icon"><Star size={20} /></div>
           <div className="stat-info">
             <h3>{t("supervisorHome.averageRating")}</h3>
             <p className="stat-number" style={{ color: getRatingColor(Number(dashboard.avgRating)) }}>
@@ -334,7 +335,7 @@ function SupervisorHome({ worker }) {
         </div>
 
         <div className="stat-card info">
-          <div className="stat-icon">🏆</div>
+          <div className="stat-icon"><Trophy size={20} /></div>
           <div className="stat-info">
             <h3>{t("supervisorHome.topPerformer")}</h3>
             <p className="stat-text">
@@ -353,7 +354,7 @@ function SupervisorHome({ worker }) {
         </div>
 
         <div className="stat-card warning">
-          <div className="stat-icon">⚠️</div>
+          <div className="stat-icon"><AlertTriangle size={20} /></div>
           <div className="stat-info">
             <h3>{t("supervisorHome.belowTwoTitle") || "Workers Below 2.0"}</h3>
             <p className="stat-number" style={{ color: "#e74c3c" }}>
@@ -622,7 +623,10 @@ function SupervisorHome({ worker }) {
       {/* LEGEND */}
       <div className="legend-box bottom">
         <div className="legend-header" onClick={() => setShowLegend((prev) => !prev)}>
-          <span className="legend-title">ℹ️ {t("supervisorHome.legendTitle")}</span>
+          <span className="legend-title">
+            <Info size={16} style={{ marginRight: "6px", verticalAlign: "-3px" }} />
+            {t("supervisorHome.legendTitle")}
+          </span>
           <span className="legend-toggle">
             {showLegend ? `▲ ${t("supervisorHome.hide")}` : `▼ ${t("supervisorHome.show")}`}
           </span>

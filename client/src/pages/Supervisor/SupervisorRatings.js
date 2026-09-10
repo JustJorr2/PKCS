@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from "react";
-import { supervisorService, adminService } from "../../services/api";
+import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import RatingForm from "../../components/RatingForm";
@@ -7,7 +7,7 @@ import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { config } from "../../config/config";
-import { Users, CircleCheck, Clock } from "lucide-react";
+import { Users, CircleCheck, Clock, TrendingUp  } from "lucide-react";
 
 function getPreviousMonthKey() {
   const now = new Date();
@@ -74,7 +74,6 @@ function SupervisorRatings({ worker: supervisor }) {
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
-  const [supervisorCount, setSupervisorCount] = useState(null);
   const navigate = useNavigate();
   const defaultMonth = getPreviousMonthKey();
 
@@ -109,24 +108,6 @@ function SupervisorRatings({ worker: supervisor }) {
     fetchSupervisorRatings();
   }, [fetchDashboardData, fetchSupervisorRatings]);
 
-  // Total distinct supervisors in the system, for the stat widget.
-  // Fetched once - this doesn't depend on the selected month.
-  useEffect(() => {
-    let isMounted = true;
-
-    adminService
-      .getDashboard()
-      .then((res) => {
-        if (isMounted) setSupervisorCount(res.data?.supervisors ?? null);
-      })
-      .catch((err) => {
-        console.error("Error fetching supervisor count:", err);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleApplyFilter = () => {
     const month = filterMonth || defaultMonth;
@@ -175,6 +156,7 @@ function SupervisorRatings({ worker: supervisor }) {
     const ratedWorkers = workers.filter((w) => isAlreadyRated(w._id)).length;
     const unratedWorkers = workers.length - ratedWorkers;
     const normalizedSearch = searchTerm.trim().toLowerCase();
+    
 
     const list = workers
       .filter((worker) => {
@@ -199,6 +181,13 @@ function SupervisorRatings({ worker: supervisor }) {
 
     return { filteredWorkers: list, ratedCount: ratedWorkers, unratedCount: unratedWorkers };
   }, [workers, searchTerm, filterStatus, sortBy, isAlreadyRated]);
+
+  const myAverageRatingThisMonth = useMemo(() => {
+    const rated = workers.filter((w) => typeof w.monthAverageRating === "number");
+      if (rated.length === 0) return null;
+      const sum = rated.reduce((acc, w) => acc + w.monthAverageRating, 0);
+      return sum / rated.length;
+  }, [workers]);
 
   return (
     <div className="page-content supervisor-details">
@@ -311,6 +300,22 @@ function SupervisorRatings({ worker: supervisor }) {
           </div>
         </div>
 
+        <div className="quick-stat-pill">
+          <span className="pill-icon">
+            <TrendingUp size={20} />
+          </span>
+
+          <div className="pill-text">
+            <span className="label">
+              {t("supervisorRatings.myAverageRating") || "My Average Rating This Month"}:
+            </span>
+
+            <span className="value" style={{ color: myAverageRatingThisMonth !== null ? getRatingColor(myAverageRatingThisMonth) : undefined }}>
+              {myAverageRatingThisMonth !== null ? `${formatRating(myAverageRatingThisMonth, language)} ★` : "-"}
+            </span>
+          </div>
+        </div>
+        
       </div>
 
       <div className="details-toolbar">

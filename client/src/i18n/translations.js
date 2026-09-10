@@ -241,7 +241,6 @@ export const translations = {
       noWorkersDisplay: "No workers to display.",
       name: "Name",
       email: "Email",
-      avgRating: "Avg Rating",
       sessions: "Sessions",
       status: "Status",
       latestRating: "Latest Rating",
@@ -260,7 +259,8 @@ export const translations = {
       periodActive: "Active Period",
       detail : "Detail",
       myRatingThisMonth: "Rating This Month",
-      legendTitle : "Status :"
+      legendTitle : "Status :",
+      myAverageRating: "My Average Rating This Month"
     },
     supervisorVisuals: {
       loading: "Loading analytics...",
@@ -715,8 +715,8 @@ export const translations = {
       weakest: "Terlemah",
       lowRatingHistory: "Bulan di bawah 2.0",
       filterLastMonth: "Bulan Lalu",
-      overviewMonth: "Berikut adalah ringkasan kinerja Anda untuk",
-      overviewCumulative: "Berikut adalah ringkasan kinerja kumulatif Anda."
+      overviewMonth: "Berikut adalah ringkasan Penilian Anda untuk",
+      overviewCumulative: "Berikut adalah ringkasan Penilian kinerja kumulatif Anda."
     },
     supervisorRatings: {
       title: "Detail dan Penilaian Pekerja",
@@ -742,7 +742,6 @@ export const translations = {
       noWorkersDisplay: "Tidak ada pekerja untuk ditampilkan.",
       name: "Nama",
       email: "Email",
-      avgRating: "Rata-rata Nilai",
       sessions: "Sesi",
       status: "Status",
       latestRating: "Penilaian Terakhir Saya",
@@ -761,7 +760,8 @@ export const translations = {
       periodActive: "Periode Aktif",
       detail : "Detail",
       myRatingThisMonth: "Penilaian Saya",
-      legendTitle : "Status :"
+      legendTitle : "Status :",
+      myAverageRating	: "Rata-Rata Penilaian Saya Bulan Ini"
     },
     supervisorVisuals: {
       loading: "Memuat analitik...",
