@@ -213,7 +213,9 @@ export const translations = {
       average: "Average",
       weakest: "Weakest",
       lowRatingHistory: "Months below 2.0",
-      filterLastMonth: "Last Month"
+      filterLastMonth: "Last Month",
+      overviewMonth: "Here is your performance overview for",
+      overviewCumulative: "Here is your cumulative performance overview."
     },
     supervisorRatings: {
       title: "Worker Details and Ratings",
@@ -679,7 +681,7 @@ export const translations = {
     },
     supervisorNav: {
       home: "Beranda",
-      details: "Nilai Pekerja",
+      details: "Penilaian Kinerja",
       dataVisuals: "Visual Data",
       profile: "Profil",
       logout: "Keluar",
@@ -690,7 +692,7 @@ export const translations = {
       loading: "Memuat...",
       welcomeBack: "Selamat Datang Kembali!",
       overview: "Berikut ringkasan performa Anda",
-      totalWorkers: "Total Pekerja",
+      totalWorkers: "Jumlah CS",
       averageRating: "Rating Rata-rata",
       topPerformer: "Performa Terbaik",
       filterThisMonth: "Bulan Ini",
@@ -712,7 +714,9 @@ export const translations = {
       average: "Rata-rata",
       weakest: "Terlemah",
       lowRatingHistory: "Bulan di bawah 2.0",
-      filterLastMonth: "Bulan Lalu"
+      filterLastMonth: "Bulan Lalu",
+      overviewMonth: "Berikut adalah ringkasan kinerja Anda untuk",
+      overviewCumulative: "Berikut adalah ringkasan kinerja kumulatif Anda."
     },
     supervisorRatings: {
       title: "Detail dan Penilaian Pekerja",
@@ -741,7 +745,7 @@ export const translations = {
       avgRating: "Rata-rata Nilai",
       sessions: "Sesi",
       status: "Status",
-      latestRating: "Penilaian Terakhir",
+      latestRating: "Penilaian Terakhir Saya",
       selectedMonth: "Bulan Dipilih",
       lastComment: "Komentar Terakhir",
       selectedMonthTag: "bulan dipilih",
@@ -752,11 +756,11 @@ export const translations = {
       dash: "-",
       avgShort: "rata-rata",
       lowShort: "rendah",
-      avgRating: "Rata-Rata Kumulatif",      
+      avgRating: "Rata-Rata Kumulatif Saya",      
       statusCumulative: "Status Kumulatif",
       periodActive: "Periode Aktif",
       detail : "Detail",
-      myRatingThisMonth: "Penilaian Bulan Ini",
+      myRatingThisMonth: "Penilaian Saya",
       legendTitle : "Status :"
     },
     supervisorVisuals: {
@@ -768,7 +772,7 @@ export const translations = {
       filterNote: "Menampilkan pekerja dengan bulan penilaian terbaru sesuai bulan yang dipilih.",
       overallAverage: "Rata-rata Nilai Keseluruhan",
       basedOnWorkers: "Berdasarkan {count} pekerja",
-      totalWorkersEvaluated: "Total Pekerja Dievaluasi",
+      totalWorkersEvaluated: "Total CS Dievaluasi",
       activeInSystem: "Aktif di sistem",
       excellentPerformers: "Performa Sangat Baik",
       ratingThreeFour: "Nilai 3.5+",

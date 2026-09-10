@@ -23,15 +23,6 @@ const ratingFields = [
 const BELOW_THRESHOLD = 2.0;
 const RECENT_MONTHS_LIMIT = 6;
 
-function getCurrentMonthKey() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  return `${year}-${month}`;
-}
-
-// The current month is still in progress and hasn't been recapped yet, so
-// the quick filter compares against the last FULLY COMPLETED month instead.
 function getLastMonthKey() {
   const now = new Date();
   const date = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -64,9 +55,6 @@ function monthLabelFor(monthKey) {
     : monthKey;
 }
 
-// Given the 12 KPI values for a single rating, pick 3 fields to display as a
-// spread: the worker's strongest field, one close to their own average,
-// and their weakest field.
 function getFieldVariation(rating) {
   const values = ratingFields.map((f) => ({
     ...f,
@@ -110,17 +98,6 @@ function SupervisorHome({ worker }) {
 
       const monthKeys = getRecentMonthKeys(RECENT_MONTHS_LIMIT);
 
-      /*
-       * We fetch:
-       *
-       * 1. All-time dashboard
-       * 2. Last month's dashboard (the current month is still in progress
-       *    and hasn't been recapped yet, so it's excluded from the quick
-       *    filter)
-       * 3. Recent individual months for the cumulative Recent Ratings
-       *    section (this list still includes the current in-progress
-       *    month, since it's shown as historical context, not a filter)
-       */
       const [allTimeRes, lastMonthRes, ...monthlyResponses] = await Promise.all([
         supervisorService.getDashboard(undefined, worker?._id),
         supervisorService.getDashboard(getLastMonthKey(), worker?._id),
@@ -286,9 +263,19 @@ function SupervisorHome({ worker }) {
 
   return (
     <div className="page-content supervisor-home">
+
       <div className="page-header">
-        <h1>{t("supervisorHome.welcomeBack")}</h1>
-        <p>{t("supervisorHome.overview")}</p>
+        <h1>
+          {t("supervisorHome.welcomeBack")}
+        </h1>
+
+        <p>
+          {filterMode === "lastMonth"
+            ? `${t("supervisorHome.overviewMonth")} ${monthLabelFor(
+                getLastMonthKey()
+              )}.`
+            : t("supervisorHome.overviewCumulative")}
+        </p>
       </div>
 
       {/* FILTER */}
@@ -359,7 +346,7 @@ function SupervisorHome({ worker }) {
                 className="stat-meta"
                 style={{ color: getRatingColor(getFilteredRating(dashboard.topWorker) || 0) }}
               >
-                {(getFilteredRating(dashboard.topWorker) || 0).toFixed(1)} ★
+                {(getFilteredRating(dashboard.topWorker) || 0).toFixed(2)} ★
               </p>
             )}
           </div>
@@ -540,7 +527,7 @@ function SupervisorHome({ worker }) {
                         const ratingAvg = (
                           ratingFields.reduce((sum, f) => sum + (Number(item.rating[f.key]) || 0), 0) /
                           ratingFields.length
-                        ).toFixed(1);
+                        ).toFixed(2);
 
                         const { highest, middle, lowest } = getFieldVariation(item.rating);
 
@@ -595,7 +582,14 @@ function SupervisorHome({ worker }) {
                               </div>
 
                               <p className="recent-time">
-                                {new Date(item.rating.createdAt).toLocaleDateString()}
+                                {new Date(item.rating.createdAt).toLocaleString(undefined, {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: false
+                                })}
                               </p>
                             </div>
                           </div>

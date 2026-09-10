@@ -736,6 +736,45 @@
   z-index: 10;
 }
 
+/* ===== PERIOD FILTER — MOBILE ===== */
+@media (max-width: 640px) {
+  .supervisor-ratings-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .period-filter-wrap {
+    width: 100%;
+  }
+
+  .period-filter-card {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .period-picker-dropdown {
+    position: static;      
+    width: 100%;
+    margin-top: 10px;
+    flex-direction: column;
+    align-items: stretch;  
+  }
+
+  .wf-filter-group {
+    width: 100%;
+  }
+
+  .wf-filter-group input[type="month"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .wf-btn-apply,
+  .wf-btn-reset {
+    width: 100%;
+  }
+}
+
 /* ===== STAT PILL ICONS ===== */
 .quick-stat-pill {
   align-items: center;
@@ -751,8 +790,17 @@
 
 .pill-text {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill-text .label {
+  white-space: nowrap;
+}
+
+.pill-text .value {
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 /* ===== ACTION BUTTONS (Detail + Edit/Rate side by side) ===== */

@@ -7,6 +7,7 @@ import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { config } from "../../config/config";
+import { Users, CircleCheck, Clock } from "lucide-react";
 
 function getPreviousMonthKey() {
   const now = new Date();
@@ -45,17 +46,12 @@ function formatMonthLabel(monthKey) {
   });
 }
 
-// 2-decimal formatting, using a comma as the decimal separator in
-// Indonesian (e.g. "3,51") and a period in English (e.g. "3.51").
 function formatRating(value, language) {
   if (value === null || value === undefined || isNaN(value)) return "-";
   const formatted = Number(value).toFixed(2);
   return language === "id" ? formatted.replace(".", ",") : formatted;
 }
 
-// Small legend explaining what each rating color means. Mirrors
-// getRatingColor()'s thresholds exactly, so update both together if the
-// thresholds ever change.
 const RATING_COLOR_LEGEND = [
   { color: "#95a5a6", key: "noRatings", fallback: "No ratings yet" },
   { color: "#27ae60", key: "excellent", fallback: "Excellent (≥ 3.51)" },
@@ -266,37 +262,55 @@ function SupervisorRatings({ worker: supervisor }) {
 
       {/* STATS WIDGETS */}
       <div className="details-stats-row">
+
         <div className="quick-stat-pill">
-          <span className="pill-icon">👥</span>
+          <span className="pill-icon">
+            <Users size={20} />
+          </span>
+
           <div className="pill-text">
-            <span className="label">{t("supervisorRatings.visibleWorkers")}</span>
-            <span className="value">{filteredWorkers.length}</span>
+            <span className="label">
+              {t("supervisorRatings.visibleWorkers")}:
+            </span>
+
+            <span className="value">
+              {filteredWorkers.length}
+            </span>
           </div>
         </div>
 
         <div className="quick-stat-pill">
-          <span className="pill-icon">✅</span>
+          <span className="pill-icon">
+            <CircleCheck size={20} />
+          </span>
+
           <div className="pill-text">
-            <span className="label">{t("supervisorRatings.ratedInMonth")}</span>
-            <span className="value">{ratedCount}</span>
+            <span className="label">
+              {t("supervisorRatings.ratedInMonth")}:
+            </span>
+
+            <span className="value">
+              {ratedCount}
+            </span>
           </div>
         </div>
 
         <div className="quick-stat-pill">
-          <span className="pill-icon">⏳</span>
+          <span className="pill-icon">
+            <Clock size={20} />
+          </span>
+
           <div className="pill-text">
-            <span className="label">{t("supervisorRatings.notYetRated")}</span>
-            <span className="value">{unratedCount}</span>
+            <span className="label">
+              {t("supervisorRatings.notYetRated")}:
+            </span>
+
+            <span className="value">
+              {unratedCount}
+            </span>
           </div>
         </div>
 
-        <div className="quick-stat-pill">
-          <span className="pill-icon">🧑‍💼</span>
-          <div className="pill-text">
-            <span className="label">{t("supervisorRatings.totalSupervisors")}</span>
-            <span className="value">{supervisorCount ?? "-"}</span>
-          </div>
-        </div>
       </div>
 
       <div className="details-toolbar">
@@ -451,7 +465,7 @@ function SupervisorRatings({ worker: supervisor }) {
                     {worker.latestRating ? (
                       <>
                         {formatDate(worker.latestRating.createdAt)}{" "}
-                        <span className="text-muted">{formatTime(worker.latestRating.createdAt)}</span>
+                        <span className="latest-rating-time">{formatTime(worker.latestRating.createdAt)}</span>
                       </>
                     ) : (
                       <span className="text-muted">{t("supervisorRatings.noRatingsYet")}</span>
@@ -489,13 +503,22 @@ function SupervisorRatings({ worker: supervisor }) {
                           </button>
                         </>
                       ) : (
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => handleRateWorker(worker)}
-                          title={`Rate this worker for ${selectedMonth}`}
-                        >
-                          {t("supervisorRatings.rate")}
-                        </button>
+                        <>
+                          <button
+                            className="btn btn-outline"
+                            onClick={() => navigate(`/worker/${worker._id}`)}
+                            title={t("supervisorRatings.viewDetail")}
+                          >
+                            {t("supervisorRatings.detail")}
+                          </button>
+                          <button
+                            className="btn btn-primary"
+                            onClick={() => handleRateWorker(worker)}
+                            title={`Rate this worker for ${selectedMonth}`}
+                          >
+                            {t("supervisorRatings.rate")}
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>
