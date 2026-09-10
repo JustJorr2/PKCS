@@ -30,6 +30,16 @@ function getCurrentMonthKey() {
   return `${year}-${month}`;
 }
 
+// The current month is still in progress and hasn't been recapped yet, so
+// the quick filter compares against the last FULLY COMPLETED month instead.
+function getLastMonthKey() {
+  const now = new Date();
+  const date = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 function getRecentMonthKeys(count = RECENT_MONTHS_LIMIT) {
   const keys = [];
   const now = new Date();
@@ -85,12 +95,12 @@ function SupervisorHome({ worker }) {
   const { t } = useLanguage();
 
   const [allTimeWorkers, setAllTimeWorkers] = useState([]);
-  const [thisMonthWorkers, setThisMonthWorkers] = useState([]);
+  const [lastMonthWorkers, setLastMonthWorkers] = useState([]);
   const [monthlyRatings, setMonthlyRatings] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
-  const [filterMode, setFilterMode] = useState("month");
+  const [filterMode, setFilterMode] = useState("lastMonth");
   const [showBelowTwoDetails, setShowBelowTwoDetails] = useState(false);
   const [expandedMonths, setExpandedMonths] = useState({});
 
@@ -104,20 +114,21 @@ function SupervisorHome({ worker }) {
        * We fetch:
        *
        * 1. All-time dashboard
-       * 2. Current month dashboard
-       * 3. Recent individual months for the cumulative
-       *    Recent Ratings section.
-       *
-       * The current month is monthKeys[0].
+       * 2. Last month's dashboard (the current month is still in progress
+       *    and hasn't been recapped yet, so it's excluded from the quick
+       *    filter)
+       * 3. Recent individual months for the cumulative Recent Ratings
+       *    section (this list still includes the current in-progress
+       *    month, since it's shown as historical context, not a filter)
        */
-      const [allTimeRes, thisMonthRes, ...monthlyResponses] = await Promise.all([
+      const [allTimeRes, lastMonthRes, ...monthlyResponses] = await Promise.all([
         supervisorService.getDashboard(undefined, worker?._id),
-        supervisorService.getDashboard(getCurrentMonthKey(), worker?._id),
+        supervisorService.getDashboard(getLastMonthKey(), worker?._id),
         ...monthKeys.map((monthKey) => supervisorService.getDashboard(monthKey, worker?._id))
       ]);
 
       setAllTimeWorkers(allTimeRes.data || []);
-      setThisMonthWorkers(thisMonthRes.data || []);
+      setLastMonthWorkers(lastMonthRes.data || []);
 
       const monthlyData = monthlyResponses.map((response, index) => ({
         monthKey: monthKeys[index],
@@ -128,7 +139,7 @@ function SupervisorHome({ worker }) {
     } catch (err) {
       console.error("Error fetching home data:", err);
       setAllTimeWorkers([]);
-      setThisMonthWorkers([]);
+      setLastMonthWorkers([]);
       setMonthlyRatings([]);
     } finally {
       setLoading(false);
@@ -142,17 +153,17 @@ function SupervisorHome({ worker }) {
   /*
    * The main dashboard cards use either:
    *
-   * This Month:
-   *   thisMonthWorkers + monthAverageRating
+   * Last Month:
+   *   lastMonthWorkers + monthAverageRating
    *
    * Cumulative:
    *   allTimeWorkers + cumulativeAverageRating
    */
-  const activeWorkers = filterMode === "month" ? thisMonthWorkers : allTimeWorkers;
+  const activeWorkers = filterMode === "lastMonth" ? lastMonthWorkers : allTimeWorkers;
 
   const getFilteredRating = useCallback(
     (w) => {
-      const raw = filterMode === "month" ? w.monthAverageRating : w.cumulativeAverageRating;
+      const raw = filterMode === "lastMonth" ? w.monthAverageRating : w.cumulativeAverageRating;
       return raw === null || raw === undefined ? null : Number(raw);
     },
     [filterMode]
@@ -180,13 +191,13 @@ function SupervisorHome({ worker }) {
   /*
    * What appears in Recent Ratings depends on the filter:
    *
-   * This Month -> current month only
+   * Last Month -> last month only
    * Cumulative -> all recent monthly groups
    */
   const visibleRatingsByMonth = useMemo(() => {
-    if (filterMode === "month") {
-      const currentMonthKey = getCurrentMonthKey();
-      return ratingsByMonth.filter((month) => month.monthKey === currentMonthKey);
+    if (filterMode === "lastMonth") {
+      const lastMonthKey = getLastMonthKey();
+      return ratingsByMonth.filter((month) => month.monthKey === lastMonthKey);
     }
 
     return ratingsByMonth;
@@ -219,12 +230,45 @@ function SupervisorHome({ worker }) {
 
     const topWorker = sortedRated[0] || null;
 
-    const belowTwoWorkers = ratedWorkersList
-      .filter((w) => {
-        const r = getFilteredRating(w);
-        return r !== null && r > 0 && r <= BELOW_THRESHOLD;
-      })
-      .sort((a, b) => getFilteredRating(a) - getFilteredRating(b));
+    /*
+     * "Below 2.0" reflects HISTORY, not just the currently selected
+     * average: a worker stays flagged if they ever scored below 2.0 in
+     * any individual month, even after their average recovers.
+     *
+     * - "Last Month"  -> only workers whose LAST month rating was below
+     *   2.0 (their full history is still attached, for context).
+     * - "Cumulative"  -> every worker who has EVER scored below 2.0 in any
+     *   month, sorted by how often it happened, then by how bad it got.
+     */
+    const belowTwoCandidates =
+      filterMode === "lastMonth"
+        ? activeWorkers.filter((w) => {
+            const r = getFilteredRating(w);
+            return r !== null && r > 0 && r < BELOW_THRESHOLD;
+          })
+        : activeWorkers.filter((w) => (w.lowRatingHistory || []).length > 0);
+
+    const belowTwoWorkers = belowTwoCandidates
+      .map((w) => ({
+        worker: w,
+        history: [...(w.lowRatingHistory || [])].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        )
+      }))
+      .sort((a, b) => {
+        if (filterMode === "lastMonth") {
+          return getFilteredRating(a.worker) - getFilteredRating(b.worker);
+        }
+
+        // Cumulative: repeat offenders first, then worst single score.
+        if (b.history.length !== a.history.length) {
+          return b.history.length - a.history.length;
+        }
+
+        const aWorst = Math.min(...a.history.map((h) => h.average));
+        const bWorst = Math.min(...b.history.map((h) => h.average));
+        return aWorst - bWorst;
+      });
 
     const now = Date.now();
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
@@ -250,7 +294,7 @@ function SupervisorHome({ worker }) {
       updatedInLastWeek,
       belowThreeCount
     };
-  }, [activeWorkers, getFilteredRating]);
+  }, [activeWorkers, getFilteredRating, filterMode]);
 
   const toggleMonth = (monthKey) => {
     setExpandedMonths((prev) => ({ ...prev, [monthKey]: !prev[monthKey] }));
@@ -265,8 +309,8 @@ function SupervisorHome({ worker }) {
   }
 
   const filterLabel =
-    filterMode === "month"
-      ? t("supervisorHome.filterThisMonth") || "This Month"
+    filterMode === "lastMonth"
+      ? t("supervisorHome.filterLastMonth") || "Last Month"
       : t("supervisorHome.filterCumulative") || "Cumulative";
 
   return (
@@ -280,18 +324,18 @@ function SupervisorHome({ worker }) {
       <div className="supervisor-home-filter" style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
         <button
           type="button"
-          onClick={() => setFilterMode("month")}
+          onClick={() => setFilterMode("lastMonth")}
           style={{
             padding: "8px 16px",
             borderRadius: "20px",
-            border: filterMode === "month" ? "1px solid #2f80ed" : "1px solid #d1d5db",
-            background: filterMode === "month" ? "#2f80ed" : "#ffffff",
-            color: filterMode === "month" ? "#ffffff" : "#374151",
+            border: filterMode === "lastMonth" ? "1px solid #2f80ed" : "1px solid #d1d5db",
+            background: filterMode === "lastMonth" ? "#2f80ed" : "#ffffff",
+            color: filterMode === "lastMonth" ? "#ffffff" : "#374151",
             fontWeight: 600,
             cursor: "pointer"
           }}
         >
-          {t("supervisorHome.filterThisMonth") || "This Month"}
+          {t("supervisorHome.filterLastMonth") || "Last Month"}
         </button>
 
         <button
@@ -382,40 +426,105 @@ function SupervisorHome({ worker }) {
       {/* BELOW 2.0 MODAL */}
       {showBelowTwoDetails && (
         <div className="confirm-dialog-overlay" onClick={() => setShowBelowTwoDetails(false)}>
-          <div className="confirm-dialog-card" onClick={(e) => e.stopPropagation()}>
-            <h3>
+          <div
+            className="confirm-dialog-card"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "80vh",
+              width: "min(480px, 92vw)"
+            }}
+          >
+            <h3 style={{ marginBottom: "4px" }}>
               {t("supervisorHome.belowTwoTitle") || "Workers Below 2.0"} — {filterLabel}
             </h3>
 
             {dashboard.belowTwoWorkers.length === 0 ? (
               <p>{t("supervisorHome.noWorkersBelowTwo") || "No workers below 2.0 right now."}</p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px" }}>
-                {dashboard.belowTwoWorkers.map((w) => {
+              <div
+                style={{
+                  flex: 1,
+                  minHeight: 0,
+                  overflowY: "auto",
+                  marginTop: "10px",
+                  paddingRight: "4px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px"
+                }}
+              >
+                {dashboard.belowTwoWorkers.map(({ worker: w, history }) => {
                   const rating = getFilteredRating(w) || 0;
 
                   return (
                     <div
                       key={w._id}
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        borderBottom: "1px solid #f3f4f6",
-                        paddingBottom: "8px"
+                        background: "#f9fafb",
+                        borderRadius: "10px",
+                        padding: "10px 12px"
                       }}
                     >
-                      <span style={{ color: "#111827", fontWeight: 500 }}>{w.name}</span>
-                      <span style={{ color: getRatingColor(rating), fontWeight: 700 }}>
-                        {rating.toFixed(2)} ★
-                      </span>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center"
+                        }}
+                      >
+                        <span style={{ color: "#111827", fontWeight: 600 }}>{w.name}</span>
+                        <span style={{ color: getRatingColor(rating), fontWeight: 700 }}>
+                          {rating.toFixed(2)} ★
+                        </span>
+                      </div>
+
+                      {history.length > 0 && (
+                        <div
+                          style={{
+                            marginTop: "6px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "3px"
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              color: "#9ca3af",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.03em"
+                            }}
+                          >
+                            {t("supervisorHome.lowRatingHistory") || "Months below 2.0"}
+                          </span>
+
+                          {history.map((h, i) => (
+                            <div
+                              key={`${w._id}-${h.dateKey}-${i}`}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                fontSize: "13px",
+                                color: "#4b5563"
+                              }}
+                            >
+                              <span>{monthLabelFor(h.dateKey)}</span>
+                              <span style={{ color: getRatingColor(h.average), fontWeight: 600 }}>
+                                {h.average.toFixed(2)} ★
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
             )}
 
-            <div className="confirm-dialog-actions">
+            <div className="confirm-dialog-actions" style={{ marginTop: "12px" }}>
               <button type="button" className="btn" onClick={() => setShowBelowTwoDetails(false)}>
                 {t("common.close") || "Close"}
               </button>

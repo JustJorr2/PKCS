@@ -3,6 +3,9 @@ const Rating = require("../models/Rating");
 const { KPI_FIELDS } = require("../constants/kpiFields");
 const { getMonthKey, getPreviousMonthKey, getAllowedMonthsForRole } = require("../utils/dateKeys");
 
+// Keep this in sync with BELOW_THRESHOLD in SupervisorHome.jsx.
+const LOW_RATING_THRESHOLD = 2.0;
+
 async function getDashboard(req, res) {
   try {
     const selectedMonth = req.query.month;
@@ -58,9 +61,9 @@ async function getDashboard(req, res) {
       workers.map(async (worker) => {
         // Fetch every rating for this worker once (scoped to this
         // supervisor's own submissions when the viewer is a supervisor),
-        // then derive the month-specific average AND the cumulative
-        // (all-time) average from the same result set instead of two
-        // separate queries.
+        // then derive the month-specific average, the cumulative
+        // (all-time) average, AND the low-rating history from the same
+        // result set instead of separate queries.
         const baseFilter = {
           ratedUser: worker._id,
           ...(scopeToOwnRatings ? { ratedBy: viewerId } : {})
@@ -89,8 +92,8 @@ async function getDashboard(req, res) {
           }
         }
 
-        // NEW: cumulative average across ALL months this supervisor has
-        // rated this worker (e.g. Jan–Jun 2026 combined), used for the
+        // Cumulative average across ALL months this supervisor has rated
+        // this worker (e.g. Jan–Jun 2026 combined), used for the
         // "Rata-Rata Kumulatif" / "Status Kumulatif" columns.
         let cumulativeAverageRating = null;
         if (allRatingsForWorker.length > 0) {
@@ -99,12 +102,26 @@ async function getDashboard(req, res) {
             cumulativeAverages.reduce((sum, val) => sum + val, 0) / cumulativeAverages.length;
         }
 
+        // NEW: every individual month where this worker's rating from
+        // this supervisor fell below the threshold, kept even after the
+        // cumulative average recovers, so "Workers Below 2.0" can reflect
+        // history rather than just the current average.
+        const lowRatingHistory = allRatingsForWorker
+          .map((r) => ({
+            dateKey: r.dateKey,
+            average: toKpiAverage(r),
+            createdAt: r.createdAt
+          }))
+          .filter((r) => r.average < LOW_RATING_THRESHOLD)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
         return {
           ...worker,
           latestRating,
           monthAverageRating,
           cumulativeAverageRating,
-          cumulativeRatingsCount: allRatingsForWorker.length
+          cumulativeRatingsCount: allRatingsForWorker.length,
+          lowRatingHistory
         };
       })
     );

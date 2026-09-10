@@ -51,7 +51,7 @@ function AdminRatingEditRequests() {
   const handleReviewLateSubmission = async (requestId, action) => {
     try {
       setSubmittingId(requestId);
-      await adminService.r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8(requestId, admin._id, action);
+      await adminService.getLateSubmissionRequests(requestId, admin._id, action);
       await fetchData();
     } catch (err) {
       setError(err.response?.data?.message || t("common.cancel"));

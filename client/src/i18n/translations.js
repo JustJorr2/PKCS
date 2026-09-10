@@ -210,7 +210,9 @@ export const translations = {
       notAvailable: "N/A",
       highest: "Highest",
       average: "Average",
-      weakest: "Weakest"
+      weakest: "Weakest",
+      lowRatingHistory: "Months below 2.0",
+      filterLastMonth: "Last Month"
     },
     supervisorRatings: {
       title: "Worker Details and Ratings",
@@ -702,7 +704,9 @@ export const translations = {
       notAvailable: "T/A",
       highest: "Tertinggi",
       average: "Rata-rata",
-      weakest: "Terlemah"
+      weakest: "Terlemah",
+      lowRatingHistory: "Bulan di bawah 2.0",
+      filterLastMonth: "Bulan Lalu"
     },
     supervisorRatings: {
       title: "Detail dan Penilaian Pekerja",
