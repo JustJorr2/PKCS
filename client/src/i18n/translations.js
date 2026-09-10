@@ -152,7 +152,8 @@ export const translations = {
       submit: "Submit Rating",
       update: "Update Rating",
       rateTitle: "Rate",
-      overallAverage: "Average rating"
+      overallAverage: "Average rating",
+      editTitle: "Edit Rating"
     },
     workerFeedback: {
       title: "Feedback",
@@ -219,7 +220,7 @@ export const translations = {
       subtitle: "Rate workers for completed month only",
       byMonth: "By month",
       apply: "Apply",
-      visibleWorkers: "Visible Workers",
+      visibleWorkers: "Total CS",
       ratedInMonth: "Rated in Month",
       notYetRated: "Not Yet Rated",
       searchPlaceholder: "Search by name or email...",
@@ -252,8 +253,12 @@ export const translations = {
       dash: "-",
       avgShort: "avg",
       lowShort: "low",
-      avgRating: "Cumulative Average",       // was "Average Rating" or similar
-      statusCumulative: "Cumulative Status"
+      avgRating: "Cumulative Average",       
+      statusCumulative: "Cumulative Status",
+      periodActive: "Active Period",
+      detail : "Detail",
+      myRatingThisMonth: "Rating This Month",
+      legendTitle : "Status :"
     },
     supervisorVisuals: {
       loading: "Loading analytics...",
@@ -646,7 +651,8 @@ export const translations = {
       submit: "Kirim Penilaian",
       update: "Perbarui Penilaian",
       rateTitle: "Nilai",
-      overallAverage: "Nilai rata-rata"
+      overallAverage: "Nilai rata-rata",
+      editTitle: "Edit Penilaian"
     },
     workerFeedback: {
       title: "Umpan Balik",
@@ -713,7 +719,7 @@ export const translations = {
       subtitle: "Nilai pekerja hanya untuk bulan yang sudah selesai",
       byMonth: "Berdasarkan bulan",
       apply: "Terapkan",
-      visibleWorkers: "Pekerja Terlihat",
+      visibleWorkers: "Total CS",
       ratedInMonth: "Dinilai di Bulan Ini",
       notYetRated: "Belum Dinilai",
       searchPlaceholder: "Cari berdasarkan nama atau email...",
@@ -746,8 +752,12 @@ export const translations = {
       dash: "-",
       avgShort: "rata-rata",
       lowShort: "rendah",
-      avgRating: "Rata-Rata Kumulatif",      // was "Rata-Rata Nilai"
-      statusCumulative: "Status Kumulatif"
+      avgRating: "Rata-Rata Kumulatif",      
+      statusCumulative: "Status Kumulatif",
+      periodActive: "Periode Aktif",
+      detail : "Detail",
+      myRatingThisMonth: "Penilaian Bulan Ini",
+      legendTitle : "Status :"
     },
     supervisorVisuals: {
       loading: "Memuat analitik...",

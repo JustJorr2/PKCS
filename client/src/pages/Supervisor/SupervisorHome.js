@@ -99,7 +99,7 @@ function SupervisorHome({ worker }) {
   const [monthlyRatings, setMonthlyRatings] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [showLegend, setShowLegend] = useState(false);
+  const [showLegend, setShowLegend] = useState(true);
   const [filterMode, setFilterMode] = useState("lastMonth");
   const [showBelowTwoDetails, setShowBelowTwoDetails] = useState(false);
   const [expandedMonths, setExpandedMonths] = useState({});
@@ -212,8 +212,6 @@ function SupervisorHome({ worker }) {
         unratedWorkers: 0,
         topWorker: null,
         belowTwoWorkers: [],
-        updatedInLastWeek: 0,
-        belowThreeCount: 0
       };
     }
 
@@ -229,17 +227,6 @@ function SupervisorHome({ worker }) {
     );
 
     const topWorker = sortedRated[0] || null;
-
-    /*
-     * "Below 2.0" reflects HISTORY, not just the currently selected
-     * average: a worker stays flagged if they ever scored below 2.0 in
-     * any individual month, even after their average recovers.
-     *
-     * - "Last Month"  -> only workers whose LAST month rating was below
-     *   2.0 (their full history is still attached, for context).
-     * - "Cumulative"  -> every worker who has EVER scored below 2.0 in any
-     *   month, sorted by how often it happened, then by how bad it got.
-     */
     const belowTwoCandidates =
       filterMode === "lastMonth"
         ? activeWorkers.filter((w) => {
@@ -270,20 +257,6 @@ function SupervisorHome({ worker }) {
         return aWorst - bWorst;
       });
 
-    const now = Date.now();
-    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-
-    const updatedInLastWeek = activeWorkers.filter((w) => {
-      if (!w.latestRating?.createdAt) return false;
-      const created = new Date(w.latestRating.createdAt).getTime();
-      return now - created <= sevenDaysMs;
-    }).length;
-
-    const belowThreeCount = ratedWorkersList.filter((w) => {
-      const r = getFilteredRating(w);
-      return r !== null && r > 0 && r < 3;
-    }).length;
-
     return {
       totalWorkers: activeWorkers.length,
       avgRating: avgRatingRaw.toFixed(2),
@@ -291,8 +264,6 @@ function SupervisorHome({ worker }) {
       unratedWorkers,
       topWorker,
       belowTwoWorkers,
-      updatedInLastWeek,
-      belowThreeCount
     };
   }, [activeWorkers, getFilteredRating, filterMode]);
 
@@ -647,20 +618,10 @@ function SupervisorHome({ worker }) {
           <span className="label">{t("supervisorHome.workersRated")}</span>
           <span className="value">{dashboard.ratedWorkers}</span>
         </div>
-
+        
         <div className="quick-stat">
           <span className="label">{t("supervisorHome.workersNotRated")}</span>
           <span className="value">{dashboard.unratedWorkers}</span>
-        </div>
-
-        <div className="quick-stat">
-          <span className="label">{t("supervisorHome.updated7Days")}</span>
-          <span className="value">{dashboard.updatedInLastWeek}</span>
-        </div>
-
-        <div className="quick-stat">
-          <span className="label">{t("supervisorHome.belowThree")}</span>
-          <span className="value">{dashboard.belowThreeCount}</span>
         </div>
       </div>
 

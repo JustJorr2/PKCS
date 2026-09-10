@@ -665,6 +665,103 @@
   background: #d32f2f;
 }
 
+/* ===== PERIOD FILTER (top right) ===== */
+.supervisor-ratings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  position: relative;
+}
+
+.period-filter-wrap {
+  position: relative;
+}
+
+.period-filter-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  user-select: none;
+}
+
+.period-icon {
+  font-size: 20px;
+}
+
+.period-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.period-label {
+  font-size: 11px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.period-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a3a7f;
+}
+
+.period-toggle {
+  font-size: 11px;
+  color: #999;
+  margin-left: 4px;
+}
+
+.period-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 10;
+}
+
+/* ===== STAT PILL ICONS ===== */
+.quick-stat-pill {
+  align-items: center;
+  gap: 12px;
+  /* replaces old justify-content: space-between now that there's an icon */
+}
+
+.pill-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pill-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ===== ACTION BUTTONS (Detail + Edit/Rate side by side) ===== */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
 /* ===== MANAGER DATA VISUALS PAGE ===== */
 .supervisor-visuals {
   background: white;
