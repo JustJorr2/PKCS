@@ -513,7 +513,13 @@ export const translations = {
       peer: "Peer",
       unknown: "Unknown",
       ratedBy: "Rated by",
-      worker: "Worker"
+      worker: "Worker",
+      filterByRater: "Filter by rater",
+      allRaters: "All raters",
+      filterByMonth: "Filter by month",
+      allMonths: "All months",
+      clearFilters: "Clear",
+      noRatingsMatchFilters: "No ratings match the selected filters."
     },
     ratingStatus: {
       noRatings: "No ratings yet",
@@ -1036,7 +1042,13 @@ export const translations = {
       peer: "Rekan Kerja",
       unknown: "Tidak Diketahui",
       ratedBy: "Dinilai oleh",
-      worker: "Pekerja"
+      worker: "Pekerja",
+      filterByRater: "Filter berdasarkan penilai",
+      allRaters: "Semua penilai",
+      filterByMonth: "Filter berdasarkan bulan",
+      allMonths: "Semua bulan",
+      clearFilters: "Hapus filter",
+      noRatingsMatchFilters: "Tidak ada penilaian yang sesuai dengan filter yang dipilih."
     },
     ratingStatus: {
       noRatings: "Belum ada penilaian",

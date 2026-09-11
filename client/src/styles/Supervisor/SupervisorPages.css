@@ -1181,6 +1181,19 @@
   color: #9ca3af;
 }
 
+.top-performers .dv-btn-apply {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 4px;
+}
+
+.confirm-dialog-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 1100px; 
+}
+
 
 /* =========================================================
    SKILLS / KPI OVERVIEW

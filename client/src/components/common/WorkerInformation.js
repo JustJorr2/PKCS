@@ -1,23 +1,35 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  ChevronLeft,
+  ClipboardList,
+  Star,
+  Tag,
+  Inbox,
+  AlertTriangle,
+  Filter,
+  X
+} from "lucide-react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/common/WorkerInformation.css";
 
-const KPI_FIELDS = [
-  { key: "workAreaCompliance", label: "Work Area Compliance", short: "WA" },
-  { key: "taskCompletion", label: "Task Completion", short: "TC" },
-  { key: "cleanliness", label: "Cleanliness", short: "CL" },
-  { key: "wasteManagement", label: "Waste Management", short: "WM" },
-  { key: "organization", label: "Organization", short: "OR" },
-  { key: "uniformCompliance", label: "Uniform Compliance", short: "UC" },
-  { key: "independence", label: "Independence", short: "IN" },
-  { key: "initiative", label: "Initiative", short: "IV" },
-  { key: "teamworkSupport", label: "Teamwork Support", short: "TS" },
-  { key: "punctuality", label: "Punctuality", short: "PU" },
-  { key: "attendance", label: "Attendance", short: "AT" }
+const KPI_KEYS = [
+  "workAreaCompliance",
+  "taskCompletion",
+  "cleanliness",
+  "wasteManagement",
+  "organization",
+  "uniformCompliance",
+  "independence",
+  "initiative",
+  "teamworkSupport",
+  "punctuality",
+  "attendance"
 ];
+
+const ALL_VALUE = "__all__";
 
 function formatMonthKey(monthKey) {
   if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return null;
@@ -37,6 +49,9 @@ function WorkerInformation() {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedCards, setExpandedCards] = useState(new Set());
+
+  const [raterFilter, setRaterFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState(ALL_VALUE);
 
   const fetchWorker = useCallback(async () => {
     try {
@@ -63,6 +78,47 @@ function WorkerInformation() {
     });
   };
 
+  // Build the list of rater names for the autocomplete suggestions
+  const raterOptions = useMemo(() => {
+    const names = new Set();
+    ratings.forEach(r => {
+      const name = r.ratedBy?.name;
+      if (name) names.add(name);
+    });
+    return Array.from(names).sort((a, b) => a.localeCompare(b));
+  }, [ratings]);
+
+  // Build the list of months available to filter by
+  const monthOptions = useMemo(() => {
+    const map = new Map();
+    ratings.forEach(r => {
+      const key = r.dateKey || null;
+      if (key && !map.has(key)) {
+        map.set(key, formatMonthKey(key) || key);
+      }
+    });
+    return Array.from(map.entries())
+      .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+      .map(([value, label]) => ({ value, label }));
+  }, [ratings]);
+
+  const filteredRatings = useMemo(() => {
+    const raterQuery = raterFilter.trim().toLowerCase();
+    return ratings.filter(r => {
+      const raterName = (r.ratedBy?.name ?? "").toLowerCase();
+      const raterMatch = raterQuery === "" || raterName.includes(raterQuery);
+      const monthMatch = monthFilter === ALL_VALUE || r.dateKey === monthFilter;
+      return raterMatch && monthMatch;
+    });
+  }, [ratings, raterFilter, monthFilter]);
+
+  const hasActiveFilters = raterFilter.trim() !== "" || monthFilter !== ALL_VALUE;
+
+  const clearFilters = () => {
+    setRaterFilter("");
+    setMonthFilter(ALL_VALUE);
+  };
+
   if (loading) return (
     <div className="wi-loading-screen">
       <div className="wi-spinner" />
@@ -72,9 +128,11 @@ function WorkerInformation() {
 
   if (!worker) return (
     <div className="wi-error-screen">
-      <span className="wi-error-icon">⚠️</span>
+      <AlertTriangle size={28} className="wi-error-icon" aria-hidden="true" />
       <p>{t("workerInformation.workerNotFound")}</p>
-      <button className="wi-back-btn" onClick={() => navigate(-1)}>← {t("workerInformation.goBack")}</button>
+      <button className="wi-back-btn" onClick={() => navigate(-1)}>
+        <ChevronLeft size={16} aria-hidden="true" /> {t("workerInformation.goBack")}
+      </button>
     </div>
   );
 
@@ -87,9 +145,7 @@ function WorkerInformation() {
       {/* BREADCRUMB / BACK */}
       <nav className="wi-breadcrumb">
         <button className="wi-back-btn" onClick={() => navigate(-1)}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <ChevronLeft size={16} aria-hidden="true" />
           {t("workerInformation.back")}
         </button>
         <span className="wi-crumb-sep">/</span>
@@ -121,7 +177,7 @@ function WorkerInformation() {
             <span className="wi-score-num" style={{ color: getRatingColor(avgRating) }}>
               {avgRating.toFixed(1)}
             </span>
-            <span className="wi-score-star">★</span>
+            <Star size={16} className="wi-score-star" fill="currentColor" aria-hidden="true" />
             <span className="wi-score-label">{t("workerInformation.avg")}</span>
           </div>
         )}
@@ -130,14 +186,18 @@ function WorkerInformation() {
       {/* STATS ROW */}
       <div className="wi-stats">
         <div className="wi-stat-card">
-          <div className="wi-stat-icon">📋</div>
+          <div className="wi-stat-icon">
+            <ClipboardList size={20} aria-hidden="true" />
+          </div>
           <div>
             <div className="wi-stat-value">{worker.totalRatings}</div>
             <div className="wi-stat-label">{t("workerInformation.totalSessions")}</div>
           </div>
         </div>
         <div className="wi-stat-card">
-          <div className="wi-stat-icon">⭐</div>
+          <div className="wi-stat-icon">
+            <Star size={20} aria-hidden="true" />
+          </div>
           <div>
             <div className="wi-stat-value" style={{ color: hasRatings ? getRatingColor(avgRating) : undefined }}>
               {hasRatings ? avgRating.toFixed(1) : "—"}
@@ -146,7 +206,9 @@ function WorkerInformation() {
           </div>
         </div>
         <div className="wi-stat-card">
-          <div className="wi-stat-icon">🏷️</div>
+          <div className="wi-stat-icon">
+            <Tag size={20} aria-hidden="true" />
+          </div>
           <div>
             <div className="wi-stat-value wi-stat-status">{getRatingStatus(avgRating)}</div>
             <div className="wi-stat-label">{t("workerInformation.performance")}</div>
@@ -158,22 +220,82 @@ function WorkerInformation() {
       <div className="wi-history">
         <div className="wi-history-header">
           <h2>{t("workerInformation.ratingHistory")}</h2>
-          {ratings.length > 0 && (
+          {filteredRatings.length > 0 && (
             <span className="wi-history-count">
-              {ratings.length} {ratings.length !== 1 ? t("workerInformation.months") : t("workerInformation.month")}
+              {filteredRatings.length} {filteredRatings.length !== 1 ? t("workerInformation.months") : t("workerInformation.month")}
             </span>
           )}
         </div>
 
-        {ratings.length === 0 ? (
+        {/* FILTERS */}
+        {ratings.length > 0 && (
+          <div className="wi-filters">
+            <div className="wi-filter-group">
+              <Filter size={14} className="wi-filter-icon" aria-hidden="true" />
+              <input
+                type="text"
+                className="wi-filter-input"
+                list="wi-rater-options"
+                placeholder={t("workerInformation.filterByRater") || "Filter by rater"}
+                value={raterFilter}
+                onChange={(e) => setRaterFilter(e.target.value)}
+                aria-label={t("workerInformation.filterByRater") || "Filter by rater"}
+              />
+              <datalist id="wi-rater-options">
+                {raterOptions.map(name => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+              {raterFilter && (
+                <button
+                  type="button"
+                  className="wi-filter-input-clear"
+                  onClick={() => setRaterFilter("")}
+                  aria-label={t("workerInformation.clearFilters") || "Clear"}
+                >
+                  <X size={12} aria-hidden="true" />
+                </button>
+              )}
+            </div>
+
+            <div className="wi-filter-group">
+              <select
+                className="wi-filter-select"
+                value={monthFilter}
+                onChange={(e) => setMonthFilter(e.target.value)}
+                aria-label={t("workerInformation.filterByMonth") || "Filter by month"}
+              >
+                <option value={ALL_VALUE}>
+                  {t("workerInformation.allMonths") || "All months"}
+                </option>
+                {monthOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {hasActiveFilters && (
+              <button className="wi-filter-clear" onClick={clearFilters}>
+                <X size={14} aria-hidden="true" />
+                {t("workerInformation.clearFilters") || "Clear"}
+              </button>
+            )}
+          </div>
+        )}
+
+        {filteredRatings.length === 0 ? (
           <div className="wi-empty">
-            <span className="wi-empty-icon">📭</span>
-            <p>{t("workerInformation.noRatingsRecorded")}</p>
+            <Inbox size={32} className="wi-empty-icon" aria-hidden="true" />
+            <p>
+              {ratings.length === 0
+                ? t("workerInformation.noRatingsRecorded")
+                : (t("workerInformation.noRatingsMatchFilters") || "No ratings match the selected filters.")}
+            </p>
           </div>
         ) : (
           <div className="wi-cards">
-            {ratings.map((r, i) => {
-              const avg = KPI_FIELDS.reduce((sum, f) => sum + (r[f.key] || 0), 0) / KPI_FIELDS.length;
+            {filteredRatings.map((r, i) => {
+              const avg = KPI_KEYS.reduce((sum, key) => sum + (r[key] || 0), 0) / KPI_KEYS.length;
               const isExpanded = expandedCards.has(r._id);
               const monthLabel = formatMonthKey(r.dateKey);
 
@@ -186,7 +308,7 @@ function WorkerInformation() {
                     aria-expanded={isExpanded}
                   >
                     <div className="wi-card-left">
-                      <span className="wi-card-index">#{ratings.length - i}</span>
+                      <span className="wi-card-index">#{filteredRatings.length - i}</span>
                       <div className="wi-card-meta">
                         <span className="wi-card-date">
                           {monthLabel || new Date(r.createdAt).toLocaleDateString(undefined, {
@@ -215,18 +337,22 @@ function WorkerInformation() {
                   {isExpanded && (
                     <div className="wi-card-body">
                       <div className="wi-kpi-grid">
-                        {KPI_FIELDS.map(f => {
-                          const val = r[f.key] ?? 0;
+                        {KPI_KEYS.map(key => {
+                          const val = r[key] ?? 0;
                           return (
-                            <div key={f.key} className="wi-kpi">
-                              <span className="wi-kpi-short">{f.short}</span>
+                            <div key={key} className="wi-kpi">
+                              <span className="wi-kpi-short">
+                                {t(`kpiShort.${key}`)}
+                              </span>
                               <span
                                 className="wi-kpi-val"
                                 style={{ color: getRatingColor(val) }}
                               >
                                 {val}
                               </span>
-                              <span className="wi-kpi-label">{f.label}</span>
+                              <span className="wi-kpi-label">
+                                {t(`kpi.${key}`)}
+                              </span>
                             </div>
                           );
                         })}

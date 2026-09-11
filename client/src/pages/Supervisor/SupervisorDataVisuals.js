@@ -702,9 +702,6 @@ function SupervisorDataVisuals({ worker }) {
           <div className="chart-section">
             <div className="chart-section-header-row">
               <h2>{t("supervisorVisuals.topPerformers")}</h2>
-              <button className="dv-btn-apply" onClick={() => setShowLeaderboard(true)}>
-                {t("supervisorVisuals.viewLeaderboard") || "View Full Leaderboard"}
-              </button>
             </div>
 
             <div className="top-performers">
@@ -731,6 +728,12 @@ function SupervisorDataVisuals({ worker }) {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "14px" }}>
+              <button className="dv-btn-apply" onClick={() => setShowLeaderboard(true)}>
+                {t("supervisorVisuals.viewLeaderboard") || "View Full Leaderboard"}
+              </button>
             </div>
           </div>
 
@@ -767,7 +770,7 @@ function SupervisorDataVisuals({ worker }) {
           <div
             className="confirm-dialog-card"
             onClick={(e) => e.stopPropagation()}
-            style={{ display: "flex", flexDirection: "column", maxHeight: "80vh", width: "min(480px, 92vw)" }}
+            style={{ display: "flex", flexDirection: "column", maxHeight: "80vh", width: "min(900px, 94vw)" }}
           >
             <h3 style={{ marginBottom: "4px" }}>
               {t("supervisorVisuals.belowTwoModalTitle") || "Workers Below 2.0"} — {periodLabel}
@@ -810,7 +813,7 @@ function SupervisorDataVisuals({ worker }) {
           <div
             className="confirm-dialog-card"
             onClick={(e) => e.stopPropagation()}
-            style={{ display: "flex", flexDirection: "column", maxHeight: "80vh", width: "min(560px, 92vw)" }}
+            style={{ display: "flex", flexDirection: "column", maxHeight: "80vh", width: "min(900px, 94vw)" }}
           >
             <h3 style={{ marginBottom: "4px" }}>
               {t("supervisorVisuals.leaderboardTitle") || "Full Leaderboard"} — {periodLabel}{calibrationLabel}
@@ -825,18 +828,18 @@ function SupervisorDataVisuals({ worker }) {
                     key={w._id}
                     style={{ background: "#f9fafb", borderRadius: "10px", padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                      <span style={{ color: "#9ca3af", fontWeight: 700, width: "28px" }}>#{idx + 1}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
+                      <span style={{ color: "#9ca3af", fontWeight: 700, width: "20px", flexShrink: 0 }}>#{idx + 1}</span>
 
-                      <div style={{ minWidth: 0 }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ color: "#111827", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {w.name}
                         </div>
-                        <div style={{ color: "#9ca3af", fontSize: "12px" }}>{w.email}</div>
+                        <div style={{ color: "#9ca3af", fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.email}</div>
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0 }}>
                       <span style={{ color: getRatingColor(w._score), fontWeight: 700 }}>{Number(w._score).toFixed(2)} ★</span>
                       <span style={{ color: "#9ca3af", fontSize: "12px" }}>
                         {w._ratingsCount || 0} {t("supervisorVisuals.ratings")} · {w._ratersCount || 0} {t("supervisorVisuals.ratersLabel") || "raters"}
