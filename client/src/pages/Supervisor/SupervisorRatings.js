@@ -1,32 +1,21 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
-import { getRatingColor, getRatingStatus } from "../../utils/helpers";
+import { getRatingColor } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { config } from "../../config/config";
+import { Users, CircleCheck, Clock, TrendingUp  } from "lucide-react";
 
-const KPI_FIELDS = [
-  { key: "workAreaCompliance", label: "Work Area Compliance", short: "WA" },
-  { key: "taskCompletion", label: "Task Completion", short: "TC" },
-  { key: "cleanliness", label: "Cleanliness", short: "CL" },
-  { key: "wasteManagement", label: "Waste Management", short: "WM" },
-  { key: "organization", label: "Organization", short: "OR" },
-  { key: "uniformCompliance", label: "Uniform Compliance", short: "UC" },
-  { key: "independence", label: "Independence", short: "IN" },
-  { key: "initiative", label: "Initiative", short: "IV" },
-  { key: "teamworkSupport", label: "Teamwork Support", short: "TS" },
-  { key: "punctuality", label: "Punctuality", short: "PU" },
-  { key: "attendance", label: "Attendance", short: "AT" },
-  { key: "leaveOnTime", label: "Leave Work On Time", short: "LT" }
-];
-
-function getCurrentMonthKey() {
+function getPreviousMonthKey() {
   const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
+
   return `${year}-${month}`;
 }
 
@@ -39,6 +28,15 @@ function formatDate(dateStr) {
   });
 }
 
+function formatTime(dateStr) {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "-";
+  return d.toLocaleTimeString(undefined, {
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+
 function formatMonthLabel(monthKey) {
   if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return monthKey;
   const [year, month] = monthKey.split("-").map(Number);
@@ -48,8 +46,22 @@ function formatMonthLabel(monthKey) {
   });
 }
 
+function formatRating(value, language) {
+  if (value === null || value === undefined || isNaN(value)) return "-";
+  const formatted = Number(value).toFixed(2);
+  return language === "id" ? formatted.replace(".", ",") : formatted;
+}
+
+const RATING_COLOR_LEGEND = [
+  { color: "#95a5a6", key: "noRatings", fallback: "No ratings yet" },
+  { color: "#27ae60", key: "excellent", fallback: "Excellent (≥ 3.51)" },
+  { color: "#2f80ed", key: "good", fallback: "Good (2.76 – 3.50)" },
+  { color: "#f39c12", key: "average", fallback: "Average (2.00 – 2.75)" },
+  { color: "#e74c3c", key: "needsImprovement", fallback: "Needs Improvement (< 2.00)" }
+];
+
 function SupervisorRatings({ worker: supervisor }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -58,11 +70,12 @@ function SupervisorRatings({ worker: supervisor }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
+  const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
+  const [showPeriodPicker, setShowPeriodPicker] = useState(false);
   const navigate = useNavigate();
-  const currentMonth = getCurrentMonthKey();
+  const defaultMonth = getPreviousMonthKey();
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -95,16 +108,19 @@ function SupervisorRatings({ worker: supervisor }) {
     fetchSupervisorRatings();
   }, [fetchDashboardData, fetchSupervisorRatings]);
 
+
   const handleApplyFilter = () => {
-    const month = filterMonth || currentMonth;
+    const month = filterMonth || defaultMonth;
     setSelectedMonth(month);
     setActiveFilter(filterMonth ? `Month: ${filterMonth}` : "");
+    setShowPeriodPicker(false);
   };
 
   const handleResetFilter = () => {
     setFilterMonth("");
     setActiveFilter("");
-    setSelectedMonth(currentMonth);
+    setSelectedMonth(defaultMonth);
+    setShowPeriodPicker(false);
   };
 
   const handleRatingSuccess = () => {
@@ -127,7 +143,6 @@ function SupervisorRatings({ worker: supervisor }) {
       setEditingRating(response.data || null);
       setRatingWorker(worker);
     } catch (err) {
-      // If no rating exists for this month, open as a new rating instead
       if (err.response?.status === 404) {
         setEditingRating(null);
         setRatingWorker(worker);
@@ -137,23 +152,17 @@ function SupervisorRatings({ worker: supervisor }) {
     }
   };
 
-  const ratedThisMonth = useCallback((worker) => {
-    if (!worker.latestRating) return false;
-    const ratingMonth = worker.latestRating.dateKey ||
-      new Date(worker.latestRating.createdAt).toISOString().slice(0, 7);
-    return ratingMonth === selectedMonth;
-  }, [selectedMonth]);
-
   const { filteredWorkers, ratedCount, unratedCount } = useMemo(() => {
     const ratedWorkers = workers.filter((w) => isAlreadyRated(w._id)).length;
     const unratedWorkers = workers.length - ratedWorkers;
     const normalizedSearch = searchTerm.trim().toLowerCase();
+    
 
     const list = workers
       .filter((worker) => {
         const matchesSearch =
-          worker.name.toLowerCase().includes(normalizedSearch) ||
-          worker.email.toLowerCase().includes(normalizedSearch);
+          (worker.name ?? "").toLowerCase().includes(normalizedSearch) ||
+          (worker.email ?? "").toLowerCase().includes(normalizedSearch);
         const matchesFilter =
           filterStatus === "all" ||
           (filterStatus === "rated" && isAlreadyRated(worker._id)) ||
@@ -161,7 +170,7 @@ function SupervisorRatings({ worker: supervisor }) {
         return matchesSearch && matchesFilter;
       })
       .sort((a, b) => {
-        if (sortBy === "rating") return (b.averageRating || 0) - (a.averageRating || 0);
+        if (sortBy === "rating") return (b.cumulativeAverageRating || 0) - (a.cumulativeAverageRating || 0);
         if (sortBy === "recent") {
           const aDate = a.latestRating?.createdAt ? new Date(a.latestRating.createdAt).getTime() : 0;
           const bDate = b.latestRating?.createdAt ? new Date(b.latestRating.createdAt).getTime() : 0;
@@ -172,6 +181,13 @@ function SupervisorRatings({ worker: supervisor }) {
 
     return { filteredWorkers: list, ratedCount: ratedWorkers, unratedCount: unratedWorkers };
   }, [workers, searchTerm, filterStatus, sortBy, isAlreadyRated]);
+
+  const myAverageRatingThisMonth = useMemo(() => {
+    const rated = workers.filter((w) => typeof w.monthAverageRating === "number");
+      if (rated.length === 0) return null;
+      const sum = rated.reduce((acc, w) => acc + w.monthAverageRating, 0);
+      return sum / rated.length;
+  }, [workers]);
 
   return (
     <div className="page-content supervisor-details">
@@ -190,45 +206,116 @@ function SupervisorRatings({ worker: supervisor }) {
         />
       )}
 
-      <div className="page-header">
-        <h1>{t("supervisorRatings.title")}</h1>
-        <p>{t("supervisorRatings.subtitle")}</p>
-      </div>
+      {/* HEADER + PERIOD FILTER (moved to top right) */}
+      <div className="page-header supervisor-ratings-header">
+        <div>
+          <h1>{t("supervisorRatings.title")}</h1>
+          <p>{t("supervisorRatings.subtitle")}</p>
+        </div>
 
-      <div className="wf-filter-bar">
-        <div className="wf-filter-inputs">
-          <div className="wf-filter-group">
-            <label>{t("supervisorRatings.byMonth")}</label>
-            <input
-              type="month"
-              value={filterMonth}
-              onChange={(e) => setFilterMonth(e.target.value)}
-            />
+        <div className="period-filter-wrap">
+          <div
+            className="period-filter-card"
+            onClick={() => setShowPeriodPicker((prev) => !prev)}
+          >
+            <span className="period-icon">📅</span>
+            <div className="period-info">
+              <span className="period-label">{t("supervisorRatings.periodActive")}</span>
+              <span className="period-value">{formatMonthLabel(selectedMonth)}</span>
+            </div>
+            <span className="period-toggle">{showPeriodPicker ? "▲" : "▼"}</span>
           </div>
-          <button className="wf-btn-apply" onClick={handleApplyFilter}>
-            {t("supervisorRatings.apply")}
-          </button>
-          {activeFilter && (
-            <button className="wf-btn-reset" onClick={handleResetFilter}>
-              x {activeFilter}
-            </button>
+
+          {showPeriodPicker && (
+            <div className="period-picker-dropdown">
+              <div className="wf-filter-group">
+                <label>{t("supervisorRatings.byMonth")}</label>
+                <input
+                  type="month"
+                  value={filterMonth}
+                  onChange={(e) => setFilterMonth(e.target.value)}
+                />
+              </div>
+              <button className="wf-btn-apply" onClick={handleApplyFilter}>
+                {t("supervisorRatings.apply")}
+              </button>
+              {activeFilter && (
+                <button className="wf-btn-reset" onClick={handleResetFilter}>
+                  x {activeFilter}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
 
+      {/* STATS WIDGETS */}
       <div className="details-stats-row">
+
         <div className="quick-stat-pill">
-          <span className="label">{t("supervisorRatings.visibleWorkers")}</span>
-          <span className="value">{filteredWorkers.length}</span>
+          <span className="pill-icon">
+            <Users size={20} />
+          </span>
+
+          <div className="pill-text">
+            <span className="label">
+              {t("supervisorRatings.visibleWorkers")}:
+            </span>
+
+            <span className="value">
+              {filteredWorkers.length}
+            </span>
+          </div>
         </div>
+
         <div className="quick-stat-pill">
-          <span className="label">{t("supervisorRatings.ratedInMonth")}</span>
-          <span className="value">{ratedCount}</span>
+          <span className="pill-icon">
+            <CircleCheck size={20} />
+          </span>
+
+          <div className="pill-text">
+            <span className="label">
+              {t("supervisorRatings.ratedInMonth")}:
+            </span>
+
+            <span className="value">
+              {ratedCount}
+            </span>
+          </div>
         </div>
+
         <div className="quick-stat-pill">
-          <span className="label">{t("supervisorRatings.notYetRated")}</span>
-          <span className="value">{unratedCount}</span>
+          <span className="pill-icon">
+            <Clock size={20} />
+          </span>
+
+          <div className="pill-text">
+            <span className="label">
+              {t("supervisorRatings.notYetRated")}:
+            </span>
+
+            <span className="value">
+              {unratedCount}
+            </span>
+          </div>
         </div>
+
+        <div className="quick-stat-pill">
+          <span className="pill-icon">
+            <TrendingUp size={20} />
+          </span>
+
+          <div className="pill-text">
+            <span className="label">
+              {t("supervisorRatings.myAverageRating") || "My Average Rating This Month"}:
+            </span>
+
+            <span className="value" style={{ color: myAverageRatingThisMonth !== null ? getRatingColor(myAverageRatingThisMonth) : undefined }}>
+              {myAverageRatingThisMonth !== null ? `${formatRating(myAverageRatingThisMonth, language)} ★` : "-"}
+            </span>
+          </div>
+        </div>
+        
       </div>
 
       <div className="details-toolbar">
@@ -276,11 +363,41 @@ function SupervisorRatings({ worker: supervisor }) {
             {t("supervisorRatings.unrated")} ({unratedCount})
           </button>
         </div>
+      </div>
 
-        <div className="quick-stat-pill">
-          <span className="label">{t("supervisorRatings.viewingMonth")}</span>
-          <span className="value">{formatMonthLabel(selectedMonth)}</span>
-        </div>
+      {/* RATING COLOR LEGEND - replaces the old per-row status badge */}
+      <div
+        className="rating-color-legend"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: "16px",
+          margin: "14px 0",
+          padding: "10px 14px",
+          background: "#f9fafb",
+          borderRadius: "10px",
+          fontSize: "13px",
+          color: "#4b5563"
+        }}
+      >
+        <span style={{ fontWeight: 700, color: "#374151" }}>
+          {t("supervisorRatings.legendTitle") || "Rating colors:"}
+        </span>
+        {RATING_COLOR_LEGEND.map((item) => (
+          <span key={item.key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span
+              style={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                backgroundColor: item.color,
+                display: "inline-block"
+              }}
+            />
+            {t(`ratingStatus.${item.key}`) || item.fallback}
+          </span>
+        ))}
       </div>
 
       {loading ? (
@@ -290,19 +407,25 @@ function SupervisorRatings({ worker: supervisor }) {
           {searchTerm ? t("supervisorRatings.noWorkersSearch") : t("supervisorRatings.noWorkersDisplay")}
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="workers-table supervisor-ratings-table">
+        <div
+          className="table-responsive"
+          style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}
+        >
+          <table
+            className="workers-table supervisor-ratings-table"
+            style={{ minWidth: "900px" }}
+          >
             <thead>
               <tr>
                 <th>#</th>
                 <th>{t("supervisorRatings.name")}</th>
-                <th>{t("supervisorRatings.email")}</th>
                 <th>{t("supervisorRatings.avgRating")}</th>
                 <th>{t("supervisorRatings.sessions")}</th>
-                <th>{t("supervisorRatings.status")}</th>
                 <th>{t("supervisorRatings.latestRating")}</th>
-                <th>{t("supervisorRatings.selectedMonth")}</th>
-                <th>{t("supervisorRatings.lastComment")}</th>
+                <th style={{ textAlign: "center" }}>
+                  {t("supervisorRatings.myRatingThisMonth") || "My Rating This Period"}
+                </th>
+                <th style={{ textAlign: "center" }}>{t("supervisorRatings.action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -328,85 +451,81 @@ function SupervisorRatings({ worker: supervisor }) {
                       {worker.name}
                     </div>
                   </td>
-                  <td className="worker-email" data-label={t("supervisorRatings.email")}>{worker.email}</td>
                   <td data-label={t("supervisorRatings.avgRating")}>
-                    {typeof worker.monthAverageRating === "number" ? (
+                    {typeof worker.cumulativeAverageRating === "number" ? (
                       <span
                         className="rating-badge"
-                        style={{ backgroundColor: getRatingColor(worker.monthAverageRating) }}
+                        style={{ backgroundColor: getRatingColor(worker.cumulativeAverageRating) }}
                       >
-                        {Number(worker.monthAverageRating).toFixed(1)} *
+                        {formatRating(worker.cumulativeAverageRating, language)}
                       </span>
                     ) : (
                       <span className="rating-badge rating-badge--none">-</span>
                     )}
                   </td>
-                  <td className="center" data-label={t("supervisorRatings.sessions")}>{worker.totalRatings}</td>
-                  <td className="center" data-label={t("supervisorRatings.status")}>
-                    <span className={`status-badge ${getRatingStatus(worker.averageRating).toLowerCase().replace(/\s+/g, "-")}`}>
-                      {getRatingStatus(worker.averageRating)}
-                    </span>
+                  <td className="center" data-label={t("supervisorRatings.sessions")}>
+                    {worker.cumulativeRatingsCount ?? 0}
                   </td>
                   <td className="latest-rating-cell" data-label={t("supervisorRatings.latestRating")}>
-                    {worker.latestRating ? (() => {
-                      const scores = KPI_FIELDS.map((f) => worker.latestRating[f.key] ?? 0);
-                      const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
-                      const lowest = KPI_FIELDS
-                        .map((f) => ({ ...f, value: worker.latestRating[f.key] ?? 0 }))
-                        .sort((a, b) => a.value - b.value)[0];
-                      return (
-                        <div className="rating-summary">
-                          <div
-                            className="summary-avg"
-                            style={{ backgroundColor: getRatingColor(avg) }}
-                          >
-                            {avg.toFixed(1)} {t("supervisorRatings.avgShort")}
-                          </div>
-                          <div className="summary-low">
-                            {t("supervisorRatings.lowShort")} {t(`kpiShort.${lowest.key}`)}: {lowest.value}
-                          </div>
-                          <small className="rating-timestamp">
-                            {formatDate(worker.latestRating.createdAt)}
-                            {ratedThisMonth(worker) && (
-                              <span className="today-tag">{t("supervisorRatings.selectedMonthTag")}</span>
-                            )}
-                          </small>
-                        </div>
-                      );
-                    })() : (
+                    {worker.latestRating ? (
+                      <>
+                        {formatDate(worker.latestRating.createdAt)}{" "}
+                        <span className="latest-rating-time">{formatTime(worker.latestRating.createdAt)}</span>
+                      </>
+                    ) : (
                       <span className="text-muted">{t("supervisorRatings.noRatingsYet")}</span>
                     )}
                   </td>
-                  <td className="action-cell" data-label={t("supervisorRatings.action")}>
-                    {isAlreadyRated(worker._id) ? (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => handleEditWorker(worker)}
-                        title={`Edit this worker's rating for ${selectedMonth}`}
+                  <td className="center" data-label={t("supervisorRatings.myRatingThisMonth") || "My Rating This Period"}>
+                    {typeof worker.monthAverageRating === "number" ? (
+                      <span
+                        className="rating-badge"
+                        style={{ backgroundColor: getRatingColor(worker.monthAverageRating) }}
                       >
-                        {t("supervisorRatings.edit")}
-                      </button>
+                        {formatRating(worker.monthAverageRating, language)}
+                      </span>
                     ) : (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => handleRateWorker(worker)}
-                        title={`Rate this worker for ${selectedMonth}`}
-                      >
-                        {t("supervisorRatings.rate")}
-                      </button>
+                      <span className="rating-badge rating-badge--none">-</span>
                     )}
                   </td>
-                  <td className="comment-cell" data-label={t("supervisorRatings.lastComment")}>
-                    {worker.latestRating?.comment ? (
-                      <div className="comment-preview" title={worker.latestRating.comment}>
-                        <span className="comment-text">
-                          {worker.latestRating.comment.substring(0, 40)}
-                          {worker.latestRating.comment.length > 40 ? "..." : ""}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-muted">{t("supervisorRatings.dash")}</span>
-                    )}
+                  <td className="action-cell" data-label={t("supervisorRatings.action")}>
+                    <div className="action-buttons">
+                      {isAlreadyRated(worker._id) ? (
+                        <>
+                          <button
+                            className="btn btn-outline"
+                            onClick={() => navigate(`/worker/${worker._id}`)}
+                            title={t("supervisorRatings.viewDetail")}
+                          >
+                            {t("supervisorRatings.detail")}
+                          </button>
+                          <button
+                            className="btn btn-edit"
+                            onClick={() => handleEditWorker(worker)}
+                            title={`Edit this worker's rating for ${selectedMonth}`}
+                          >
+                            {t("supervisorRatings.edit")}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="btn btn-outline"
+                            onClick={() => navigate(`/worker/${worker._id}`)}
+                            title={t("supervisorRatings.viewDetail")}
+                          >
+                            {t("supervisorRatings.detail")}
+                          </button>
+                          <button
+                            className="btn btn-primary"
+                            onClick={() => handleRateWorker(worker)}
+                            title={`Rate this worker for ${selectedMonth}`}
+                          >
+                            {t("supervisorRatings.rate")}
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

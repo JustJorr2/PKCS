@@ -12,6 +12,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [photoError, setPhotoError] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [currentWorker, setCurrentWorker] = useState(worker);
@@ -69,17 +70,19 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPhotoError("");
+
       // Validate file type
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
-        setError(t("profile.invalidFileType") || "Only image files are allowed");
+        setPhotoError(t("profile.invalidFileType"));
         e.target.value = ""; // Clear input
         return;
       }
       
       // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setError(t("profile.fileTooLarge") || "File size must be less than 5MB");
+        setPhotoError(t("profile.fileTooLarge"));
         e.target.value = ""; // Clear input
         return;
       }
@@ -98,7 +101,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   const handleUploadProfilePicture = async (file, e) => {
     if (!worker?._id || uploading) return; // Prevent duplicate uploads
     setUploading(true);
-    setError("");
+    setPhotoError("");
     setMessage("");
     
     try {
@@ -117,9 +120,9 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
       // Also notify parent component
       onProfileUpdated?.(updatedUser);
       
-      setMessage(t("profile.pictureUpdatedSuccess") || "Profile picture updated successfully");
+      setMessage(t("profile.pictureUpdatedSuccess"));
     } catch (err) {
-      setError(err?.response?.data?.message || t("profile.pictureUploadFailed") || "Failed to upload profile picture");
+      setPhotoError(err?.response?.data?.message || t("profile.pictureUploadFailed"));
       setProfilePicturePreview(null);
       
       // Clear file input on error
@@ -147,7 +150,6 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
         <div className="profile-header">
           <div className="profile-picture-container">
             <div className="profile-avatar-wrapper">
-
               {profilePicturePreview || currentWorker?.profilePicture ? (
                 <img
                   src={
@@ -166,7 +168,6 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
               )}
 
               <label className="profile-upload-overlay">
-
                 <input
                   type="file"
                   accept="image/*"
@@ -185,11 +186,14 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
                     </span>
                   </>
                 )}
-
               </label>
-
             </div>
-
+            {photoError && (
+              <div className="profile-photo-error" role="alert">
+                <span className="profile-photo-error-icon">⚠️</span>
+                <span>{photoError}</span>
+              </div>
+            )}
           </div>
           <div className="profile-header-info">
             <h2>{currentWorker?.name}</h2>
@@ -239,12 +243,6 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
               <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsReceived")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
             </div>
           </div>
-        </div>
-
-        <div className="profile-card full-width">
-          <h3>{t("profile.preferences")}</h3>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.receiveEmail")}</label><p className="preference-desc">{t("profile.receiveEmailWorkerDesc")}</p></div></div>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.showTipsWorker")}</label><p className="preference-desc">{t("profile.showTipsWorkerDesc")}</p></div></div>
         </div>
 
         <div className="profile-actions">

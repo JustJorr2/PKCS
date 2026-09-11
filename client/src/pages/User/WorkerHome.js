@@ -19,11 +19,32 @@ const ratingFields = [
   { key: "leaveOnTime", short: "LT" }
 ];
 
+// How many of the most recent months to show in the "Recent Ratings" list.
+// The "Monthly History" section further down still shows everything.
+const RECENT_MONTHS_LIMIT = 6;
+
+function monthLabelFor(monthKey) {
+  return /^\d{4}-\d{2}$/.test(monthKey)
+    ? new Date(`${monthKey}-01`).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long"
+      })
+    : monthKey;
+}
+
 function WorkerHome({ worker }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [ratingData, setRatingData] = useState([]);
   const [showLegend, setShowLegend] = useState(false);
+  const [expandedMonths, setExpandedMonths] = useState({});
+
+  const toggleMonth = (monthKey) => {
+    setExpandedMonths((prev) => ({
+      ...prev,
+      [monthKey]: !prev[monthKey],
+    }));
+  };
 
   const fetchData = useCallback(async () => {
     if (!worker?._id) return;
@@ -49,7 +70,7 @@ function WorkerHome({ worker }) {
       return {
         avgRating: "0.00",
         totalRatings: 0,
-        recentRatings: [],
+        ratingsByMonth: [],
         updatedInLastWeek: 0,
         lowestAreas: [],
         fieldAverages: {},
@@ -65,10 +86,6 @@ function WorkerHome({ worker }) {
         const avg = fieldValues.reduce((a, b) => a + b, 0) / fieldValues.length;
         return sum + avg;
       }, 0) / ratings.length;
-
-    const recentRatings = [...ratings]
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 8);
 
     const now = Date.now();
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
@@ -93,6 +110,11 @@ function WorkerHome({ worker }) {
       .sort((a, b) => a.avg - b.avg)
       .slice(0, 3);
 
+    // Group every individual rating by the month it belongs to (dateKey,
+    // falling back to createdAt's month). Used both for the "Recent
+    // Ratings" list — now grouped by month instead of a flat feed — and
+    // for the monthly average history below, computed from the same map
+    // instead of building it twice.
     const monthlyMap = ratings.reduce((acc, rating) => {
       const monthKey =
         rating.dateKey ||
@@ -104,33 +126,41 @@ function WorkerHome({ worker }) {
       return acc;
     }, {});
 
-    const monthlyHistory = Object.entries(monthlyMap)
-      .map(([monthKey, entries]) => {
-        const monthAverage =
-          entries.reduce((sum, r) => {
-            const values = ratingFields.map((f) => Number(r[f.key]) || 0);
-            const avg = values.reduce((a, b) => a + b, 0) / values.length;
-            return sum + avg;
-          }, 0) / entries.length;
+    const sortedMonthKeys = Object.keys(monthlyMap).sort((a, b) =>
+      b.localeCompare(a)
+    );
 
-        return {
-          monthKey,
-          monthLabel: /^\d{4}-\d{2}$/.test(monthKey)
-            ? new Date(`${monthKey}-01`).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long"
-              })
-            : monthKey,
-          count: entries.length,
-          average: monthAverage
-        };
-      })
-      .sort((a, b) => b.monthKey.localeCompare(a.monthKey));
+    const ratingsByMonth = sortedMonthKeys
+      .slice(0, RECENT_MONTHS_LIMIT)
+      .map((monthKey) => ({
+        monthKey,
+        monthLabel: monthLabelFor(monthKey),
+        entries: [...monthlyMap[monthKey]].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        )
+      }));
+
+    const monthlyHistory = sortedMonthKeys.map((monthKey) => {
+      const entries = monthlyMap[monthKey];
+      const monthAverage =
+        entries.reduce((sum, r) => {
+          const values = ratingFields.map((f) => Number(r[f.key]) || 0);
+          const avg = values.reduce((a, b) => a + b, 0) / values.length;
+          return sum + avg;
+        }, 0) / entries.length;
+
+      return {
+        monthKey,
+        monthLabel: monthLabelFor(monthKey),
+        count: entries.length,
+        average: monthAverage
+      };
+    });
 
     return {
       avgRating: avgRatingRaw.toFixed(2),
       totalRatings: ratings.length,
-      recentRatings,
+      ratingsByMonth,
       updatedInLastWeek,
       lowestAreas,
       fieldAverages,
@@ -189,64 +219,121 @@ function WorkerHome({ worker }) {
       <div className="recent-section">
         <h2>{t("workerHome.recentRatings")}</h2>
 
-        {dashboard.recentRatings.length > 0 ? (
-          <div className="recent-list">
-            {dashboard.recentRatings.map((rating, idx) => {
-              const ratingAvg = (
-                ratingFields.reduce(
-                  (sum, f) => sum + (Number(rating[f.key]) || 0),
-                  0
-                ) / ratingFields.length
-              ).toFixed(1);
-
-              const lowestFields = [...ratingFields]
-                .map((f) => ({ ...f, value: Number(rating[f.key]) || 0 }))
-                .sort((a, b) => a.value - b.value)
-                .slice(0, 3);
-
-              const isSupervisor = rating.ratedBy?.role === "supervisor";
-              const sourceLabel = isSupervisor
-                ? t("workerHome.supervisor")
-                : t("workerHome.peer");
-              const raterName = isSupervisor
-                ? rating.ratedBy?.name || t("workerHome.teamLead")
-                : t("workerHome.anonymousColleague");
+        {dashboard.ratingsByMonth.length > 0 ? (
+          <div className="recent-list-by-month">
+            {dashboard.ratingsByMonth.map((month, index) => {
+              const isExpanded =
+                expandedMonths[month.monthKey] ?? index === 0;
 
               return (
-                <div key={`${rating._id}-${idx}`} className="recent-item">
-                  <div className="recent-worker">
-                    {isSupervisor && (
-                      <div className="worker-avatar">
-                        {(rating.ratedBy?.name || "S").charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="worker-details">
-                      <h4>
-                        {sourceLabel} • {raterName}
-                      </h4>
-                      <p className="worker-email">
-                        {isSupervisor
-                          ? t("workerHome.supervisorRating")
-                          : t("workerHome.peerRating")}
-                      </p>
+                <div key={month.monthKey} className="month-group">
+                  <div
+                    className="month-group-header"
+                    onClick={() => toggleMonth(month.monthKey)}
+                  >
+                    <div>
+                      <h3 className="month-group-title">
+                        {month.monthLabel}
+                      </h3>
+
+                      <span className="month-rating-count">
+                        {month.entries.length}{" "}
+                        {month.entries.length === 1 ? "rating" : "ratings"}
+                      </span>
                     </div>
+
+                    <span className="month-toggle">
+                      {isExpanded ? "▲" : "▼"}
+                    </span>
                   </div>
 
-                  <div className="recent-rating">
-                    <div className="rating-fields-small">
-                      <span className="field-badge main">
-                        AVG: {ratingAvg}
-                      </span>
-                      {lowestFields.map((f) => (
-                        <span key={f.key} className="field-badge warning">
-                          {t(`kpiShort.${f.key}`)}: {f.value}
-                        </span>
-                      ))}
+                  {isExpanded && (
+                    <div className="recent-list">
+                      {month.entries.map((rating, idx) => {
+                        const ratingAvg = (
+                          ratingFields.reduce(
+                            (sum, f) =>
+                              sum + (Number(rating[f.key]) || 0),
+                            0
+                          ) / ratingFields.length
+                        ).toFixed(1);
+
+                        const lowestFields = [...ratingFields]
+                          .map((f) => ({
+                            ...f,
+                            value: Number(rating[f.key]) || 0,
+                          }))
+                          .sort((a, b) => a.value - b.value)
+                          .slice(0, 3);
+
+                        const isSupervisor =
+                          rating.ratedBy?.role === "supervisor";
+
+                        const sourceLabel = isSupervisor
+                          ? t("workerHome.supervisor")
+                          : t("workerHome.peer");
+
+                        const raterName = isSupervisor
+                          ? rating.ratedBy?.name ||
+                            t("workerHome.teamLead")
+                          : t("workerHome.anonymousColleague");
+
+                        return (
+                          <div
+                            key={`${rating._id}-${idx}`}
+                            className="recent-item"
+                          >
+                            <div className="recent-worker">
+                              {isSupervisor && (
+                                <div className="worker-avatar">
+                                  {(
+                                    rating.ratedBy?.name || "S"
+                                  )
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </div>
+                              )}
+
+                              <div className="worker-details">
+                                <h4>
+                                  {sourceLabel} • {raterName}
+                                </h4>
+
+                                <p className="worker-email">
+                                  {isSupervisor
+                                    ? t("workerHome.supervisorRating")
+                                    : t("workerHome.peerRating")}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="recent-rating">
+                              <div className="rating-fields-small">
+                                <span className="field-badge main">
+                                  AVG: {ratingAvg}
+                                </span>
+
+                                {lowestFields.map((f) => (
+                                  <span
+                                    key={f.key}
+                                    className="field-badge warning"
+                                  >
+                                    {t(`kpiShort.${f.key}`)}: {f.value}
+                                  </span>
+                                ))}
+                              </div>
+
+                              <p className="recent-time">
+                                {new Date(
+                                  rating.createdAt
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <p className="recent-time">
-                      {new Date(rating.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
+                  )}
                 </div>
               );
             })}

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/Supervisor/SupervisorNav.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { config } from "../../config/config";
@@ -6,6 +6,7 @@ import { config } from "../../config/config";
 function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const pages = [
     { id: "home", path: "/", label: t("workerNav.home"), icon: "\uD83C\uDFE0" },
@@ -13,6 +14,12 @@ function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
     { id: "feedback", path: "/feedback", label: t("workerNav.feedback"), icon: "\uD83D\uDCAC" },
     { id: "profile", path: "/profile", label: t("workerNav.profile"), icon: "\uD83D\uDC64" }
   ];
+
+  const isActive = (path) => {
+    if (path === "/" && location.pathname === "/") return true;
+    if (path !== "/" && location.pathname.includes(path)) return true;
+    return false;
+  };
 
   return (
     <nav className={`supervisor-nav ${collapsed ? "collapsed" : ""}`}>
@@ -34,7 +41,7 @@ function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
             {pages.map((page) => (
               <button
                 key={page.id}
-                className="nav-item"
+                className={`nav-item ${isActive(page.path) ? "active" : ""}`}
                 onClick={() => navigate(page.path)}
                 title={page.label}
               >

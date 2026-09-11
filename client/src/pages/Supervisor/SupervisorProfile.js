@@ -12,6 +12,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [photoError, setPhotoError] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [currentWorker, setCurrentWorker] = useState(worker);
@@ -66,15 +67,17 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPhotoError("");
+
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
-        setError(t("profile.invalidFileType") || "Only image files are allowed");
+        setPhotoError(t("profile.invalidFileType"));
         e.target.value = "";
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
-        setError(t("profile.fileTooLarge") || "File size must be less than 5MB");
+        setPhotoError(t("profile.fileTooLarge"));
         e.target.value = "";
         return;
       }
@@ -91,26 +94,26 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   const handleUploadProfilePicture = async (file, e) => {
     if (!worker?._id || uploading) return;
     setUploading(true);
-    setError("");
+    setPhotoError("");
     setMessage("");
-    
+
     try {
       const response = await usersService.uploadProfilePicture(worker._id, file);
       const updatedUser = response.data.user;
-      
+
       setCurrentWorker(updatedUser);
       setProfilePicturePreview(null);
-      
+
       if (e?.target) {
         e.target.value = "";
       }
-      
+
       onProfileUpdated?.(updatedUser);
-      setMessage(t("profile.pictureUpdatedSuccess") || "Profile picture updated successfully");
+      setMessage(t("profile.pictureUpdatedSuccess"));
     } catch (err) {
-      setError(err?.response?.data?.message || t("profile.pictureUploadFailed") || "Failed to upload profile picture");
+      setPhotoError(err?.response?.data?.message || t("profile.pictureUploadFailed"));
       setProfilePicturePreview(null);
-      
+
       if (e?.target) {
         e.target.value = "";
       }
@@ -135,7 +138,6 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
         <div className="profile-header">
           <div className="profile-picture-container">
             <div className="profile-avatar-wrapper">
-
               {profilePicturePreview || currentWorker?.profilePicture ? (
                 <img
                   src={
@@ -156,7 +158,6 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
               <span className="profile-status-dot"></span>
 
               <label className="profile-upload-overlay">
-
                 <input
                   type="file"
                   accept="image/*"
@@ -175,10 +176,14 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
                     </span>
                   </>
                 )}
-
               </label>
-
             </div>
+            {photoError && (
+              <div className="profile-photo-error" role="alert">
+                <span className="profile-photo-error-icon">⚠️</span>
+                <span>{photoError}</span>
+              </div>
+            )}
           </div>
           <div className="profile-header-info">
             <h2>{currentWorker?.name}</h2>
@@ -219,12 +224,6 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
               <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsGiven")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
             </div>
           </div>
-        </div>
-
-        <div className="profile-card full-width">
-          <h3>{t("profile.preferences")}</h3>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.receiveEmail")}</label><p className="preference-desc">{t("profile.receiveEmailSupervisorDesc")}</p></div></div>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.showTipsSupervisor")}</label><p className="preference-desc">{t("profile.showTipsSupervisorDesc")}</p></div></div>
         </div>
 
         <div className="profile-actions">

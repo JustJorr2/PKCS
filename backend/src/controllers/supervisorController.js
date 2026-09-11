@@ -3,15 +3,21 @@ const Rating = require("../models/Rating");
 const { KPI_FIELDS } = require("../constants/kpiFields");
 const { getMonthKey, getPreviousMonthKey, getAllowedMonthsForRole } = require("../utils/dateKeys");
 
+const LOW_RATING_THRESHOLD = 2.0;
+
 async function getDashboard(req, res) {
   try {
     const selectedMonth = req.query.month;
+    const viewerId = req.query.viewerId;
 
     let viewerRole = null;
-    if (req.query.viewerId) {
-      const viewer = await User.findById(req.query.viewerId).select("role").lean();
+    if (viewerId) {
+      const viewer = await User.findById(viewerId).select("role").lean();
       viewerRole = viewer ? viewer.role : null;
     }
+
+    const ratingView = req.query.ratingView || (viewerRole === "supervisor" ? "own" : "all");
+
     const canSeeRatings = viewerRole === "supervisor" || viewerRole === "admin";
     const isWorkerViewer = viewerRole === "worker";
 
@@ -21,7 +27,6 @@ async function getDashboard(req, res) {
       .sort({ averageRating: -1 });
 
     if (isWorkerViewer) {
-      // Workers may see each peer's latest comment, but never scores/averages.
       const workersWithComment = await Promise.all(
         workers.map(async (worker) => {
           const latestRatingFilter = selectedMonth
@@ -46,39 +51,104 @@ async function getDashboard(req, res) {
     }
 
     if (!canSeeRatings) {
-      // Unknown / unauthenticated viewer — safest default, no rating data at all.
       const safeWorkers = workers.map(({ averageRating, totalRatings, ...rest }) => rest);
       return res.json(safeWorkers);
     }
 
+    const ownViewIsEmptyForViewer = ratingView === "own" && viewerRole !== "supervisor";
+
     const workersWithLatestRating = await Promise.all(
       workers.map(async (worker) => {
-        const latestRatingFilter = selectedMonth
-          ? { ratedUser: worker._id, dateKey: selectedMonth }
-          : { ratedUser: worker._id };
+        if (ownViewIsEmptyForViewer) {
+          return {
+            ...worker,
+            latestRating: null,
+            monthAverageRating: null,
+            monthRatingsCount: 0,
+            monthRaterIds: [],
+            cumulativeAverageRating: null,
+            cumulativeRatingsCount: 0,
+            cumulativeRaterIds: [],
+            lowRatingHistory: []
+          };
+        }
 
-        const latestRating = await Rating.findOne(latestRatingFilter)
+        const baseFilter = {
+          ratedUser: worker._id,
+          ...(ratingView === "own" ? { ratedBy: viewerId } : {})
+        };
+
+        const fetchedRatings = await Rating.find(baseFilter)
           .populate("ratedBy", "name role")
           .lean()
           .sort({ createdAt: -1 });
 
+        const allRatingsForWorker =
+          ratingView === "supervisor"
+            ? fetchedRatings.filter((r) => r.ratedBy && r.ratedBy.role === "supervisor")
+            : fetchedRatings;
+
+        const toKpiAverage = (r) => {
+          const total = KPI_FIELDS.reduce((sum, field) => sum + (Number(r[field]) || 0), 0);
+          return total / KPI_FIELDS.length;
+        };
+
+        const uniqueRaterIds = (ratings) =>
+          [...new Set(
+            ratings
+              .map((r) => r.ratedBy && r.ratedBy._id && r.ratedBy._id.toString())
+              .filter(Boolean)
+          )];
+
+        const latestRating = selectedMonth
+          ? allRatingsForWorker.find((r) => r.dateKey === selectedMonth) || null
+          : allRatingsForWorker[0] || null;
+
         let monthAverageRating = null;
+        let monthRatingsCount = 0;
+        let monthRaterIds = [];
+
         if (selectedMonth) {
-          const monthRatings = await Rating.find({
-            ratedUser: worker._id,
-            dateKey: selectedMonth
-          }).lean();
+          const monthRatings = allRatingsForWorker.filter((r) => r.dateKey === selectedMonth);
+          monthRatingsCount = monthRatings.length;
+          monthRaterIds = uniqueRaterIds(monthRatings);
 
           if (monthRatings.length > 0) {
-            const ratingAverages = monthRatings.map((r) => {
-              const total = KPI_FIELDS.reduce((sum, field) => sum + (Number(r[field]) || 0), 0);
-              return total / KPI_FIELDS.length;
-            });
-            monthAverageRating = ratingAverages.reduce((sum, val) => sum + val, 0) / ratingAverages.length;
+            const monthAverages = monthRatings.map(toKpiAverage);
+            monthAverageRating = monthAverages.reduce((sum, val) => sum + val, 0) / monthAverages.length;
           }
         }
 
-        return { ...worker, latestRating, monthAverageRating };
+        let cumulativeAverageRating = null;
+        if (allRatingsForWorker.length > 0) {
+          const cumulativeAverages = allRatingsForWorker.map(toKpiAverage);
+          cumulativeAverageRating =
+            cumulativeAverages.reduce((sum, val) => sum + val, 0) / cumulativeAverages.length;
+        }
+
+        const cumulativeRatingsCount = allRatingsForWorker.length;
+        const cumulativeRaterIds = uniqueRaterIds(allRatingsForWorker);
+
+        const lowRatingHistory = allRatingsForWorker
+          .map((r) => ({
+            dateKey: r.dateKey,
+            average: toKpiAverage(r),
+            createdAt: r.createdAt
+          }))
+          .filter((r) => r.average < LOW_RATING_THRESHOLD)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        return {
+          ...worker,
+          latestRating,
+          monthAverageRating,
+          monthRatingsCount,
+          monthRaterIds,
+          cumulativeAverageRating,
+          cumulativeRatingsCount,
+          cumulativeRaterIds,
+          lowRatingHistory
+        };
       })
     );
 
@@ -97,8 +167,7 @@ async function getSupervisorRatings(req, res) {
     const previousMonth = getPreviousMonthKey();
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
-    
-    // Workers can only view current/previous month; supervisors can view any month
+
     let month = requestedMonth;
     if (rater.role === "worker") {
       const allowedMonths = getAllowedMonthsForRole(rater.role);
@@ -125,8 +194,7 @@ async function getExistingRating(req, res) {
     const previousMonth = getPreviousMonthKey();
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
-    
-    // Workers can only view current/previous month; supervisors can view any month
+
     let month = requestedMonth;
     if (rater.role === "worker") {
       const allowedMonths = getAllowedMonthsForRole(rater.role);

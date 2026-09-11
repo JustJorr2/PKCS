@@ -12,6 +12,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [photoError, setPhotoError] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [currentWorker, setCurrentWorker] = useState(worker);
@@ -68,15 +69,17 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPhotoError("");
+
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
-        setError(t("profile.invalidFileType") || "Only image files are allowed");
+        setPhotoError(t("profile.invalidFileType"));
         e.target.value = "";
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
-        setError(t("profile.fileTooLarge") || "File size must be less than 5MB");
+        setPhotoError(t("profile.fileTooLarge"));
         e.target.value = "";
         return;
       }
@@ -93,26 +96,26 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   const handleUploadProfilePicture = async (file, e) => {
     if (!worker?._id || uploading) return;
     setUploading(true);
-    setError("");
+    setPhotoError("");
     setMessage("");
-    
+
     try {
       const response = await usersService.uploadProfilePicture(worker._id, file);
       const updatedUser = response.data.user;
-      
+
       setCurrentWorker(updatedUser);
       setProfilePicturePreview(null);
-      
+
       if (e?.target) {
         e.target.value = "";
       }
-      
+
       onProfileUpdated?.(updatedUser);
-      setMessage(t("profile.pictureUpdatedSuccess") || "Profile picture updated successfully");
+      setMessage(t("profile.pictureUpdatedSuccess"));
     } catch (err) {
-      setError(err?.response?.data?.message || t("profile.pictureUploadFailed") || "Failed to upload profile picture");
+      setPhotoError(err?.response?.data?.message || t("profile.pictureUploadFailed"));
       setProfilePicturePreview(null);
-      
+
       if (e?.target) {
         e.target.value = "";
       }
@@ -137,7 +140,6 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
         <div className="admin-profile-header">
           <div className="admin-profile-avatar-container">
             <div className="profile-avatar-wrapper">
-
               {profilePicturePreview || currentWorker?.profilePicture ? (
                 <img
                   src={
@@ -158,7 +160,6 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
               <span className="profile-status-dot admin"></span>
 
               <label className="profile-upload-overlay">
-
                 <input
                   type="file"
                   accept="image/*"
@@ -177,10 +178,14 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
                     </span>
                   </>
                 )}
-
               </label>
-
             </div>
+            {photoError && (
+              <div className="profile-photo-error" role="alert">
+                <span className="profile-photo-error-icon">⚠️</span>
+                <span>{photoError}</span>
+              </div>
+            )}
           </div>
           <div className="admin-profile-headline">
             <h2>{currentWorker?.name}</h2>
@@ -243,12 +248,6 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
               <div className="admin-profile-stat"><span>{t("profile.accountId")}</span><strong>{worker?._id ? String(worker._id).slice(-8) : "N/A"}</strong></div>
             </div>
           </div>
-        </div>
-
-        <div className="admin-card admin-profile-full">
-          <h3>{t("profile.preferences")}</h3>
-          <div className="admin-profile-pref">{t("profile.receiveEmail")}</div>
-          <div className="admin-profile-pref">{t("profile.showTipsAdmin")}</div>
         </div>
 
         <div className="admin-profile-actions" style={{ marginTop: "20px", display: "flex", gap: "10px" }}>

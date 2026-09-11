@@ -107,6 +107,21 @@
   color: #999;
 }
 
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+}
+
+.stat-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 /* Recent Section */
 .recent-section {
   background: white;
@@ -142,6 +157,56 @@
 
 .recent-item:hover {
   background: #f0f2f5;
+}
+
+.month-group {
+  margin-bottom: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.month-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8fafc;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.month-group-header:hover {
+  background: #f1f5f9;
+}
+
+.month-group-header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.month-group-title {
+  margin: 0 !important;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.month-rating-count {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.month-toggle {
+  font-size: 12px;
+  color: #64748b;
+  min-width: 20px;
+  text-align: center;
+}
+
+.month-group .recent-list {
+  border-top: 1px solid #e5e7eb;
 }
 
 .recent-worker {
@@ -615,75 +680,293 @@
   background: #d32f2f;
 }
 
-/* ===== MANAGER DATA VISUALS PAGE ===== */
-.supervisor-visuals {
-  background: white;
+/* ===== PERIOD FILTER (top right) ===== */
+.supervisor-ratings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  position: relative;
 }
+
+.period-filter-wrap {
+  position: relative;
+}
+
+.period-filter-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  user-select: none;
+}
+
+.period-icon {
+  font-size: 20px;
+}
+
+.period-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.period-label {
+  font-size: 11px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.period-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a3a7f;
+}
+
+.period-toggle {
+  font-size: 11px;
+  color: #999;
+  margin-left: 4px;
+}
+
+.period-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  width: 460px;
+  max-width: 90vw;
+  z-index: 10;
+}
+
+/* ===== PERIOD FILTER — MOBILE ===== */
+@media (max-width: 640px) {
+  .supervisor-ratings-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .period-filter-wrap {
+    width: 100%;
+  }
+
+  .period-filter-card {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 640px) {
+    .period-picker-dropdown {
+      position: static;
+      width: 100%;
+      margin-top: 10px;
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .wf-filter-group {
+    width: 100%;
+  }
+
+  .wf-filter-group input[type="month"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .wf-btn-apply,
+  .wf-btn-reset {
+    width: 100%;
+  }
+}
+
+/* ===== STAT PILL ICONS ===== */
+.quick-stat-pill {
+  align-items: center;
+  gap: 12px;
+  /* replaces old justify-content: space-between now that there's an icon */
+}
+
+.pill-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pill-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill-text .label {
+  white-space: nowrap;
+}
+
+.pill-text .value {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ===== ACTION BUTTONS (Detail + Edit/Rate side by side) ===== */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* =========================================================
+   MANAGER DATA VISUALS PAGE
+   ========================================================= */
+
+.supervisor-visuals {
+  background: #ffffff;
+  color: #333333;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SUMMARY / STAT CARDS
+   ========================================================= */
 
 .visuals-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 25px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .summary-card {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 18px 20px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-top: 4px solid #1a3a7f;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-top: 3px solid #1a3a7f;
+  min-width: 0;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.09);
 }
 
 .summary-card h3 {
-  margin: 0 0 15px 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #666;
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .big-stat {
-  font-size: 36px;
+  font-size: 27px;
+  line-height: 1.1;
   font-weight: 700;
   color: #1a3a7f;
-  margin: 0 0 10px 0;
+  margin: 0 0 6px;
 }
 
 .summary-note {
   margin: 0;
-  font-size: 12px;
-  color: #999;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #9ca3af;
 }
 
-/* Chart Section */
+
+/* Clickable stat card */
+
+.summary-card-clickable {
+  cursor: pointer;
+}
+
+.summary-card-clickable:focus-visible {
+  outline: 2px solid #1a3a7f;
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   CHART SECTIONS
+   ========================================================= */
+
 .chart-section {
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 
 .chart-section h2 {
-  margin: 0 0 25px 0;
-  font-size: 20px;
-  color: #333;
+  margin: 0 0 18px;
+  font-size: 18px;
+  line-height: 1.3;
+  color: #333333;
   font-weight: 700;
 }
 
-/* Distribution Chart */
+
+/* =========================================================
+   PIE + TREND ROW
+   ========================================================= */
+
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.chart-row .chart-section {
+  margin-bottom: 0;
+}
+
+.chart-half {
+  min-width: 0;
+  height: 100%;
+}
+
+
+/* =========================================================
+   RATING DISTRIBUTION
+   ========================================================= */
+
 .distribution-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 .distribution-bar {
   display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 15px;
+  grid-template-columns: 145px minmax(0, 1fr);
+  gap: 14px;
   align-items: center;
 }
 
@@ -691,127 +974,408 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12px;
   font-weight: 600;
+  color: #4b5563;
 }
 
 .bar-background {
-  height: 30px;
-  background: #f0f0f0;
+  height: 24px;
+  background: #f1f3f5;
   border-radius: 6px;
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
-  transition: all 0.3s ease;
+  min-width: 0;
+  transition: width 0.35s ease;
   border-radius: 6px;
 }
 
-/* Top Performers */
+
+/* =========================================================
+   PIE CHART
+   ========================================================= */
+
+.pie-chart-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  min-height: 220px;
+}
+
+.pie-chart {
+  position: relative;
+  flex: 0 0 190px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pie-center {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+}
+
+.pie-center span {
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 700;
+  color: #1a3a7f;
+}
+
+.pie-center small {
+  margin-top: 5px;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.pie-legend-item {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.pie-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.pie-label {
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.pie-value {
+  color: #6b7280;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   TREND CHART
+   ========================================================= */
+
+.trend-mini-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 230px;
+  overflow: visible;
+}
+
+.trend-empty {
+  min-height: 180px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #9ca3af;
+}
+
+
+/* =========================================================
+   TOP PERFORMERS
+   ========================================================= */
+
 .top-performers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .performer-item {
   background: #f8f9fa;
   border-radius: 10px;
-  padding: 20px;
+  padding: 17px;
   text-align: center;
-  border-left: 4px solid #1a3a7f;
-  transition: all 0.3s;
+  border-left: 3px solid #1a3a7f;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .performer-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .performer-rank {
-  font-size: 20px;
-  margin-bottom: 10px;
+  font-size: 18px;
+  margin-bottom: 8px;
 }
 
 .performer-info h4 {
-  margin: 0 0 5px 0;
-  font-size: 12px;
-  color: #999;
-  font-weight: 600;
+  margin: 0 0 4px;
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 700;
 }
 
 .performer-name {
-  margin: 0 0 4px 0;
-  font-size: 16px;
+  margin: 0 0 3px;
+  font-size: 15px;
   font-weight: 700;
-  color: #333;
+  color: #333333;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .performer-email {
   margin: 0;
-  font-size: 12px;
-  color: #999;
+  font-size: 11px;
+  color: #9ca3af;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .performer-rating {
-  margin: 15px 0;
+  margin: 12px 0;
 }
 
 .rating-badge-large {
   display: inline-block;
-  padding: 10px 16px;
-  border-radius: 25px;
-  color: white;
+  padding: 8px 13px;
+  border-radius: 20px;
+  color: #ffffff;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .performer-meta {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #999;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #9ca3af;
 }
 
-/* Skills Overview */
+.top-performers .dv-btn-apply {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 4px;
+}
+
+.confirm-dialog-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 1100px; 
+}
+
+
+/* =========================================================
+   SKILLS / KPI OVERVIEW
+   ========================================================= */
+
 .skills-overview {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 16px;
 }
 
 .skill-item {
   display: grid;
-  grid-template-columns: 150px 1fr 80px;
-  gap: 15px;
+  grid-template-columns: 145px minmax(0, 1fr) 55px;
+  gap: 14px;
   align-items: center;
 }
 
 .skill-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: #333;
+  color: #374151;
 }
 
 .skill-bar {
-  height: 25px;
+  height: 20px;
   background: #f0f0f0;
-  border-radius: 6px;
+  border-radius: 5px;
   overflow: hidden;
 }
 
 .skill-fill {
   height: 100%;
-  background: linear-gradient(90deg, #1a3a7f, #764ba2);
-  border-radius: 6px;
-  transition: all 0.3s ease;
+  border-radius: 5px;
+  transition: width 0.35s ease;
 }
 
 .skill-value {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  color: #1a3a7f;
   text-align: right;
+}
+
+.kpi-note {
+  margin: -8px 0 20px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+
+/* =========================================================
+   CHART SECTION HEADER
+   ========================================================= */
+
+.chart-section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.chart-section-header-row h2 {
+  margin: 0;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  .visuals-summary {
+    grid-template-columns: repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  }
+
+  .top-performers {
+    grid-template-columns: repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  }
+}
+
+
+@media (max-width: 800px) {
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-row .chart-section {
+    margin-bottom: 0;
+  }
+
+  .pie-chart-layout {
+    min-height: 0;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .visuals-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-section {
+    padding: 18px;
+  }
+
+  .distribution-bar {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .bar-label {
+    width: 100%;
+  }
+
+  .pie-chart-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pie-chart {
+    flex-basis: 170px;
+    width: 170px;
+    height: 170px;
+  }
+
+  .pie-legend {
+    width: 100%;
+  }
+
+  .top-performers {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-item {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .skill-value {
+    text-align: left;
+  }
+
+  .chart-section-header-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.summary-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.summary-card-title h3 {
+  margin: 0;
+}
+
+.summary-card-title svg {
+  color: #1a3a7f;
+  flex-shrink: 0;
+}
+
+.summary-card-link {
+  margin-top: 4px;
+  background: none;
+  border: none;
+  color: #2f80ed;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
 }
 
 /* ===== MANAGER PROFILE PAGE ===== */
@@ -872,10 +1436,11 @@
   font-weight: 600;
 }
 
-/* Checklist filter group takes full width since it holds many items */
+/* Checklist filter group takes full width on mobile, capped on desktop */
 .dv-checklist-group {
   flex-basis: 100%;
   width: 100%;
+  max-width: 480px;
 }
 
 .dv-checklist-group > label {
@@ -885,7 +1450,8 @@
 
 .dv-month-checklist {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(110px, 130px));
+  justify-content: start;
   gap: 8px 12px;
   max-height: 220px;
   overflow-y: auto;
@@ -930,11 +1496,10 @@
   background: transparent;
 }
 
-/* Mobile: fewer columns so labels don't get cramped */
-@media (max-width: 480px) {
-  .dv-month-checklist {
-    grid-template-columns: repeat(2, 1fr);
-    max-height: 180px;
+/* Let it use full width again on small screens instead of the capped desktop width */
+@media (max-width: 640px) {
+  .dv-checklist-group {
+    max-width: 100%;
   }
 }
 
@@ -2993,4 +3558,25 @@
     transform:
       rotate(360deg);
   }
+}
+
+.profile-photo-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #fdecea;
+  border: 1px solid #f5c2c0;
+  border-radius: 6px;
+  color: #b3261e;
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 220px;
+  text-align: left;
+}
+
+.profile-photo-error-icon {
+  font-size: 13px;
+  flex-shrink: 0;
 }
