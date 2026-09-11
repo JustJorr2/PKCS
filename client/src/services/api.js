@@ -45,11 +45,12 @@ export const usersService = {
 // SUPERVISOR SERVICE
 // =======================
 export const supervisorService = {
-  getDashboard: (month, viewerId) =>
+  getDashboard: (month, viewerId, extraParams = {}) =>
     apiClient.get("/api/supervisor/dashboard", {
       params: {
         ...(month ? { month } : {}),
-        ...(viewerId ? { viewerId } : {})
+        ...(viewerId ? { viewerId } : {}),
+        ...extraParams
       }
     }),
 

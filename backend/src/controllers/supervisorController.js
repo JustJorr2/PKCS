@@ -3,7 +3,6 @@ const Rating = require("../models/Rating");
 const { KPI_FIELDS } = require("../constants/kpiFields");
 const { getMonthKey, getPreviousMonthKey, getAllowedMonthsForRole } = require("../utils/dateKeys");
 
-// Keep this in sync with BELOW_THRESHOLD in SupervisorHome.jsx.
 const LOW_RATING_THRESHOLD = 2.0;
 
 async function getDashboard(req, res) {
@@ -16,12 +15,10 @@ async function getDashboard(req, res) {
       const viewer = await User.findById(viewerId).select("role").lean();
       viewerRole = viewer ? viewer.role : null;
     }
+    const ratingView = req.query.ratingView || (viewerRole === "supervisor" ? "own" : "all");
+
     const canSeeRatings = viewerRole === "supervisor" || viewerRole === "admin";
     const isWorkerViewer = viewerRole === "worker";
-    // Only used to scope "latest rating" / "cumulative average" queries so a
-    // supervisor only ever sees their OWN submissions, not other
-    // supervisors' ratings for the same worker.
-    const scopeToOwnRatings = viewerRole === "supervisor";
 
     const workers = await User.find({ role: "worker" })
       .select("_id name email role profilePicture averageRating totalRatings createdAt")
@@ -57,22 +54,35 @@ async function getDashboard(req, res) {
       return res.json(safeWorkers);
     }
 
+    const ownViewIsEmptyForViewer = ratingView === "own" && viewerRole !== "supervisor";
+
     const workersWithLatestRating = await Promise.all(
       workers.map(async (worker) => {
-        // Fetch every rating for this worker once (scoped to this
-        // supervisor's own submissions when the viewer is a supervisor),
-        // then derive the month-specific average, the cumulative
-        // (all-time) average, AND the low-rating history from the same
-        // result set instead of separate queries.
+        if (ownViewIsEmptyForViewer) {
+          return {
+            ...worker,
+            latestRating: null,
+            monthAverageRating: null,
+            cumulativeAverageRating: null,
+            cumulativeRatingsCount: 0,
+            lowRatingHistory: []
+          };
+        }
+
         const baseFilter = {
           ratedUser: worker._id,
-          ...(scopeToOwnRatings ? { ratedBy: viewerId } : {})
+          ...(ratingView === "own" ? { ratedBy: viewerId } : {})
         };
 
-        const allRatingsForWorker = await Rating.find(baseFilter)
+        const fetchedRatings = await Rating.find(baseFilter)
           .populate("ratedBy", "name role")
           .lean()
           .sort({ createdAt: -1 });
+
+        const allRatingsForWorker =
+          ratingView === "supervisor"
+            ? fetchedRatings.filter((r) => r.ratedBy && r.ratedBy.role === "supervisor")
+            : fetchedRatings;
 
         const toKpiAverage = (r) => {
           const total = KPI_FIELDS.reduce((sum, field) => sum + (Number(r[field]) || 0), 0);
@@ -92,9 +102,6 @@ async function getDashboard(req, res) {
           }
         }
 
-        // Cumulative average across ALL months this supervisor has rated
-        // this worker (e.g. Jan–Jun 2026 combined), used for the
-        // "Rata-Rata Kumulatif" / "Status Kumulatif" columns.
         let cumulativeAverageRating = null;
         if (allRatingsForWorker.length > 0) {
           const cumulativeAverages = allRatingsForWorker.map(toKpiAverage);
@@ -102,10 +109,6 @@ async function getDashboard(req, res) {
             cumulativeAverages.reduce((sum, val) => sum + val, 0) / cumulativeAverages.length;
         }
 
-        // NEW: every individual month where this worker's rating from
-        // this supervisor fell below the threshold, kept even after the
-        // cumulative average recovers, so "Workers Below 2.0" can reflect
-        // history rather than just the current average.
         const lowRatingHistory = allRatingsForWorker
           .map((r) => ({
             dateKey: r.dateKey,
