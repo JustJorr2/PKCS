@@ -76,6 +76,75 @@ function generateMonthChecklistOptions(count = 24) {
   return options;
 }
 
+
+function buildStats(data, isPeriodScoped, minRaters) {
+  const empty = {
+    avgRating: "0.00",
+    topRated: [],
+    allRanked: [],
+    ratedCount: 0,
+    belowTwoWorkers: [],
+    ratingDistribution: { excellent: 0, good: 0, average: 0, poor: 0, notRated: 0 }
+  };
+
+  if (!data || data.length === 0) return empty;
+
+  const getScore = (w) =>
+    isPeriodScoped
+      ? (typeof w.monthAverageRating === "number" ? w.monthAverageRating : null)
+      : (typeof w.cumulativeAverageRating === "number" ? w.cumulativeAverageRating : null);
+
+  const getRatingsCount = (w) => (isPeriodScoped ? w.monthRatingsCount || 0 : w.cumulativeRatingsCount || 0);
+  const getRaterIds = (w) => (isPeriodScoped ? w.monthRaterIds : w.cumulativeRaterIds) || [];
+
+  const scoredWorkers = data.map((w) => {
+    const raterIds = getRaterIds(w);
+    return {
+      ...w,
+      _score: getScore(w),
+      _ratingsCount: getRatingsCount(w),
+      _ratersCount: raterIds.length
+    };
+  });
+
+  const ratedInPeriod = scoredWorkers.filter((w) => w._score !== null && w._ratingsCount > 0);
+
+  const avgRating =
+    ratedInPeriod.length > 0
+      ? (ratedInPeriod.reduce((sum, w) => sum + w._score, 0) / ratedInPeriod.length).toFixed(2)
+      : "0.00";
+
+  // Calibration: a worker whose score comes from fewer raters than the
+  // selected minimum is excluded from the ranking, so one favorable rater
+  // can't outrank someone evaluated more broadly.
+  const calibrated = ratedInPeriod.filter((w) => w._ratersCount >= minRaters);
+
+  const allRanked = [...calibrated].sort((a, b) => b._score - a._score);
+  const topRated = allRanked.slice(0, 6);
+
+  const belowTwoWorkers = ratedInPeriod
+    .filter((w) => w._score > 0 && w._score < 2.0)
+    .sort((a, b) => a._score - b._score);
+
+  const distribution = { excellent: 0, good: 0, average: 0, poor: 0, notRated: 0 };
+
+  scoredWorkers.forEach((w) => {
+    if (w._score === null || w._ratingsCount === 0) {
+      distribution.notRated += 1;
+    } else if (w._score >= 3.51) {
+      distribution.excellent++;
+    } else if (w._score >= 2.76) {
+      distribution.good++;
+    } else if (w._score >= 2.0) {
+      distribution.average++;
+    } else {
+      distribution.poor++;
+    }
+  });
+
+  return { avgRating, topRated, allRanked, ratedCount: ratedInPeriod.length, belowTwoWorkers, ratingDistribution: distribution };
+}
+
 /* =========================================================
    TREND CHART
    ========================================================= */
@@ -138,22 +207,11 @@ function SupervisorDataVisuals({ worker }) {
 
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [stats, setStats] = useState({
-    avgRating: "0.00",
-    topRated: [],
-    allRanked: [],
-    ratedCount: 0,
-    belowTwoWorkers: [],
-    ratingDistribution: { excellent: 0, good: 0, average: 0, poor: 0, notRated: 0 }
-  });
+  const [isPeriodScoped, setIsPeriodScoped] = useState(false);
 
   const [trend, setTrend] = useState([]);
 
-  /* =======================================================
-     PERIOD FILTER
-     ======================================================= */
-
+  /* PERIOD FILTER */
   const [filterMode, setFilterMode] = useState("month");
   const [filterMonth, setFilterMonth] = useState("");
   const [filterQuarter, setFilterQuarter] = useState("");
@@ -161,97 +219,35 @@ function SupervisorDataVisuals({ worker }) {
   const [activeFilter, setActiveFilter] = useState("");
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
 
-  /* =======================================================
-     RATING VIEW FILTER
-
-     all        = workers + all supervisors
-     supervisor = all supervisor ratings
-     own        = only this supervisor's own ratings
-     ======================================================= */
-
   const [ratingView, setRatingView] = useState("all");
 
-  /* =======================================================
-     MODALS
-     ======================================================= */
+  const [minRaters, setMinRaters] = useState(0);
+  const [minRatersInput, setMinRatersInput] = useState("0");
 
+  const handleMinRatersChange = (e) => {
+    const raw = e.target.value;
+    setMinRatersInput(raw);
+
+    const parsed = parseInt(raw, 10);
+    setMinRaters(Number.isNaN(parsed) || parsed < 0 ? 0 : parsed);
+  };
+
+  const handleMinRatersBlur = () => {
+    setMinRatersInput(String(minRaters));
+  };
+
+  /* MODALS */
   const [showBelowTwoModal, setShowBelowTwoModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const quarterOptions = useMemo(() => generateQuarterOptions(), []);
   const checklistOptions = useMemo(() => generateMonthChecklistOptions(), []);
 
-  /* =======================================================
-     API FILTER PARAMETERS
-     ======================================================= */
+  const buildViewParams = useCallback(() => ({ ratingView }), [ratingView]);
 
-  const buildViewParams = useCallback(() => {
-    return { ratingView };
-  }, [ratingView]);
+  const stats = useMemo(() => buildStats(workers, isPeriodScoped, minRaters), [workers, isPeriodScoped, minRaters]);
 
-  /* =======================================================
-     COMPUTE STATS
-     ======================================================= */
-
-  const computeStats = useCallback((data, useMonthlyAvg = false) => {
-    if (data.length === 0) {
-      setStats({
-        avgRating: "0.00",
-        topRated: [],
-        allRanked: [],
-        ratedCount: 0,
-        belowTwoWorkers: [],
-        ratingDistribution: { excellent: 0, good: 0, average: 0, poor: 0, notRated: 0 }
-      });
-
-      return;
-    }
-
-    const getScore = (w) =>
-      useMonthlyAvg ? (typeof w.monthAverageRating === "number" ? w.monthAverageRating : null) : Number(w.averageRating || 0);
-
-    const scoredWorkers = data.map((w) => ({ ...w, _score: getScore(w) }));
-
-    const ratedInPeriod = scoredWorkers.filter((w) => {
-      if (w._score === null) return false;
-      return useMonthlyAvg ? true : Boolean(w.totalRatings);
-    });
-
-    const avgRating =
-      ratedInPeriod.length > 0
-        ? (ratedInPeriod.reduce((sum, w) => sum + w._score, 0) / ratedInPeriod.length).toFixed(2)
-        : "0.00";
-
-    const allRanked = [...ratedInPeriod].sort((a, b) => b._score - a._score);
-    const topRated = allRanked.slice(0, 6);
-
-    const belowTwoWorkers = ratedInPeriod
-      .filter((w) => w._score > 0 && w._score < 2.0)
-      .sort((a, b) => a._score - b._score);
-
-    const distribution = { excellent: 0, good: 0, average: 0, poor: 0, notRated: 0 };
-
-    scoredWorkers.forEach((w) => {
-      if (w._score === null || (!useMonthlyAvg && (!w.totalRatings || w.totalRatings === 0))) {
-        distribution.notRated += 1;
-      } else if (w._score >= 3.51) {
-        distribution.excellent++;
-      } else if (w._score >= 2.76) {
-        distribution.good++;
-      } else if (w._score >= 2.0) {
-        distribution.average++;
-      } else {
-        distribution.poor++;
-      }
-    });
-
-    setStats({ avgRating, topRated, allRanked, ratedCount: ratedInPeriod.length, belowTwoWorkers, ratingDistribution: distribution });
-  }, []);
-
-  /* =======================================================
-     FETCH SINGLE MONTH
-     ======================================================= */
-
+  /* FETCH SINGLE MONTH */
   const fetchSingleMonth = useCallback(
     async (month = "") => {
       try {
@@ -260,20 +256,17 @@ function SupervisorDataVisuals({ worker }) {
         const data = response.data || [];
 
         setWorkers(data);
-        computeStats(data, Boolean(month));
+        setIsPeriodScoped(Boolean(month));
       } catch (err) {
         console.error("Error fetching chart data:", err);
       } finally {
         setLoading(false);
       }
     },
-    [computeStats, worker?._id, buildViewParams]
+    [worker?._id, buildViewParams]
   );
 
-  /* =======================================================
-     FETCH MULTIPLE MONTHS
-     ======================================================= */
-
+  /* FETCH MULTIPLE MONTHS */
   const fetchMonthGroup = useCallback(
     async (months) => {
       try {
@@ -289,10 +282,19 @@ function SupervisorDataVisuals({ worker }) {
           const monthData = res.data || [];
 
           monthData.forEach((w) => {
+            const raterIds = w.monthRaterIds || [];
+            const ratingsCount = w.monthRatingsCount || 0;
+
             if (!workerMap.has(w._id)) {
-              workerMap.set(w._id, { ...w });
+              workerMap.set(w._id, {
+                ...w,
+                _raterIdSet: new Set(raterIds),
+                _ratingsCountSum: ratingsCount
+              });
             } else {
               const existing = workerMap.get(w._id);
+              existing._ratingsCountSum += ratingsCount;
+              raterIds.forEach((id) => existing._raterIdSet.add(id));
 
               if (
                 typeof w.monthAverageRating === "number" &&
@@ -305,23 +307,27 @@ function SupervisorDataVisuals({ worker }) {
           });
         });
 
-        const mergedData = Array.from(workerMap.values());
+        // Sums ratings/raters across every month in the group, so a
+        // quarter's "ratings received" reflects the whole quarter, not
+        // just whichever single month had the best average.
+        const mergedData = Array.from(workerMap.values()).map(({ _raterIdSet, _ratingsCountSum, ...rest }) => ({
+          ...rest,
+          monthRatingsCount: _ratingsCountSum,
+          monthRaterIds: Array.from(_raterIdSet)
+        }));
 
         setWorkers(mergedData);
-        computeStats(mergedData, true);
+        setIsPeriodScoped(true);
       } catch (err) {
         console.error("Error fetching grouped month data:", err);
       } finally {
         setLoading(false);
       }
     },
-    [computeStats, worker?._id, buildViewParams]
+    [worker?._id, buildViewParams]
   );
 
-  /* =======================================================
-     RATING TREND
-     ======================================================= */
-
+  /* RATING TREND */
   const fetchTrend = useCallback(async () => {
     const monthsAsc = generateMonthChecklistOptions(6).slice().reverse();
 
@@ -348,10 +354,6 @@ function SupervisorDataVisuals({ worker }) {
     }
   }, [worker?._id, buildViewParams]);
 
-  /* =======================================================
-     INITIAL LOAD
-     ======================================================= */
-
   useEffect(() => {
     fetchSingleMonth();
     fetchTrend();
@@ -359,17 +361,9 @@ function SupervisorDataVisuals({ worker }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* =======================================================
-     MONTH CHECKBOX
-     ======================================================= */
-
   const toggleMonthChecked = (key) => {
     setSelectedMonths((prev) => (prev.includes(key) ? prev.filter((m) => m !== key) : [...prev, key]));
   };
-
-  /* =======================================================
-     APPLY FILTER
-     ======================================================= */
 
   const handleApplyFilter = () => {
     if (filterMode === "month") {
@@ -397,14 +391,9 @@ function SupervisorDataVisuals({ worker }) {
       );
     }
 
-    // Re-fetch the trend using the currently selected ratingView.
     fetchTrend();
     setShowPeriodPicker(false);
   };
-
-  /* =======================================================
-     RESET FILTER
-     ======================================================= */
 
   const handleResetFilter = () => {
     setFilterMonth("");
@@ -416,29 +405,15 @@ function SupervisorDataVisuals({ worker }) {
     fetchTrend();
   };
 
-  /* =======================================================
-     RATING DATA
-     ======================================================= */
-
   const ratedWorkers = useMemo(() => workers.filter((w) => w.latestRating), [workers]);
   const totalWorkers = workers.length;
   const getBarWidth = (count) => (totalWorkers > 0 ? (count / totalWorkers) * 100 : 0);
 
-  /* =======================================================
-     KPI AVERAGES
-     ======================================================= */
-
   const getKpiAverage = (key) => {
     const kpiValues = ratedWorkers.map((w) => w.latestRating?.[key]).filter((v) => typeof v === "number");
-
     if (kpiValues.length === 0) return 0;
-
     return kpiValues.reduce((sum, v) => sum + v, 0) / kpiValues.length;
   };
-
-  /* =======================================================
-     PIE CHART DATA
-     ======================================================= */
 
   const pieData = useMemo(() => {
     const total = PIE_SEGMENTS.reduce((sum, segment) => sum + (stats.ratingDistribution[segment.key] || 0), 0);
@@ -469,21 +444,21 @@ function SupervisorDataVisuals({ worker }) {
     return { background: `conic-gradient(${colorStops.join(", ")})`, total, legend };
   }, [stats.ratingDistribution]);
 
-  /* =======================================================
-     PERIOD LABEL
-     ======================================================= */
-
   const periodLabel = useMemo(() => {
     if (activeFilter) return activeFilter;
     return t("supervisorVisuals.allTime") || "All Time";
   }, [activeFilter, t]);
-
 
   const viewLabel = useMemo(() => {
     if (ratingView === "supervisor") return t("supervisorVisuals.viewSupervisor") || "Supervisor Ratings";
     if (ratingView === "own") return t("supervisorVisuals.viewOwn") || "My Ratings";
     return t("supervisorVisuals.viewAll") || "All Ratings";
   }, [ratingView, t]);
+
+  const calibrationLabel = useMemo(() => {
+    if (!minRaters) return "";
+    return ` • ${minRaters}+ ${t("supervisorVisuals.ratersLabel") || "raters"}`;
+  }, [minRaters, t]);
 
   if (loading) {
     return (
@@ -493,10 +468,8 @@ function SupervisorDataVisuals({ worker }) {
     );
   }
 
-
   return (
     <div className="page-content supervisor-visuals">
-
 
       <div className="page-header supervisor-ratings-header">
         <div>
@@ -510,7 +483,7 @@ function SupervisorDataVisuals({ worker }) {
 
             <div className="period-info">
               <span className="period-label">{viewLabel}</span>
-              <span className="period-value">{periodLabel}</span>
+              <span className="period-value">{periodLabel}{calibrationLabel}</span>
             </div>
 
             <span className="period-toggle">{showPeriodPicker ? "▲" : "▼"}</span>
@@ -528,6 +501,23 @@ function SupervisorDataVisuals({ worker }) {
                   <option value="supervisor">{t("supervisorVisuals.viewSupervisor") || "Supervisor Ratings"}</option>
                   <option value="own">{t("supervisorVisuals.viewOwn") || "My Ratings"}</option>
                 </select>
+              </div>
+
+              {/* CALIBRATION — applies instantly, no Apply click needed */}
+              <div className="wf-filter-group">
+                <label>{t("supervisorVisuals.minRaters") || "Minimum Raters"}</label>
+
+                <input
+                  type="number"
+                  className="sort-select"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  value={minRatersInput}
+                  onChange={handleMinRatersChange}
+                  onBlur={handleMinRatersBlur}
+                  placeholder={t("supervisorVisuals.anyRaters") || "Any"}
+                />
               </div>
 
               {/* PERIOD MODE */}
@@ -607,10 +597,7 @@ function SupervisorDataVisuals({ worker }) {
         </div>
       </div>
 
-      {/* ===================================================
-          SUMMARY CARDS
-          =================================================== */}
-
+      {/* SUMMARY CARDS */}
       <div className="visuals-summary">
         <div className="summary-card">
           <div className="summary-card-title">
@@ -652,10 +639,6 @@ function SupervisorDataVisuals({ worker }) {
           </button>
         </div>
       </div>
-
-      {/* ===================================================
-          NO DATA
-          =================================================== */}
 
       {totalWorkers === 0 ? (
         <div className="no-data">{t("supervisorVisuals.noDataFilter")}</div>
@@ -740,7 +723,11 @@ function SupervisorDataVisuals({ worker }) {
                   </div>
 
                   <div className="performer-meta">
-                    <p>{w.totalRatings || 0} {t("supervisorVisuals.ratings")}</p>
+                    <p>
+                      {w._ratingsCount || 0} {t("supervisorVisuals.ratings")}
+                      {" · "}
+                      {w._ratersCount || 0} {t("supervisorVisuals.ratersLabel") || "raters"}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -774,10 +761,7 @@ function SupervisorDataVisuals({ worker }) {
         </>
       )}
 
-      {/* ===================================================
-          BELOW 2.0 MODAL
-          =================================================== */}
-
+      {/* BELOW 2.0 MODAL */}
       {showBelowTwoModal && (
         <div className="confirm-dialog-overlay" onClick={() => setShowBelowTwoModal(false)}>
           <div
@@ -799,7 +783,13 @@ function SupervisorDataVisuals({ worker }) {
                     style={{ background: "#f9fafb", borderRadius: "10px", padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                   >
                     <span style={{ color: "#111827", fontWeight: 600 }}>{w.name}</span>
-                    <span style={{ color: getRatingColor(w._score), fontWeight: 700 }}>{Number(w._score).toFixed(2)} ★</span>
+
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                      <span style={{ color: getRatingColor(w._score), fontWeight: 700 }}>{Number(w._score).toFixed(2)} ★</span>
+                      <span style={{ color: "#9ca3af", fontSize: "11px" }}>
+                        {w._ratersCount || 0} {t("supervisorVisuals.ratersLabel") || "raters"}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -814,10 +804,7 @@ function SupervisorDataVisuals({ worker }) {
         </div>
       )}
 
-      {/* ===================================================
-          FULL LEADERBOARD MODAL
-          =================================================== */}
-
+      {/* FULL LEADERBOARD MODAL */}
       {showLeaderboard && (
         <div className="confirm-dialog-overlay" onClick={() => setShowLeaderboard(false)}>
           <div
@@ -826,7 +813,7 @@ function SupervisorDataVisuals({ worker }) {
             style={{ display: "flex", flexDirection: "column", maxHeight: "80vh", width: "min(560px, 92vw)" }}
           >
             <h3 style={{ marginBottom: "4px" }}>
-              {t("supervisorVisuals.leaderboardTitle") || "Full Leaderboard"} — {periodLabel}
+              {t("supervisorVisuals.leaderboardTitle") || "Full Leaderboard"} — {periodLabel}{calibrationLabel}
             </h3>
 
             {stats.allRanked.length === 0 ? (
@@ -851,7 +838,9 @@ function SupervisorDataVisuals({ worker }) {
 
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                       <span style={{ color: getRatingColor(w._score), fontWeight: 700 }}>{Number(w._score).toFixed(2)} ★</span>
-                      <span style={{ color: "#9ca3af", fontSize: "12px" }}>{w.totalRatings || 0} {t("supervisorVisuals.ratings")}</span>
+                      <span style={{ color: "#9ca3af", fontSize: "12px" }}>
+                        {w._ratingsCount || 0} {t("supervisorVisuals.ratings")} · {w._ratersCount || 0} {t("supervisorVisuals.ratersLabel") || "raters"}
+                      </span>
                     </div>
                   </div>
                 ))}

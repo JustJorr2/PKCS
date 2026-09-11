@@ -316,7 +316,10 @@ export const translations = {
       ratingView: "Rating View",
       viewAll: "All Ratings",
       viewSupervisor: "Supervisor Ratings",
-      viewOwn: "My Ratings"
+      viewOwn: "My Ratings",
+      minRaters: "Minimum Raters",
+      anyRaters: "Any",
+      ratersLabel: "raters"
     },
     kpi: {
       workAreaCompliance: "Work Area Compliance",
@@ -836,7 +839,10 @@ export const translations = {
       ratingView: "Tampilan Rating",
       viewAll: "Semua Rating",
       viewSupervisor: "Rating Supervisor",
-      viewOwn: "Rating Saya"
+      viewOwn: "Rating Saya",
+      minRaters: "Jumlah Penilai Minimum",
+      anyRaters: "Semua",
+      ratersLabel: "penilai"
     },
     kpi: {
       workAreaCompliance: "Kepatuhan Area Kerja",

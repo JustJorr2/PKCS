@@ -15,6 +15,7 @@ async function getDashboard(req, res) {
       const viewer = await User.findById(viewerId).select("role").lean();
       viewerRole = viewer ? viewer.role : null;
     }
+
     const ratingView = req.query.ratingView || (viewerRole === "supervisor" ? "own" : "all");
 
     const canSeeRatings = viewerRole === "supervisor" || viewerRole === "admin";
@@ -63,8 +64,11 @@ async function getDashboard(req, res) {
             ...worker,
             latestRating: null,
             monthAverageRating: null,
+            monthRatingsCount: 0,
+            monthRaterIds: [],
             cumulativeAverageRating: null,
             cumulativeRatingsCount: 0,
+            cumulativeRaterIds: [],
             lowRatingHistory: []
           };
         }
@@ -89,13 +93,26 @@ async function getDashboard(req, res) {
           return total / KPI_FIELDS.length;
         };
 
+        const uniqueRaterIds = (ratings) =>
+          [...new Set(
+            ratings
+              .map((r) => r.ratedBy && r.ratedBy._id && r.ratedBy._id.toString())
+              .filter(Boolean)
+          )];
+
         const latestRating = selectedMonth
           ? allRatingsForWorker.find((r) => r.dateKey === selectedMonth) || null
           : allRatingsForWorker[0] || null;
 
         let monthAverageRating = null;
+        let monthRatingsCount = 0;
+        let monthRaterIds = [];
+
         if (selectedMonth) {
           const monthRatings = allRatingsForWorker.filter((r) => r.dateKey === selectedMonth);
+          monthRatingsCount = monthRatings.length;
+          monthRaterIds = uniqueRaterIds(monthRatings);
+
           if (monthRatings.length > 0) {
             const monthAverages = monthRatings.map(toKpiAverage);
             monthAverageRating = monthAverages.reduce((sum, val) => sum + val, 0) / monthAverages.length;
@@ -108,6 +125,9 @@ async function getDashboard(req, res) {
           cumulativeAverageRating =
             cumulativeAverages.reduce((sum, val) => sum + val, 0) / cumulativeAverages.length;
         }
+
+        const cumulativeRatingsCount = allRatingsForWorker.length;
+        const cumulativeRaterIds = uniqueRaterIds(allRatingsForWorker);
 
         const lowRatingHistory = allRatingsForWorker
           .map((r) => ({
@@ -122,8 +142,11 @@ async function getDashboard(req, res) {
           ...worker,
           latestRating,
           monthAverageRating,
+          monthRatingsCount,
+          monthRaterIds,
           cumulativeAverageRating,
-          cumulativeRatingsCount: allRatingsForWorker.length,
+          cumulativeRatingsCount,
+          cumulativeRaterIds,
           lowRatingHistory
         };
       })

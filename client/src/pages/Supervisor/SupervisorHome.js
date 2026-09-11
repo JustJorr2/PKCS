@@ -266,17 +266,13 @@ function SupervisorHome({ worker }) {
     <div className="page-content supervisor-home">
 
       <div className="page-header">
-        <h1>
-          {t("supervisorHome.welcomeBack")}
-        </h1>
-
-        <p>
+        <h3>          
           {filterMode === "lastMonth"
             ? `${t("supervisorHome.overviewMonth")} ${monthLabelFor(
-                getLastMonthKey()
-              )}.`
+              getLastMonthKey()
+            )}.`
             : t("supervisorHome.overviewCumulative")}
-        </p>
+        </h3>
       </div>
 
       {/* FILTER */}
