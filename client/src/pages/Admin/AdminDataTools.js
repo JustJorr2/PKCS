@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { adminDataService } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
+import FeedbackDialog from "../../components/common/FeedbackDialog";
 
 function AdminDataTools() {
   const { t } = useLanguage();
@@ -9,6 +10,7 @@ function AdminDataTools() {
   const [exportMonth, setExportMonth] = useState(new Date().toISOString().slice(0, 7));
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   const handleExport = async () => {
     try {
@@ -44,13 +46,16 @@ function AdminDataTools() {
   };
 
   const handleImport = async () => {
-    if (!file) return alert(t("adminDataTools.selectFileAlert"));
+    if (!file) {
+      setFeedback({ isOpen: true, title: t("adminDataTools.importData"), message: t("adminDataTools.selectFileAlert"), type: "info" });
+      return;
+    }
     try {
       setLoading(true);
       await adminDataService.importExcel(file);
-      alert(t("adminDataTools.importSuccess"));
+      setFeedback({ isOpen: true, title: t("adminDataTools.importData"), message: t("adminDataTools.importSuccess"), type: "success" });
     } catch {
-      alert(t("adminDataTools.importFailed"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: t("adminDataTools.importFailed"), type: "error" });
     } finally {
       setLoading(false);
     }
@@ -58,6 +63,7 @@ function AdminDataTools() {
 
   return (
     <div className="page-content admin-page">
+      <FeedbackDialog {...feedback} closeText={t("common.close")} onClose={() => setFeedback((prev) => ({ ...prev, isOpen: false }))} />
       <div className="page-header">
         <h1>{t("adminDataTools.title")}</h1>
         <p>{t("adminDataTools.subtitle")}</p>

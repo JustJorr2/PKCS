@@ -133,6 +133,9 @@ export const adminService = {
   updateUserRole: (id, role) =>
     apiClient.put(`/api/admin/users/${id}/role`, { role }),
 
+  updateWorkerArea: (id, area) =>
+    apiClient.put(`/api/admin/users/${id}/area`, { area }),
+
   deleteUser: (id) =>
     apiClient.delete(`/api/admin/users/${id}`),
 
@@ -166,8 +169,6 @@ export const adminService = {
   getPendingLateSubmissionRequests: () =>
     apiClient.get("/api/admin/late-submission-requests"),
 
-  // FIX (Problem 6): was named RRkUSs6V3Eu6gxjGDbGzcS99F5WyKtggsw. Renamed,
-  // and the param is a LateSubmissionRequest id now, not a rating id.
   getLateSubmissionRequests: (requestId, adminId, action) =>
     apiClient.put(
       `/api/admin/late-submission-requests/${requestId}`,

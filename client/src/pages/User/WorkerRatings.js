@@ -1,10 +1,49 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from "react";
 import { ratingsService, supervisorService } from "../../services/api";
+import { getRatingColor } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
+import FeedbackDialog from "../../components/common/FeedbackDialog";
 import { config } from "../../config/config";
+import { Users, CircleCheck, Clock, TrendingUp } from "lucide-react";
+
+const RATING_COLOR_LEGEND = [
+  { color: "#27ae60", key: "excellent", fallback: "Excellent (≥ 3.51)" },
+  { color: "#2f80ed", key: "good", fallback: "Good (2.76 – 3.50)" },
+  { color: "#f39c12", key: "average", fallback: "Average (2.00 – 2.75)" },
+  { color: "#e74c3c", key: "needsImprovement", fallback: "Needs Improvement (< 2.00)" }
+];
+
+const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
+
+const ratingFieldKeys = [
+  "workAreaCompliance",
+  "taskCompletion",
+  "cleanliness",
+  "wasteManagement",
+  "organization",
+  "uniformCompliance",
+  "independence",
+  "initiative",
+  "teamworkSupport",
+  "punctuality",
+  "attendance",
+  "leaveOnTime"
+];
+
+function computeRatingAverage(rating) {
+  if (!rating) return null;
+  const values = ratingFieldKeys.map((key) => Number(rating[key]) || 0);
+  return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+function formatRating(value, language) {
+  if (value === null || value === undefined || isNaN(value)) return "-";
+  const formatted = Number(value).toFixed(2);
+  return language === "id" ? formatted.replace(".", ",") : formatted;
+}
 
 function getPreviousMonthKey() {
   const now = new Date();
@@ -23,8 +62,26 @@ function formatMonthLabel(monthKey) {
   });
 }
 
+function formatDate(dateStr) {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "-";
+  return d.toLocaleDateString(undefined, {
+    year: "numeric", month: "short", day: "numeric"
+  });
+}
+
+function formatTime(dateStr) {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "-";
+  return d.toLocaleTimeString(undefined, {
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+
 function WorkerRatings({ worker }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -32,14 +89,18 @@ function WorkerRatings({ worker }) {
   const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
   const [ratedWorkerMap, setRatedWorkerMap] = useState({});
   const [lateSubmissionMap, setLateSubmissionMap] = useState({});
+  const [allTimeRatings, setAllTimeRatings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterArea, setFilterArea] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
+  const [showPeriodPicker, setShowPeriodPicker] = useState(false);
   const [editRequestModal, setEditRequestModal] = useState({ isOpen: false, workerId: null, reason: "" });
   const [lateSubmissionModal, setLateSubmissionModal] = useState({ isOpen: false, workerId: null, reason: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState({ isOpen: false, title: "", message: "", type: "error" });
 
   const fetchWorkers = useCallback(async () => {
     try {
@@ -95,10 +156,7 @@ function WorkerRatings({ worker }) {
     }
   }, [worker?._id, selectedMonth]);
 
-  // Late submission permissions live independently of ratings — a worker can
-  // have a pending/approved permission for a month before any Rating document
-  // exists. Keep this as its own fetch/map instead of piggybacking on
-  // ratedWorkerMap.
+
   const fetchLateSubmissions = useCallback(async () => {
     if (!worker?._id) {
       setLateSubmissionMap({});
@@ -120,16 +178,51 @@ function WorkerRatings({ worker }) {
     }
   }, [worker?._id, selectedMonth]);
 
+  const fetchAllTimeRatings = useCallback(async () => {
+    if (!worker?._id) {
+      setAllTimeRatings([]);
+      return;
+    }
+    try {
+      const response = await supervisorService.getSupervisorRatings(worker._id);
+      setAllTimeRatings(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+      console.error("Error fetching all-time ratings:", err);
+      setAllTimeRatings([]);
+    }
+  }, [worker?._id]);
+
   useEffect(() => {
     fetchWorkers();
     fetchWorkerRatings();
     fetchLateSubmissions();
-  }, [fetchWorkers, fetchWorkerRatings, fetchLateSubmissions]);
+    fetchAllTimeRatings();
+  }, [fetchWorkers, fetchWorkerRatings, fetchLateSubmissions, fetchAllTimeRatings]);
+
+
+  const cumulativeByWorker = useMemo(() => {
+    const map = {};
+    allTimeRatings.forEach((r) => {
+      const key = String(r.ratedUser);
+      if (!map[key]) map[key] = [];
+      map[key].push(r);
+    });
+    return map;
+  }, [allTimeRatings]);
+
+  const myAverageRatingThisMonth = useMemo(() => {
+    const averages = Object.values(ratedWorkerMap)
+      .map((r) => computeRatingAverage(r))
+      .filter((v) => v !== null);
+    if (!averages.length) return null;
+    return averages.reduce((a, b) => a + b, 0) / averages.length;
+  }, [ratedWorkerMap]);
 
   const handleApplyFilter = () => {
     const month = filterMonth || getPreviousMonthKey();
     setSelectedMonth(month);
     setActiveFilter(filterMonth ? `${t("workerRatings.activeFilterMonthPrefix")} ${filterMonth}` : "");
+    setShowPeriodPicker(false);
   };
 
   const handleResetFilter = () => {
@@ -137,6 +230,7 @@ function WorkerRatings({ worker }) {
     setFilterMonth("");
     setActiveFilter("");
     setSelectedMonth(previousMonth);
+    setShowPeriodPicker(false);
   };
 
   const handleRatingSuccess = () => {
@@ -145,6 +239,7 @@ function WorkerRatings({ worker }) {
     fetchWorkers();
     fetchWorkerRatings();
     fetchLateSubmissions();
+    fetchAllTimeRatings();
   };
 
   const isAlreadyRated = useCallback((workerId) => ratedWorkerIds.has(String(workerId)), [ratedWorkerIds]);
@@ -163,9 +258,6 @@ function WorkerRatings({ worker }) {
     });
   };
 
-  // FIX (Problem 1): no Rating exists yet at this point in the workflow, so
-  // this must NOT gate on ratedWorkerMap/rating._id. It only needs a target
-  // worker id and a non-empty reason.
   const handleSubmitLateSubmission = async () => {
     if (!lateSubmissionModal.workerId || !lateSubmissionModal.reason.trim()) return;
 
@@ -188,7 +280,7 @@ function WorkerRatings({ worker }) {
       });
 
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      setFeedback({ isOpen: true, title: t("common.error"), message: err.response?.data?.message || err.message, type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -212,7 +304,7 @@ function WorkerRatings({ worker }) {
       await fetchWorkerRatings();
       setEditRequestModal({ isOpen: false, workerId: null, reason: "" });
     } catch (err) {
-      alert(err.response?.data?.message || t("workerRatings.submitRequest"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: err.response?.data?.message || t("workerRatings.submitRequest"), type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -233,7 +325,7 @@ function WorkerRatings({ worker }) {
       setEditingRating(response.data || null);
       setRatingWorker(targetWorker);
     } catch (err) {
-      alert(err.response?.data?.message || t("workerRatings.edit"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: err.response?.data?.message || t("workerRatings.edit"), type: "error" });
     }
   };
 
@@ -249,15 +341,18 @@ function WorkerRatings({ worker }) {
           filterStatus === "all" ||
           (filterStatus === "rated" && isAlreadyRated(w._id)) ||
           (filterStatus === "unrated" && !isAlreadyRated(w._id));
-        return matchesSearch && matchesFilter;
+        const matchesArea = filterArea === "all"
+          || (filterArea === "unassigned" ? !w.area : w.area === filterArea);
+        return matchesSearch && matchesFilter && matchesArea;
       })
       .sort((a, b) => a.name.localeCompare(b.name));
 
     return { filteredWorkers: list, ratedCount: ratedWorkers, unratedCount: unratedWorkers };
-  }, [workers, searchTerm, filterStatus, isAlreadyRated]);
+  }, [workers, searchTerm, filterStatus, filterArea, isAlreadyRated]);
 
   return (
     <div className="page-content supervisor-details">
+      <FeedbackDialog {...feedback} closeText={t("common.close")} onClose={() => setFeedback((prev) => ({ ...prev, isOpen: false }))} />
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
@@ -367,44 +462,96 @@ function WorkerRatings({ worker }) {
         </div>
       )}
 
-      <div className="page-header">
-        <h1>{t("workerRatings.rateColleaguesTitle")}</h1>
-        <p>{t("workerRatings.rateColleaguesSubtitle")}</p>
-      </div>
+      {/* HEADER + PERIOD FILTER (moved to top right, same layout as SupervisorRatings) */}
+      <div className="page-header supervisor-ratings-header">
+        <div>
+          <h1>{t("workerRatings.rateColleaguesTitle")}</h1>
+          <p>{t("workerRatings.rateColleaguesSubtitle")}</p>
+        </div>
 
-      <div className="wf-filter-bar">
-        <div className="wf-filter-inputs">
-          <div className="wf-filter-group">
-            <label>{t("workerRatings.byMonth")}</label>
-            <input
-              type="month"
-              value={filterMonth}
-              onChange={(e) => setFilterMonth(e.target.value)}
-            />
+        <div className="period-filter-wrap">
+          <div
+            className="period-filter-card"
+            onClick={() => setShowPeriodPicker((prev) => !prev)}
+          >
+            <span className="period-icon">📅</span>
+            <div className="period-info">
+              <span className="period-label">{t("workerRatings.ratingMonth")}</span>
+              <span className="period-value">{formatMonthLabel(selectedMonth)}</span>
+            </div>
+            <span className="period-toggle">{showPeriodPicker ? "▲" : "▼"}</span>
           </div>
-          <button className="wf-btn-apply" onClick={handleApplyFilter}>
-            {t("workerRatings.apply")}
-          </button>
-          {activeFilter && (
-            <button className="wf-btn-reset" onClick={handleResetFilter}>
-              {t("workerRatings.clearFilter")}
-            </button>
+
+          {showPeriodPicker && (
+            <div className="period-picker-dropdown">
+              <div className="wf-filter-group">
+                <label>{t("workerRatings.byMonth")}</label>
+                <input
+                  type="month"
+                  value={filterMonth}
+                  onChange={(e) => setFilterMonth(e.target.value)}
+                />
+              </div>
+              <button className="wf-btn-apply" onClick={handleApplyFilter}>
+                {t("workerRatings.apply")}
+              </button>
+              {activeFilter && (
+                <button className="wf-btn-reset" onClick={handleResetFilter}>
+                  x {activeFilter}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
 
+      {/* STATS WIDGETS */}
       <div className="details-stats-row">
         <div className="quick-stat-pill">
-          <span className="label">{t("workerRatings.visibleWorkers")}</span>
-          <span className="value">{filteredWorkers.length}</span>
+          <span className="pill-icon">
+            <Users size={20} />
+          </span>
+          <div className="pill-text">
+            <span className="label">{t("workerRatings.visibleWorkers")}:</span>
+            <span className="value">{filteredWorkers.length}</span>
+          </div>
         </div>
+
         <div className="quick-stat-pill">
-          <span className="label">{t("workerRatings.ratedByYou")}</span>
-          <span className="value">{ratedCount}</span>
+          <span className="pill-icon">
+            <CircleCheck size={20} />
+          </span>
+          <div className="pill-text">
+            <span className="label">{t("workerRatings.ratedByYou")}:</span>
+            <span className="value">{ratedCount}</span>
+          </div>
         </div>
+
         <div className="quick-stat-pill">
-          <span className="label">{t("workerRatings.notYetRated")}</span>
-          <span className="value">{unratedCount}</span>
+          <span className="pill-icon">
+            <Clock size={20} />
+          </span>
+          <div className="pill-text">
+            <span className="label">{t("workerRatings.notYetRated")}:</span>
+            <span className="value">{unratedCount}</span>
+          </div>
+        </div>
+
+        <div className="quick-stat-pill">
+          <span className="pill-icon">
+            <TrendingUp size={20} />
+          </span>
+          <div className="pill-text">
+            <span className="label">
+              {t("workerRatings.myAverageRating") || "My Average Rating This Month"}:
+            </span>
+            <span
+              className="value"
+              style={{ color: myAverageRatingThisMonth !== null ? getRatingColor(myAverageRatingThisMonth) : undefined }}
+            >
+              {myAverageRatingThisMonth !== null ? `${formatRating(myAverageRatingThisMonth, language)} ★` : "-"}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -440,10 +587,49 @@ function WorkerRatings({ worker }) {
           </button>
         </div>
 
-        <div className="quick-stat-pill">
-          <span className="label">{t("workerRatings.ratingMonth")}</span>
-          <span className="value">{formatMonthLabel(selectedMonth)}</span>
+        <div className="sort-group">
+          <label htmlFor="worker-area-filter">{t("common.area")}</label>
+          <select id="worker-area-filter" value={filterArea} onChange={(e) => setFilterArea(e.target.value)} className="sort-select">
+            <option value="all">{t("common.allAreas")}</option>
+            <option value="unassigned">{t("common.unassigned")}</option>
+            {WORKER_AREAS.map((area) => <option key={area} value={area}>{area}</option>)}
+          </select>
         </div>
+      </div>
+
+      {/* RATING COLOR LEGEND, same as SupervisorRatings */}
+      <div
+        className="rating-color-legend"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: "16px",
+          margin: "14px 0",
+          padding: "10px 14px",
+          background: "#f9fafb",
+          borderRadius: "10px",
+          fontSize: "13px",
+          color: "#4b5563"
+        }}
+      >
+        <span style={{ fontWeight: 700, color: "#374151" }}>
+          {t("workerRatings.legendTitle") || "Rating colors:"}
+        </span>
+        {RATING_COLOR_LEGEND.map((item) => (
+          <span key={item.key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span
+              style={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                backgroundColor: item.color,
+                display: "inline-block"
+              }}
+            />
+            {t(`ratingStatus.${item.key}`) || item.fallback}
+          </span>
+        ))}
       </div>
 
       {!isRatingMonthAvailable && (
@@ -461,159 +647,230 @@ function WorkerRatings({ worker }) {
           {searchTerm ? t("workerRatings.noWorkersSearch") : t("workerRatings.noWorkersDisplay")}
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="workers-table worker-ratings-table">
+        <div className="table-responsive" style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <table
+            className="workers-table worker-ratings-table"
+            style={{ minWidth: "900px" }}
+          >
             <thead>
               <tr>
                 <th>{t("workerRatings.tableIndex")}</th>
                 <th>{t("workerRatings.tableName")}</th>
-                <th>{t("workerRatings.tableLastComment")}</th>
-                <th>{t("workerRatings.action")}</th>
+                <th>{t("common.area")}</th>
+                <th style={{ textAlign: "center" }}>
+                  {t("workerRatings.myCumulativeRating") || "My Cumulative Rating"}
+                </th>
+                <th style={{ textAlign: "center" }}>{t("workerRatings.sessions") || "Sessions"}</th>
+                <th>{t("workerRatings.latestRating") || "Last Rating Date"}</th>
+                <th style={{ textAlign: "center" }}>
+                  {t("workerRatings.myRatingThisMonth") || "My Rating This Period"}
+                </th>
+                <th style={{ textAlign: "center" }}>{t("workerRatings.action")}</th>
               </tr>
             </thead>
             <tbody>
-              {filteredWorkers.map((w, index) => (
-                <tr key={w._id} className={isAlreadyRated(w._id) ? "rated-row" : ""}>
-                  <td data-label={t("workerRatings.tableIndex")}>{index + 1}</td>
-                  <td data-label={t("workerRatings.tableName")}>
-                    <div className="worker-name-cell">
-                      {w.profilePicture ? (
-                        <img
-                          src={`${config.API_BASE_URL}/${w.profilePicture}`}
-                          alt={w.name}
-                          className="worker-badge worker-badge-image"
-                        />
-                      ) : (
-                        <div className="worker-badge">
-                          {w.name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      {w.name}
-                    </div>
-                  </td>
+              {filteredWorkers.map((w, index) => {
+                const myRating = ratedWorkerMap[String(w._id)];
+                const myRatingAvg = computeRatingAverage(myRating);
+                const colleagueRatings = cumulativeByWorker[String(w._id)] || [];
+                const colleagueAverages = colleagueRatings
+                  .map((r) => computeRatingAverage(r))
+                  .filter((v) => v !== null);
+                const cumulativeAvg = colleagueAverages.length
+                  ? colleagueAverages.reduce((a, b) => a + b, 0) / colleagueAverages.length
+                  : null;
+                const sessionsCount = colleagueRatings.length;
+                const latestColleagueRating = colleagueRatings.length
+                  ? [...colleagueRatings].sort(
+                      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                    )[0]
+                  : null;
 
-                  <td className="comment-cell" data-label={t("workerRatings.tableLastComment")}>
-                    {w.latestComment?.comment ? (
-                      <div className="comment-preview" title={w.latestComment.comment}>
-                        <span className="comment-text">
-                          {w.latestComment.comment.substring(0, 40)}
-                          {w.latestComment.comment.length > 40 ? "..." : ""}
-                        </span>
+                return (
+                  <tr key={w._id} className={isAlreadyRated(w._id) ? "rated-row" : ""}>
+                    <td data-label={t("workerRatings.tableIndex")}>{index + 1}</td>
+                    <td className="mobile-full" data-label={t("workerRatings.tableName")}>
+                      <div className="worker-name-cell">
+                        {w.profilePicture ? (
+                          <img
+                            src={`${config.API_BASE_URL}/${w.profilePicture}`}
+                            alt={w.name}
+                            className="worker-badge worker-badge-image"
+                          />
+                        ) : (
+                          <div className="worker-badge">
+                            {w.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        {w.name}
                       </div>
-                    ) : (
-                      <span className="text-muted">{t("workerRatings.dash")}</span>
-                    )}
+                    </td>
+
+                    <td data-label={t("common.area")}>{w.area || "-"}</td>
+
+                    <td
+                      className="center"
+                      data-label={t("workerRatings.myCumulativeRating") || "My Cumulative Rating"}
+                    >
+                      {cumulativeAvg !== null ? (
+                        <span
+                          className="rating-badge"
+                          style={{ backgroundColor: getRatingColor(cumulativeAvg) }}
+                        >
+                          {formatRating(cumulativeAvg, language)}
+                        </span>
+                      ) : (
+                        <span className="rating-badge rating-badge--none">-</span>
+                      )}
+                    </td>
+
+                    <td className="center" data-label={t("workerRatings.sessions") || "Sessions"}>
+                      {sessionsCount}
+                    </td>
+
+                    <td
+                      className="latest-rating-cell"
+                      data-label={t("workerRatings.latestRating") || "Last Rating Date"}
+                    >
+                      {latestColleagueRating ? (
+                        <>
+                          {formatDate(latestColleagueRating.createdAt)}{" "}
+                          <span className="latest-rating-time">
+                            {formatTime(latestColleagueRating.createdAt)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-muted">
+                          {t("workerRatings.noRatingsYet") || "No ratings yet"}
+                        </span>
+                      )}
+                    </td>
+
+                    <td
+                      className="center"
+                      data-label={t("workerRatings.myRatingThisMonth") || "My Rating This Period"}
+                    >
+                      {myRatingAvg !== null ? (
+                        <span
+                          className="rating-badge"
+                          style={{ backgroundColor: getRatingColor(myRatingAvg) }}
+                        >
+                          {formatRating(myRatingAvg, language)}
+                        </span>
+                      ) : (
+                        <span className="rating-badge rating-badge--none">-</span>
+                      )}
+                    </td>
+
+                    <td className="action-cell mobile-full" data-label={t("workerRatings.action")}>
+                      <div className="action-buttons">
+
+                  {(() => {
+
+                  const rating = ratedWorkerMap[String(w._id)];
+                  const permission = lateSubmissionMap[String(w._id)];
+
+                  const isLastMonth =
+                    selectedMonth === allowedRatingMonths[0];
+
+                  const isTwoMonthsAgo =
+                    selectedMonth === allowedRatingMonths[1];
+
+                  const isFutureOrTooOld =
+                    !allowedRatingMonths.includes(selectedMonth);
+
+
+                  // already rated
+                  if (isAlreadyRated(w._id)) {
+
+                      if (rating?.workerEditRequestStatus === "pending")
+                          return <span className="status-badge">{t("workerRatings.editPending")}</span>;
+
+                      if (rating?.workerEditRequestStatus === "approved")
+                          return (
+                              <button
+                                  className="btn btn-edit"
+                                  onClick={() => handleEditWorker(w)}
+                              >
+                                  {t("workerRatings.edit")}
+                              </button>
+                          );
+
+                      return (
+                          <button
+                              className="btn btn-warning"
+                              onClick={() => handleRequestEdit(w._id)}
+                          >
+                              {t("workerRatings.requestEdit")}
+                          </button>
+                      );
+                  }
+
+
+                  // LAST MONTH
+                  if (isLastMonth) {
+                      return (
+                          <button
+                              className="btn btn-primary"
+                              onClick={() => handleRateWorker(w)}
+                          >
+                              {t("workerRatings.rate")}
+                          </button>
+                      );
+                  }
+
+
+                  // TWO MONTHS AGO — gated on the permission map, not on a rating
+                  if (isTwoMonthsAgo) {
+
+                      if (permission?.status === "pending")
+                          return (
+                              <span className="status-badge">
+                                  {t("workerRatings.pendingApproval")}
+                              </span>
+                          );
+
+                      if (permission?.status === "approved")
+                          return (
+                              <button
+                                  className="btn btn-primary"
+                                  onClick={() => handleRateWorker(w)}
+                              >
+                                  {t("workerRatings.rate")}
+                              </button>
+                          );
+
+                      return (
+                          <button
+                              className="btn btn-warning"
+                              onClick={() => handleRequestLateSubmission(w._id)}
+                          >
+                              {t("workerRatings.requestPermission")}
+                          </button>
+                      );
+                  }
+
+
+                  // Future / Too old
+                  if (isFutureOrTooOld) {
+                      return (
+                          <button
+                              className="btn btn-secondary"
+                              disabled
+                          >
+                              {t("workerRatings.rate")}
+                          </button>
+                      );
+                  }
+
+                  return null;
+
+                  })()}
+                      </div>
                   </td>
-
-                  <td className="action-cell" data-label={t("workerRatings.action")}>
-
-                {(() => {
-
-                const rating = ratedWorkerMap[String(w._id)];
-                // Problem 3 fix: permission status lives in its own map, not
-                // on the (possibly nonexistent) Rating document.
-                const permission = lateSubmissionMap[String(w._id)];
-
-                const isLastMonth =
-                  selectedMonth === allowedRatingMonths[0];
-
-                const isTwoMonthsAgo =
-                  selectedMonth === allowedRatingMonths[1];
-
-                const isFutureOrTooOld =
-                  !allowedRatingMonths.includes(selectedMonth);
-
-
-                // already rated
-                if (isAlreadyRated(w._id)) {
-
-                    if (rating?.workerEditRequestStatus === "pending")
-                        return <span className="status-badge">{t("workerRatings.editPending")}</span>;
-
-                    if (rating?.workerEditRequestStatus === "approved")
-                        return (
-                            <button
-                                className="btn btn-primary"
-                                onClick={() => handleEditWorker(w)}
-                            >
-                                {t("workerRatings.edit")}
-                            </button>
-                        );
-
-                    return (
-                        <button
-                            className="btn btn-primary"
-                            onClick={() => handleRequestEdit(w._id)}
-                        >
-                            {t("workerRatings.requestEdit")}
-                        </button>
-                    );
-                }
-
-
-                // LAST MONTH
-                if (isLastMonth) {
-                    return (
-                        <button
-                            className="btn btn-primary"
-                            onClick={() => handleRateWorker(w)}
-                        >
-                            {t("workerRatings.rate")}
-                        </button>
-                    );
-                }
-
-
-                // TWO MONTHS AGO — gated on the permission map, not on a rating
-                if (isTwoMonthsAgo) {
-
-                    if (permission?.status === "pending")
-                        return (
-                            <span className="status-badge">
-                                {t("workerRatings.pendingApproval")}
-                            </span>
-                        );
-
-                    if (permission?.status === "approved")
-                        return (
-                            <button
-                                className="btn btn-primary"
-                                onClick={() => handleRateWorker(w)}
-                            >
-                                {t("workerRatings.rate")}
-                            </button>
-                        );
-
-                    return (
-                        <button
-                            className="btn btn-warning"
-                            onClick={() => handleRequestLateSubmission(w._id)}
-                        >
-                            {t("workerRatings.requestPermission")}
-                        </button>
-                    );
-                }
-
-
-                // Future / Too old
-                if (isFutureOrTooOld) {
-                    return (
-                        <button
-                            className="btn btn-secondary"
-                            disabled
-                        >
-                            {t("workerRatings.rate")}
-                        </button>
-                    );
-                }
-
-                return null;
-
-                })()}
-
-                </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

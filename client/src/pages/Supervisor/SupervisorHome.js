@@ -65,19 +65,8 @@ function getFieldVariation(rating) {
   const sortedDesc = [...values].sort((a, b) => b.value - a.value);
   const highest = sortedDesc[0];
   const lowest = sortedDesc[sortedDesc.length - 1];
-  const mean = values.reduce((sum, f) => sum + f.value, 0) / values.length;
 
-  const middleCandidates = values.filter(
-    (f) => f.key !== highest.key && f.key !== lowest.key
-  );
-  const pool = middleCandidates.length ? middleCandidates : values;
-
-  const middle = pool.reduce(
-    (best, f) => (Math.abs(f.value - mean) < Math.abs(best.value - mean) ? f : best),
-    pool[0]
-  );
-
-  return { highest, middle, lowest };
+  return { highest, lowest };
 }
 
 function SupervisorHome({ worker }) {
@@ -526,7 +515,7 @@ function SupervisorHome({ worker }) {
                           ratingFields.length
                         ).toFixed(2);
 
-                        const { highest, middle, lowest } = getFieldVariation(item.rating);
+                        const { highest, lowest } = getFieldVariation(item.rating);
 
                         return (
                           <div
@@ -544,8 +533,16 @@ function SupervisorHome({ worker }) {
                               </div>
                             </div>
 
-                            <div className="recent-rating">
-                              <div className="rating-fields-small">
+                            <div className="recent-rating" style={{ flex: 1, display: "flex", flexDirection: "column", marginLeft: "24px" }}>
+                              <div
+                                className="rating-fields-small"
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  width: "100%"
+                                }}
+                              >
                                 <span
                                   className="field-badge main"
                                   style={{ backgroundColor: getRatingColor(Number(ratingAvg)), color: "#fff" }}
@@ -553,29 +550,23 @@ function SupervisorHome({ worker }) {
                                   AVG: {ratingAvg} ★
                                 </span>
 
-                                <span
-                                  className="field-badge"
-                                  style={{ backgroundColor: getRatingColor(highest.value), color: "#fff" }}
-                                  title={t("supervisorHome.highest") || "Highest"}
-                                >
-                                  ↑ {t(`kpiShort.${highest.key}`)}: {highest.value} ★
-                                </span>
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                  <span
+                                    className="field-badge"
+                                    style={{ backgroundColor: getRatingColor(highest.value), color: "#fff" }}
+                                    title={t("supervisorHome.highest") || "Highest"}
+                                  >
+                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value} ★
+                                  </span>
 
-                                <span
-                                  className="field-badge"
-                                  style={{ backgroundColor: getRatingColor(middle.value), color: "#fff" }}
-                                  title={t("supervisorHome.average") || "Average"}
-                                >
-                                  • {t(`kpiShort.${middle.key}`)}: {middle.value} ★
-                                </span>
-
-                                <span
-                                  className="field-badge"
-                                  style={{ backgroundColor: getRatingColor(lowest.value), color: "#fff" }}
-                                  title={t("supervisorHome.weakest") || "Weakest"}
-                                >
-                                  ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value} ★
-                                </span>
+                                  <span
+                                    className="field-badge"
+                                    style={{ backgroundColor: getRatingColor(lowest.value), color: "#fff" }}
+                                    title={t("supervisorHome.weakest") || "Weakest"}
+                                  >
+                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value} ★
+                                  </span>
+                                </div>
                               </div>
 
                               <p className="recent-time">

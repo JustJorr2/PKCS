@@ -3,6 +3,7 @@ import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
 import { useLanguage } from "../../context/LanguageContext";
+import FeedbackDialog from "../../components/common/FeedbackDialog";
 import { Users, UserX, Star, AlertTriangle } from "lucide-react";
 
 const ratingFields = [
@@ -26,6 +27,8 @@ const PIE_SEGMENTS = [
   { key: "poor", labelKey: "supervisorVisuals.poorLabel", color: "#f44336" },
   { key: "notRated", labelKey: "supervisorVisuals.notRatedLabel", color: "#9e9e9e" }
 ];
+
+const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
 
 /* =========================================================
    PERIOD OPTIONS
@@ -220,6 +223,7 @@ function SupervisorDataVisuals({ worker }) {
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
 
   const [ratingView, setRatingView] = useState("all");
+  const [filterArea, setFilterArea] = useState("all");
 
   const [minRaters, setMinRaters] = useState(0);
   const [minRatersInput, setMinRatersInput] = useState("0");
@@ -239,13 +243,12 @@ function SupervisorDataVisuals({ worker }) {
   /* MODALS */
   const [showBelowTwoModal, setShowBelowTwoModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [feedback, setFeedback] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   const quarterOptions = useMemo(() => generateQuarterOptions(), []);
   const checklistOptions = useMemo(() => generateMonthChecklistOptions(), []);
 
   const buildViewParams = useCallback(() => ({ ratingView }), [ratingView]);
-
-  const stats = useMemo(() => buildStats(workers, isPeriodScoped, minRaters), [workers, isPeriodScoped, minRaters]);
 
   /* FETCH SINGLE MONTH */
   const fetchSingleMonth = useCallback(
@@ -337,7 +340,10 @@ function SupervisorDataVisuals({ worker }) {
       );
 
       const points = monthsAsc.map((opt, idx) => {
-        const data = responses[idx].data || [];
+        const data = (responses[idx].data || []).filter((w) => (
+          filterArea === "all"
+          || (filterArea === "unassigned" ? !w.area : w.area === filterArea)
+        ));
 
         const scores = data
           .map((w) => (typeof w.monthAverageRating === "number" ? w.monthAverageRating : null))
@@ -352,7 +358,7 @@ function SupervisorDataVisuals({ worker }) {
     } catch (err) {
       console.error("Error fetching trend data:", err);
     }
-  }, [worker?._id, buildViewParams]);
+  }, [worker?._id, buildViewParams, filterArea]);
 
   useEffect(() => {
     fetchSingleMonth();
@@ -378,7 +384,7 @@ function SupervisorDataVisuals({ worker }) {
       }
     } else if (filterMode === "checklist") {
       if (selectedMonths.length === 0) {
-        alert(t("supervisorVisuals.noMonthsSelected"));
+        setFeedback({ isOpen: true, title: t("supervisorVisuals.filterBy"), message: t("supervisorVisuals.noMonthsSelected"), type: "info" });
         return;
       }
 
@@ -399,14 +405,20 @@ function SupervisorDataVisuals({ worker }) {
     setFilterMonth("");
     setFilterQuarter("");
     setSelectedMonths([]);
+    setFilterArea("all");
     setActiveFilter("");
 
     fetchSingleMonth("");
     fetchTrend();
   };
 
-  const ratedWorkers = useMemo(() => workers.filter((w) => w.latestRating), [workers]);
-  const totalWorkers = workers.length;
+  const filteredWorkers = useMemo(() => workers.filter((w) => (
+    filterArea === "all"
+    || (filterArea === "unassigned" ? !w.area : w.area === filterArea)
+  )), [workers, filterArea]);
+  const filteredStats = useMemo(() => buildStats(filteredWorkers, isPeriodScoped, minRaters), [filteredWorkers, isPeriodScoped, minRaters]);
+  const ratedWorkers = useMemo(() => filteredWorkers.filter((w) => w.latestRating), [filteredWorkers]);
+  const totalWorkers = filteredWorkers.length;
   const getBarWidth = (count) => (totalWorkers > 0 ? (count / totalWorkers) * 100 : 0);
 
   const getKpiAverage = (key) => {
@@ -416,7 +428,7 @@ function SupervisorDataVisuals({ worker }) {
   };
 
   const pieData = useMemo(() => {
-    const total = PIE_SEGMENTS.reduce((sum, segment) => sum + (stats.ratingDistribution[segment.key] || 0), 0);
+    const total = PIE_SEGMENTS.reduce((sum, segment) => sum + (filteredStats.ratingDistribution[segment.key] || 0), 0);
 
     if (!total) {
       return {
@@ -430,7 +442,7 @@ function SupervisorDataVisuals({ worker }) {
     const colorStops = [];
 
     const legend = PIE_SEGMENTS.map((segment) => {
-      const count = stats.ratingDistribution[segment.key] || 0;
+      const count = filteredStats.ratingDistribution[segment.key] || 0;
       const percent = (count / total) * 100;
       const start = cumulative;
       const end = cumulative + percent;
@@ -442,7 +454,9 @@ function SupervisorDataVisuals({ worker }) {
     });
 
     return { background: `conic-gradient(${colorStops.join(", ")})`, total, legend };
-  }, [stats.ratingDistribution]);
+  }, [filteredStats.ratingDistribution]);
+
+  const stats = filteredStats;
 
   const periodLabel = useMemo(() => {
     if (activeFilter) return activeFilter;
@@ -470,6 +484,7 @@ function SupervisorDataVisuals({ worker }) {
 
   return (
     <div className="page-content supervisor-visuals">
+      <FeedbackDialog {...feedback} closeText={t("common.close")} onClose={() => setFeedback((prev) => ({ ...prev, isOpen: false }))} />
 
       <div className="page-header supervisor-ratings-header">
         <div>
@@ -500,6 +515,15 @@ function SupervisorDataVisuals({ worker }) {
                   <option value="all">{t("supervisorVisuals.viewAll") || "All Ratings"}</option>
                   <option value="supervisor">{t("supervisorVisuals.viewSupervisor") || "Supervisor Ratings"}</option>
                   <option value="own">{t("supervisorVisuals.viewOwn") || "My Ratings"}</option>
+                </select>
+              </div>
+
+              <div className="wf-filter-group">
+                <label>{t("common.area")}</label>
+                <select className="sort-select" value={filterArea} onChange={(e) => setFilterArea(e.target.value)}>
+                  <option value="all">{t("common.allAreas")}</option>
+                  <option value="unassigned">{t("common.unassigned")}</option>
+                  {WORKER_AREAS.map((area) => <option key={area} value={area}>{area}</option>)}
                 </select>
               </div>
 

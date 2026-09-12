@@ -233,6 +233,11 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
               <span className="info-label">{t("common.role")}</span>
               <span className="info-value">{formData.role}</span>
             </div>
+
+            <div className="info-row">
+              <span className="info-label">{t("common.area")}</span>
+              <span className="info-value">{currentWorker?.area || "-"}</span>
+            </div>
           </div>
 
           <div className="profile-card">

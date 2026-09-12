@@ -15,7 +15,11 @@ export const translations = {
       username: "Username",
       optional: "Optional",
       name : "Full Name",
-      close: "Close"
+      close: "Close",
+      error: "Something went wrong",
+      area: "Area",
+      allAreas: "All areas",
+      unassigned: "Unassigned"
     },
     login: {
       createAccount: "Create Account",
@@ -94,7 +98,8 @@ export const translations = {
       ratingSuffix: "rating",
       overallRating: "Overall Rating",
       noMonthlyHistory: "No monthly history available yet.",
-      avgShort: "avg"
+      avgShort: "avg",
+      overview: "Your Performance Overview"
     },
     workerRatings: {
       modalTitle: "Request Rating Edit",
@@ -142,7 +147,13 @@ export const translations = {
       pendingApproval: "Pending Approval",
       requestPermission: "Request Permission",
       activeFilterMonthPrefix: "Month:",
-      clearFilter: "Clear filter"
+      clearFilter: "Clear filter",
+      myAverageRating: "My Average Rating This Month",    
+      legendTitle: "Status:",
+      myCumulativeRating: "My Cumulative Rating",
+      sessions: "Sessions",
+      latestRating: "Last Rating Date",
+      myRatingThisMonth: "My Rating This Period"
     },
     ratingForm: {
       commentLabel: "Comments (Optional)",
@@ -167,7 +178,15 @@ export const translations = {
       noPeerFeedback: "No peer feedback with comments yet.",
       anonymousColleague: "Anonymous Colleague",
       supervisorLabel: "Supervisor Feedback",
-      peerLabel: "Peer Feedback"
+      peerLabel: "Peer Feedback",
+      ratingMonth: "Feedback Period",
+      allTime: "All time",
+      legendTitle: "Rating colors:",
+      noRatings: "No ratings yet",
+      excellent: "Excellent (≥ 3.51)",
+      good: "Good (2.76 - 3.50)",
+      average: "Average (2.00 - 2.75)",
+      needsImprovement: "Needs Improvement (< 2.00)"
     },
     workerNav: {
       home: "Home",
@@ -404,6 +423,12 @@ export const translations = {
       loadingUsers: "Loading users...",
       noUsersMatch: "No users match your current filters.",
       confirmDelete: "Are you sure you want to delete this user?",
+      confirmDeleteTitle: "Delete user",
+      deleteFailed: "Failed to delete user",
+      missingEmail: "This user needs an email before becoming a supervisor or admin.",
+      missingUsername: "This user needs a username before becoming a worker.",
+      invalidArea: "The selected worker area is invalid.",
+      workerAreaOnly: "Areas can only be assigned to workers.",
       passwordUpdateFailed: "Failed to update password",
       resetPasswordTitle: "Reset User Password",
       resetPasswordLabel: "Enter new password for this user",
@@ -424,7 +449,10 @@ export const translations = {
       roleWorker: "Worker",
       roleSupervisor: "Supervisor",
       roleAdmin: "Admin",
-      roleUpdateFailed: "Failed to update role"
+      roleUpdateFailed: "Failed to update role",
+      area: "Area",
+      unassigned: "Unassigned",
+      areaUpdateFailed: "Failed to update worker area"
     },
     adminDataTools: {
       title: "Data Tools",
@@ -545,7 +573,11 @@ export const translations = {
       username: "Nama Pengguna",
       optional: "Opsional",
       name : "Nama Lengkap",
-      close: "Tutup"
+      close: "Tutup",
+      error: "Terjadi kesalahan",
+      area: "Area",
+      allAreas: "Semua area",
+      unassigned: "Belum ditugaskan"
     },
     login: {
       createAccount: "Buat Akun",
@@ -623,7 +655,8 @@ export const translations = {
       ratingSuffix: "penilaian",
       overallRating: "Nilai Keseluruhan",
       noMonthlyHistory: "Belum ada riwayat bulanan.",
-      avgShort: "rata-rata"
+      avgShort: "rata-rata",
+      overview: "Ringkasan Performa Anda"
     },
     workerRatings: {
       modalTitle: "Minta Edit Penilaian",
@@ -671,7 +704,13 @@ export const translations = {
       pendingApproval: "Menunggu Persetujuan",
       requestPermission: "Minta Izin",
       activeFilterMonthPrefix: "Bulan:",
-      clearFilter: "Hapus filter"
+      clearFilter: "Hapus filter",
+      myAverageRating: "Rata-rata Penilaian Saya Bulan Ini",
+      legendTitle: "Status:",
+      myCumulativeRating: "Rata-rata Kumulatif Saya",
+      sessions: "Sesi",
+      latestRating: "Penilaian Terakhir",
+      myRatingThisMonth: "Penilaian Saya"
     },
     ratingForm: {
       commentLabel: "Komentar (Opsional)",
@@ -696,7 +735,15 @@ export const translations = {
       noPeerFeedback: "Belum ada umpan balik rekan dengan komentar.",
       anonymousColleague: "Rekan Anonim",
       supervisorLabel: "Umpan Balik Supervisor",
-      peerLabel: "Umpan Balik Rekan"
+      peerLabel: "Umpan Balik Rekan",
+      ratingMonth: "Periode Masukan",
+      allTime: "Sepanjang waktu",
+      legendTitle: "Warna penilaian:",
+      noRatings: "Belum ada penilaian",
+      excellent: "Sangat Baik (≥ 3,51)",
+      good: "Baik (2,76 - 3,50)",
+      average: "Cukup (2,00 - 2,75)",
+      needsImprovement: "Perlu Peningkatan (< 2,00)"
     },
     workerNav: {
       home: "Beranda",
@@ -710,7 +757,7 @@ export const translations = {
     supervisorNav: {
       home: "Beranda",
       details: "Penilaian Kinerja",
-      dataVisuals: "Visual Data",
+      dataVisuals: "Monitoring Kerja",
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
@@ -793,7 +840,7 @@ export const translations = {
     },
     supervisorVisuals: {
       loading: "Memuat analitik...",
-      title: "Visual Data dan Analitik",
+      title: "Monitoring Kerja dan Analitik",
       subtitle: "Metrik performa dan insight",
       byMonth: "Berdasarkan bulan",
       apply: "Terapkan",
@@ -933,6 +980,12 @@ export const translations = {
       loadingUsers: "Memuat pengguna...",
       noUsersMatch: "Tidak ada pengguna yang cocok dengan filter Anda.",
       confirmDelete: "Apakah Anda yakin ingin menghapus pengguna ini?",
+      confirmDeleteTitle: "Hapus pengguna",
+      deleteFailed: "Gagal menghapus pengguna",
+      missingEmail: "Pengguna ini memerlukan email sebelum menjadi supervisor atau admin.",
+      missingUsername: "Pengguna ini memerlukan nama pengguna sebelum menjadi pekerja.",
+      invalidArea: "Area pekerja yang dipilih tidak valid.",
+      workerAreaOnly: "Area hanya dapat ditetapkan kepada pekerja.",
       passwordUpdateFailed: "Gagal memperbarui kata sandi",
       resetPasswordTitle: "Reset Kata Sandi Pengguna",
       resetPasswordLabel: "Masukkan kata sandi baru untuk pengguna ini",
@@ -953,7 +1006,10 @@ export const translations = {
       roleWorker: "Pekerja",
       roleSupervisor: "Supervisor",
       roleAdmin: "Admin",
-      roleUpdateFailed: "Gagal memperbarui peran"
+      roleUpdateFailed: "Gagal memperbarui peran",
+      area: "Area",
+      unassigned: "Belum ditetapkan",
+      areaUpdateFailed: "Gagal memperbarui area pekerja"
     },
     adminDataTools: {
       title: "Alat Data",
@@ -1011,7 +1067,7 @@ export const translations = {
     adminNav: {
       home: "Beranda",
       manageUsers: "Kelola Pengguna",
-      dataVisuals: "Visualisasi Data",
+      dataVisuals: "Monitoring Kerja",
       dataTools: "Alat Data",
       editRequests: "Permintaan Edit",
       profile: "Profil",

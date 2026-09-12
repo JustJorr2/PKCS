@@ -82,6 +82,28 @@
   line-height: 1;
 }
 
+.stat-icon {
+  color: #374151;
+}
+
+.page-header h1,
+.section-title,
+.admin-loading,
+.filter-tab,
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spin {
+  animation: admin-spin 1s linear infinite;
+}
+
+@keyframes admin-spin {
+  to { transform: rotate(360deg); }
+}
+
 .admin-stat-card .stat-number {
   font-size: 30px;
   font-weight: 800;

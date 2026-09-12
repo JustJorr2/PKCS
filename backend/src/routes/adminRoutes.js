@@ -2,6 +2,7 @@
 const {
   getAdminUsers,
   updateUserRole,
+  updateWorkerArea,
   deleteUser,
   changePassword,
   getAdminDashboard,
@@ -21,6 +22,7 @@ const router = express.Router();
 
 router.get("/admin/users", getAdminUsers);
 router.put("/admin/users/:id/role", updateUserRole);
+router.put("/admin/users/:id/area", updateWorkerArea);
 router.delete("/admin/users/:id", deleteUser);
 router.put("/admin/users/:id/password", changePassword);
 router.get("/admin/dashboard", getAdminDashboard);

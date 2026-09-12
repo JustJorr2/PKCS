@@ -1,6 +1,7 @@
 ﻿const User = require("../models/User");
 const Rating = require("../models/Rating");
 const LateSubmissionRequest = require("../models/LateSubmissionRequest");
+const { WORKER_AREAS } = require("../constants/workerAreas");
 
 async function getAdminUsers(req, res) {
   try {
@@ -34,6 +35,35 @@ async function updateUserRole(req, res) {
     }
 
     user.role = role;
+    if (role !== "worker") {
+      user.area = null;
+    }
+    await user.save();
+
+    const updated = user.toObject();
+    delete updated.password;
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function updateWorkerArea(req, res) {
+  try {
+    const { area } = req.body;
+    if (area !== null && !WORKER_AREAS.includes(area)) {
+      return res.status(400).json({ message: "Invalid worker area" });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (user.role !== "worker") {
+      return res.status(400).json({ message: "Areas can only be assigned to workers" });
+    }
+
+    user.area = area;
     await user.save();
 
     const updated = user.toObject();
@@ -217,6 +247,7 @@ async function rejectWorker(req, res) {
 module.exports = {
   getAdminUsers,
   updateUserRole,
+  updateWorkerArea,
   deleteUser,
   changePassword,
   getAdminDashboard,

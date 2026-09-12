@@ -10,12 +10,68 @@
 }
 
 .confirm-dialog-card {
+  position: relative;
   width: 100%;
   max-width: 380px;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
   padding: 18px;
+}
+
+.feedback-dialog {
+  padding: 28px 24px 22px;
+  text-align: center;
+}
+
+.feedback-dialog-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.feedback-dialog-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.feedback-dialog-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+}
+
+.feedback-dialog-error .feedback-dialog-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.feedback-dialog-success .feedback-dialog-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.feedback-dialog-info .feedback-dialog-icon {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.feedback-dialog .confirm-dialog-actions {
+  justify-content: center;
 }
 
 .confirm-dialog-card h3 {
