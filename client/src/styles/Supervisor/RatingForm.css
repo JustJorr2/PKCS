@@ -104,7 +104,7 @@
 }
 
 .slider::-webkit-slider-thumb:hover {
-  background: #764ba2;
+  background: #2a5ccc;
 }
 
 .slider::-moz-range-thumb {
@@ -118,7 +118,7 @@
 }
 
 .slider::-moz-range-thumb:hover {
-  background: #764ba2;
+  background: #2a5ccc;
 }
 
 .rating-labels {
@@ -185,7 +185,7 @@
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #2a5ccc 100%);
   color: white;
 }
 

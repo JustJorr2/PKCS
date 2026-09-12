@@ -5,6 +5,7 @@ import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
+import FeedbackDialog from "../../components/common/FeedbackDialog";
 import { config } from "../../config/config";
 import { Users, CircleCheck, Clock, TrendingUp } from "lucide-react";
 
@@ -99,6 +100,7 @@ function WorkerRatings({ worker }) {
   const [editRequestModal, setEditRequestModal] = useState({ isOpen: false, workerId: null, reason: "" });
   const [lateSubmissionModal, setLateSubmissionModal] = useState({ isOpen: false, workerId: null, reason: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState({ isOpen: false, title: "", message: "", type: "error" });
 
   const fetchWorkers = useCallback(async () => {
     try {
@@ -278,7 +280,7 @@ function WorkerRatings({ worker }) {
       });
 
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      setFeedback({ isOpen: true, title: t("common.error"), message: err.response?.data?.message || err.message, type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -302,7 +304,7 @@ function WorkerRatings({ worker }) {
       await fetchWorkerRatings();
       setEditRequestModal({ isOpen: false, workerId: null, reason: "" });
     } catch (err) {
-      alert(err.response?.data?.message || t("workerRatings.submitRequest"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: err.response?.data?.message || t("workerRatings.submitRequest"), type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -323,7 +325,7 @@ function WorkerRatings({ worker }) {
       setEditingRating(response.data || null);
       setRatingWorker(targetWorker);
     } catch (err) {
-      alert(err.response?.data?.message || t("workerRatings.edit"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: err.response?.data?.message || t("workerRatings.edit"), type: "error" });
     }
   };
 
@@ -350,6 +352,7 @@ function WorkerRatings({ worker }) {
 
   return (
     <div className="page-content supervisor-details">
+      <FeedbackDialog {...feedback} closeText={t("common.close")} onClose={() => setFeedback((prev) => ({ ...prev, isOpen: false }))} />
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}

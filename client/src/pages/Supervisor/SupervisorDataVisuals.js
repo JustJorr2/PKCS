@@ -3,6 +3,7 @@ import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
 import { useLanguage } from "../../context/LanguageContext";
+import FeedbackDialog from "../../components/common/FeedbackDialog";
 import { Users, UserX, Star, AlertTriangle } from "lucide-react";
 
 const ratingFields = [
@@ -242,6 +243,7 @@ function SupervisorDataVisuals({ worker }) {
   /* MODALS */
   const [showBelowTwoModal, setShowBelowTwoModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [feedback, setFeedback] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   const quarterOptions = useMemo(() => generateQuarterOptions(), []);
   const checklistOptions = useMemo(() => generateMonthChecklistOptions(), []);
@@ -382,7 +384,7 @@ function SupervisorDataVisuals({ worker }) {
       }
     } else if (filterMode === "checklist") {
       if (selectedMonths.length === 0) {
-        alert(t("supervisorVisuals.noMonthsSelected"));
+        setFeedback({ isOpen: true, title: t("supervisorVisuals.filterBy"), message: t("supervisorVisuals.noMonthsSelected"), type: "info" });
         return;
       }
 
@@ -482,6 +484,7 @@ function SupervisorDataVisuals({ worker }) {
 
   return (
     <div className="page-content supervisor-visuals">
+      <FeedbackDialog {...feedback} closeText={t("common.close")} onClose={() => setFeedback((prev) => ({ ...prev, isOpen: false }))} />
 
       <div className="page-header supervisor-ratings-header">
         <div>

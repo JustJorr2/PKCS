@@ -220,7 +220,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #2a5ccc 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -523,7 +523,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #2a5ccc 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -639,7 +639,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #2a5ccc 100%);
   color: white;
 }
 
@@ -1399,7 +1399,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #2a5ccc 100%);
   color: white;
   display: flex;
   align-items: center;

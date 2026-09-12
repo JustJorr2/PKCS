@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { config } from "../../config/config";
 import "../../styles/Admin/AdminPages.css";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
+import FeedbackDialog from "../../components/common/FeedbackDialog";
 import { BarChart3, LoaderCircle, ShieldCheck, UserRound, Users, X } from "lucide-react";
 
 const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
@@ -35,6 +37,20 @@ function AdminUsers() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [passwordModal, setPasswordModal] = useState({ isOpen: false, userId: null, newPassword: "" });
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState({ isOpen: false, title: "", message: "", type: "error" });
+  const [deleteUserId, setDeleteUserId] = useState(null);
+
+  const getAdminErrorMessage = (err, fallback) => {
+    const message = err.response?.data?.message;
+    const messageKeys = {
+      "This user has no email and cannot become a supervisor or admin. Add an email first.": "adminUsers.missingEmail",
+      "This user has no username and cannot become a worker. Add a username first.": "adminUsers.missingUsername",
+      "Invalid worker area": "adminUsers.invalidArea",
+      "Areas can only be assigned to workers": "adminUsers.workerAreaOnly"
+    };
+
+    return messageKeys[message] ? t(messageKeys[message]) : (message || fallback);
+  };
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -53,7 +69,7 @@ function AdminUsers() {
       await adminService.updateUserRole(id, role);
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || t("adminUsers.roleUpdateFailed"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: getAdminErrorMessage(err, t("adminUsers.roleUpdateFailed")), type: "error" });
     }
   };
 
@@ -62,14 +78,23 @@ function AdminUsers() {
       await adminService.updateWorkerArea(id, area || null);
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || t("adminUsers.areaUpdateFailed"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: getAdminErrorMessage(err, t("adminUsers.areaUpdateFailed")), type: "error" });
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm(t("adminUsers.confirmDelete"))) return;
-    await adminService.deleteUser(id);
-    fetchUsers();
+    setDeleteUserId(id);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await adminService.deleteUser(deleteUserId);
+      setDeleteUserId(null);
+      fetchUsers();
+    } catch (err) {
+      setDeleteUserId(null);
+      setFeedback({ isOpen: true, title: t("common.error"), message: getAdminErrorMessage(err, t("adminUsers.deleteFailed")), type: "error" });
+    }
   };
 
   const handlePasswordReset = (id) => {
@@ -84,7 +109,7 @@ function AdminUsers() {
       setPasswordModal({ isOpen: false, userId: null, newPassword: "" });
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || t("adminUsers.passwordUpdateFailed"));
+      setFeedback({ isOpen: true, title: t("common.error"), message: getAdminErrorMessage(err, t("adminUsers.passwordUpdateFailed")), type: "error" });
     } finally {
       setPasswordSubmitting(false);
     }
@@ -129,6 +154,16 @@ function AdminUsers() {
 
   return (
     <div className="page-content admin-page">
+      <FeedbackDialog {...feedback} closeText={t("common.close")} onClose={() => setFeedback((prev) => ({ ...prev, isOpen: false }))} />
+      <ConfirmDialog
+        isOpen={Boolean(deleteUserId)}
+        title={t("adminUsers.confirmDeleteTitle")}
+        message={t("adminUsers.confirmDelete")}
+        confirmText={t("adminUsers.delete")}
+        cancelText={t("common.cancel")}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteUserId(null)}
+      />
       {/* Password Reset Modal */}
       {passwordModal.isOpen && (
         <div className="modal-overlay" onClick={handleClosePasswordModal}>

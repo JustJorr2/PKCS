@@ -6,6 +6,7 @@ import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
+import FeedbackDialog from "../../components/common/FeedbackDialog";
 import { config } from "../../config/config";
 import { Users, CircleCheck, Clock, TrendingUp  } from "lucide-react";
 
@@ -76,6 +77,7 @@ function SupervisorRatings({ worker: supervisor }) {
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
+  const [feedback, setFeedback] = useState({ isOpen: false, title: "", message: "", type: "error" });
   const navigate = useNavigate();
   const defaultMonth = getPreviousMonthKey();
 
@@ -149,7 +151,7 @@ function SupervisorRatings({ worker: supervisor }) {
         setEditingRating(null);
         setRatingWorker(worker);
       } else {
-        alert(err.response?.data?.message || t("supervisorRatings.edit"));
+        setFeedback({ isOpen: true, title: t("common.error"), message: err.response?.data?.message || t("supervisorRatings.edit"), type: "error" });
       }
     }
   };
@@ -195,6 +197,7 @@ function SupervisorRatings({ worker: supervisor }) {
 
   return (
     <div className="page-content supervisor-details">
+      <FeedbackDialog {...feedback} closeText={t("common.close")} onClose={() => setFeedback((prev) => ({ ...prev, isOpen: false }))} />
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
