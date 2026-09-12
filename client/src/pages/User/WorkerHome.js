@@ -19,10 +19,6 @@ const ratingFields = [
   { key: "attendance", short: "AT" },
   { key: "leaveOnTime", short: "LT" }
 ];
-
-// How many of the most recent months to show in the "Recent Ratings" list.
-// The "Monthly History" section further down still shows everything, and
-// doubles as the worker's way to look back at any past month.
 const RECENT_MONTHS_LIMIT = 6;
 
 function monthLabelFor(monthKey) {
@@ -32,6 +28,19 @@ function monthLabelFor(monthKey) {
         month: "long"
       })
     : monthKey;
+}
+
+function getFieldVariation(rating) {
+  const values = ratingFields.map((f) => ({
+    ...f,
+    value: Number(rating[f.key]) || 0
+  }));
+
+  const sortedDesc = [...values].sort((a, b) => b.value - a.value);
+  const highest = sortedDesc[0];
+  const lowest = sortedDesc[sortedDesc.length - 1];
+
+  return { highest, lowest };
 }
 
 function WorkerHome({ worker }) {
@@ -118,10 +127,7 @@ function WorkerHome({ worker }) {
       .sort((a, b) => a.avg - b.avg)
       .slice(0, 3);
 
-    // Group every individual rating by the month it belongs to (dateKey,
-    // falling back to createdAt's month). Used both for the "Recent
-    // Ratings" list — grouped by month — and for the monthly average
-    // history below, computed from the same map instead of building it twice.
+      
     const monthlyMap = ratings.reduce((acc, rating) => {
       const monthKey =
         rating.dateKey ||
@@ -254,13 +260,7 @@ function WorkerHome({ worker }) {
                           ) / ratingFields.length
                         ).toFixed(2);
 
-                        const lowestFields = [...ratingFields]
-                          .map((f) => ({
-                            ...f,
-                            value: Number(rating[f.key]) || 0,
-                          }))
-                          .sort((a, b) => a.value - b.value)
-                          .slice(0, 3);
+                        const { highest, lowest } = getFieldVariation(rating);
 
                         const isSupervisor =
                           rating.ratedBy?.role === "supervisor";
@@ -300,8 +300,16 @@ function WorkerHome({ worker }) {
                               </div>
                             </div>
 
-                            <div className="recent-rating">
-                              <div className="rating-fields-small">
+                            <div className="recent-rating" style={{ flex: 1, display: "flex", flexDirection: "column", marginLeft: "24px" }}>
+                              <div
+                                className="rating-fields-small"
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  width: "100%"
+                                }}
+                              >
                                 <span
                                   className="field-badge main"
                                   style={{
@@ -312,18 +320,29 @@ function WorkerHome({ worker }) {
                                   AVG: {ratingAvg} ★
                                 </span>
 
-                                {lowestFields.map((f) => (
+                                <div style={{ display: "flex", gap: "8px" }}>
                                   <span
-                                    key={f.key}
                                     className="field-badge"
                                     style={{
-                                      backgroundColor: getRatingColor(f.value),
+                                      backgroundColor: getRatingColor(highest.value),
                                       color: "#fff"
                                     }}
+                                    title={t("workerHome.highest") || "Highest"}
                                   >
-                                    {t(`kpiShort.${f.key}`)}: {f.value} ★
+                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value} ★
                                   </span>
-                                ))}
+
+                                  <span
+                                    className="field-badge"
+                                    style={{
+                                      backgroundColor: getRatingColor(lowest.value),
+                                      color: "#fff"
+                                    }}
+                                    title={t("workerHome.weakest") || "Weakest"}
+                                  >
+                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value} ★
+                                  </span>
+                                </div>
                               </div>
 
                               <p className="recent-time">

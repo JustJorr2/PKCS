@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { adminService } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
-import { ClipboardPlus, LoaderCircle, ShieldCheck, Star, UserRound, Users } from "lucide-react";
+import { ClipboardPlus, LoaderCircle, ShieldCheck, Star, UserCog, UserRound, Users } from "lucide-react";
 
 const ROLE_META = {
   admin: { icon: ShieldCheck },
-  supervisor: { icon: UserRound },
+  supervisor: { icon: UserCog },
   worker: { icon: UserRound }
 };
 

@@ -6,7 +6,7 @@ import { config } from "../../config/config";
 import "../../styles/Admin/AdminPages.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import FeedbackDialog from "../../components/common/FeedbackDialog";
-import { BarChart3, LoaderCircle, ShieldCheck, UserRound, Users, X } from "lucide-react";
+import { BarChart3, LoaderCircle, ShieldCheck, UserCog, UserRound, Users, X } from "lucide-react";
 
 const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
 
@@ -20,12 +20,12 @@ function AdminUsers() {
     { value: "admin", label: t("adminUsers.roleAdmin") }
   ];
 
-  const FILTER_TABS = [
-    { key: "all", label: t("adminUsers.filterAll"), icon: BarChart3 },
-    { key: "worker", label: t("adminUsers.filterWorkers"), icon: UserRound },
-    { key: "supervisor", label: t("adminUsers.filterSupervisors"), icon: UserRound },
-    { key: "admin", label: t("adminUsers.filterAdmins"), icon: ShieldCheck }
-  ];
+const FILTER_TABS = [
+  { key: "all", label: t("adminUsers.filterAll"), icon: BarChart3 },
+  { key: "worker", label: t("adminUsers.filterWorkers"), icon: UserRound },
+  { key: "supervisor", label: t("adminUsers.filterSupervisors"), icon: UserCog },
+  { key: "admin", label: t("adminUsers.filterAdmins"), icon: ShieldCheck }
+];
 
   const EMPTY_FORM = { name: "", email: "", username: "", password: "", role: "worker" };
 

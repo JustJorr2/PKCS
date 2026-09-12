@@ -757,7 +757,7 @@ export const translations = {
     supervisorNav: {
       home: "Beranda",
       details: "Penilaian Kinerja",
-      dataVisuals: "Visual Data",
+      dataVisuals: "Monitoring Kerja",
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
@@ -840,7 +840,7 @@ export const translations = {
     },
     supervisorVisuals: {
       loading: "Memuat analitik...",
-      title: "Visual Data dan Analitik",
+      title: "Monitoring Kerja dan Analitik",
       subtitle: "Metrik performa dan insight",
       byMonth: "Berdasarkan bulan",
       apply: "Terapkan",
@@ -1067,7 +1067,7 @@ export const translations = {
     adminNav: {
       home: "Beranda",
       manageUsers: "Kelola Pengguna",
-      dataVisuals: "Visualisasi Data",
+      dataVisuals: "Monitoring Kerja",
       dataTools: "Alat Data",
       editRequests: "Permintaan Edit",
       profile: "Profil",
