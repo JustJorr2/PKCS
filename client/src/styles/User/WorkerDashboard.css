@@ -312,7 +312,7 @@
 
 /* BADGES */
 .supervisor-badge {
-  background: linear-gradient(135deg, #1a3a7f, #764ba2);
+  background: #1a3a7f;
   color: white;
   padding: 5px 12px;
   border-radius: 20px;
@@ -338,15 +338,35 @@
 
 /* RATINGS */
 .feedback-ratings {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px 14px;
+  margin-bottom: 16px;
 }
 
 .feedback-ratings .field-badge {
-  background: rgba(26,58,127,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(26, 58, 127, 0.06);
+  border: 1px solid rgba(26, 58, 127, 0.15);
   color: #1a3a7f;
-  border: 1px solid rgba(26,58,127,0.2);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.feedback-ratings .field-badge-label {
+  color: #1a3a7f;
+  opacity: 0.75;
+  letter-spacing: 0.03em;
+}
+
+.feedback-ratings .field-badge-value {
+  font-weight: 800;
+  font-size: 13.5px;
 }
 
 /* COMMENT */
@@ -708,13 +728,8 @@
   }
 
   .feedback-ratings {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .feedback-ratings .field-badge {
-    font-size: 11px;
-    padding: 4px 8px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
   }
 }
 

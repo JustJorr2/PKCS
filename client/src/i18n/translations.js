@@ -174,7 +174,15 @@ export const translations = {
       noPeerFeedback: "No peer feedback with comments yet.",
       anonymousColleague: "Anonymous Colleague",
       supervisorLabel: "Supervisor Feedback",
-      peerLabel: "Peer Feedback"
+      peerLabel: "Peer Feedback",
+      ratingMonth: "Feedback Period",
+      allTime: "All time",
+      legendTitle: "Rating colors:",
+      noRatings: "No ratings yet",
+      excellent: "Excellent (≥ 3.51)",
+      good: "Good (2.76 - 3.50)",
+      average: "Average (2.00 - 2.75)",
+      needsImprovement: "Needs Improvement (< 2.00)"
     },
     workerNav: {
       home: "Home",
@@ -710,7 +718,15 @@ export const translations = {
       noPeerFeedback: "Belum ada umpan balik rekan dengan komentar.",
       anonymousColleague: "Rekan Anonim",
       supervisorLabel: "Umpan Balik Supervisor",
-      peerLabel: "Umpan Balik Rekan"
+      peerLabel: "Umpan Balik Rekan",
+      ratingMonth: "Periode Masukan",
+      allTime: "Sepanjang waktu",
+      legendTitle: "Warna penilaian:",
+      noRatings: "Belum ada penilaian",
+      excellent: "Sangat Baik (≥ 3,51)",
+      good: "Baik (2,76 - 3,50)",
+      average: "Cukup (2,00 - 2,75)",
+      needsImprovement: "Perlu Peningkatan (< 2,00)"
     },
     workerNav: {
       home: "Beranda",
