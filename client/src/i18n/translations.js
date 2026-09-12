@@ -94,7 +94,8 @@ export const translations = {
       ratingSuffix: "rating",
       overallRating: "Overall Rating",
       noMonthlyHistory: "No monthly history available yet.",
-      avgShort: "avg"
+      avgShort: "avg",
+      overview: "Your Performance Overview"
     },
     workerRatings: {
       modalTitle: "Request Rating Edit",
@@ -142,7 +143,13 @@ export const translations = {
       pendingApproval: "Pending Approval",
       requestPermission: "Request Permission",
       activeFilterMonthPrefix: "Month:",
-      clearFilter: "Clear filter"
+      clearFilter: "Clear filter",
+      myAverageRating: "My Average Rating This Month",    
+      legendTitle: "Status:",
+      myCumulativeRating: "My Cumulative Rating",
+      sessions: "Sessions",
+      latestRating: "Last Rating Date",
+      myRatingThisMonth: "My Rating This Period"
     },
     ratingForm: {
       commentLabel: "Comments (Optional)",
@@ -623,7 +630,8 @@ export const translations = {
       ratingSuffix: "penilaian",
       overallRating: "Nilai Keseluruhan",
       noMonthlyHistory: "Belum ada riwayat bulanan.",
-      avgShort: "rata-rata"
+      avgShort: "rata-rata",
+      overview: "Ringkasan Performa Anda"
     },
     workerRatings: {
       modalTitle: "Minta Edit Penilaian",
@@ -671,7 +679,13 @@ export const translations = {
       pendingApproval: "Menunggu Persetujuan",
       requestPermission: "Minta Izin",
       activeFilterMonthPrefix: "Bulan:",
-      clearFilter: "Hapus filter"
+      clearFilter: "Hapus filter",
+      myAverageRating: "Rata-rata Penilaian Saya Bulan Ini",
+      legendTitle: "Status:",
+      myCumulativeRating: "Rata-rata Kumulatif Saya",
+      sessions: "Sesi",
+      latestRating: "Penilaian Terakhir",
+      myRatingThisMonth: "Penilaian Saya"
     },
     ratingForm: {
       commentLabel: "Komentar (Opsional)",

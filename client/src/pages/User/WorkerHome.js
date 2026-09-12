@@ -3,6 +3,7 @@ import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { Star, Trophy, AlertTriangle, Info } from "lucide-react";
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -20,7 +21,8 @@ const ratingFields = [
 ];
 
 // How many of the most recent months to show in the "Recent Ratings" list.
-// The "Monthly History" section further down still shows everything.
+// The "Monthly History" section further down still shows everything, and
+// doubles as the worker's way to look back at any past month.
 const RECENT_MONTHS_LIMIT = 6;
 
 function monthLabelFor(monthKey) {
@@ -36,7 +38,8 @@ function WorkerHome({ worker }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [ratingData, setRatingData] = useState([]);
-  const [showLegend, setShowLegend] = useState(false);
+  const [showLegend, setShowLegend] = useState(true);
+  const [showMonthlyHistory, setShowMonthlyHistory] = useState(true);
   const [expandedMonths, setExpandedMonths] = useState({});
 
   const toggleMonth = (monthKey) => {
@@ -80,12 +83,17 @@ function WorkerHome({ worker }) {
 
     const ratings = [...ratingData];
 
-    const avgRatingRaw =
-      ratings.reduce((sum, r) => {
-        const fieldValues = ratingFields.map((f) => Number(r[f.key]) || 0);
-        const avg = fieldValues.reduce((a, b) => a + b, 0) / fieldValues.length;
-        return sum + avg;
-      }, 0) / ratings.length;
+    const computeAvg = (list) => {
+      if (!list.length) return 0;
+      return (
+        list.reduce((sum, r) => {
+          const values = ratingFields.map((f) => Number(r[f.key]) || 0);
+          return sum + values.reduce((a, b) => a + b, 0) / values.length;
+        }, 0) / list.length
+      );
+    };
+
+    const avgRatingRaw = computeAvg(ratings);
 
     const now = Date.now();
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
@@ -112,9 +120,8 @@ function WorkerHome({ worker }) {
 
     // Group every individual rating by the month it belongs to (dateKey,
     // falling back to createdAt's month). Used both for the "Recent
-    // Ratings" list — now grouped by month instead of a flat feed — and
-    // for the monthly average history below, computed from the same map
-    // instead of building it twice.
+    // Ratings" list — grouped by month — and for the monthly average
+    // history below, computed from the same map instead of building it twice.
     const monthlyMap = ratings.reduce((acc, rating) => {
       const monthKey =
         rating.dateKey ||
@@ -142,18 +149,11 @@ function WorkerHome({ worker }) {
 
     const monthlyHistory = sortedMonthKeys.map((monthKey) => {
       const entries = monthlyMap[monthKey];
-      const monthAverage =
-        entries.reduce((sum, r) => {
-          const values = ratingFields.map((f) => Number(r[f.key]) || 0);
-          const avg = values.reduce((a, b) => a + b, 0) / values.length;
-          return sum + avg;
-        }, 0) / entries.length;
-
       return {
         monthKey,
         monthLabel: monthLabelFor(monthKey),
         count: entries.length,
-        average: monthAverage
+        average: computeAvg(entries)
       };
     });
 
@@ -179,28 +179,25 @@ function WorkerHome({ worker }) {
   return (
     <div className="page-content worker-dashboard">
       <div className="page-header">
-        <h1>{t("workerHome.title")}</h1>
-        <p>
-          {t("workerHome.welcomeBack")} <strong>{worker.name}</strong> 👋
-        </p>
+        <h3>{t("workerHome.overview") || "Your performance overview."}</h3>
       </div>
 
       <div className="stats-grid">
         <div className="stat-card success">
-          <div className="stat-icon">⭐</div>
+          <div className="stat-icon"><Star size={20} /></div>
           <div className="stat-info">
             <h3>{t("workerHome.avgRating")}</h3>
             <p
               className="stat-number"
               style={{ color: getRatingColor(Number(dashboard.avgRating)) }}
             >
-              {dashboard.avgRating}
+              {dashboard.avgRating} ★
             </p>
           </div>
         </div>
 
         <div className="stat-card info">
-          <div className="stat-icon">📊</div>
+          <div className="stat-icon"><Trophy size={20} /></div>
           <div className="stat-info">
             <h3>{t("workerHome.totalReviews")}</h3>
             <p className="stat-number">{dashboard.totalRatings}</p>
@@ -208,7 +205,7 @@ function WorkerHome({ worker }) {
         </div>
 
         <div className="stat-card warning">
-          <div className="stat-icon">⚠️</div>
+          <div className="stat-icon"><AlertTriangle size={20} /></div>
           <div className="stat-info">
             <h3>{t("workerHome.updated7Days")}</h3>
             <p className="stat-number">{dashboard.updatedInLastWeek}</p>
@@ -252,11 +249,10 @@ function WorkerHome({ worker }) {
                       {month.entries.map((rating, idx) => {
                         const ratingAvg = (
                           ratingFields.reduce(
-                            (sum, f) =>
-                              sum + (Number(rating[f.key]) || 0),
+                            (sum, f) => sum + (Number(rating[f.key]) || 0),
                             0
                           ) / ratingFields.length
-                        ).toFixed(1);
+                        ).toFixed(2);
 
                         const lowestFields = [...ratingFields]
                           .map((f) => ({
@@ -274,8 +270,7 @@ function WorkerHome({ worker }) {
                           : t("workerHome.peer");
 
                         const raterName = isSupervisor
-                          ? rating.ratedBy?.name ||
-                            t("workerHome.teamLead")
+                          ? rating.ratedBy?.name || t("workerHome.teamLead")
                           : t("workerHome.anonymousColleague");
 
                         return (
@@ -286,9 +281,7 @@ function WorkerHome({ worker }) {
                             <div className="recent-worker">
                               {isSupervisor && (
                                 <div className="worker-avatar">
-                                  {(
-                                    rating.ratedBy?.name || "S"
-                                  )
+                                  {(rating.ratedBy?.name || "S")
                                     .charAt(0)
                                     .toUpperCase()}
                                 </div>
@@ -309,24 +302,39 @@ function WorkerHome({ worker }) {
 
                             <div className="recent-rating">
                               <div className="rating-fields-small">
-                                <span className="field-badge main">
-                                  AVG: {ratingAvg}
+                                <span
+                                  className="field-badge main"
+                                  style={{
+                                    backgroundColor: getRatingColor(Number(ratingAvg)),
+                                    color: "#fff"
+                                  }}
+                                >
+                                  AVG: {ratingAvg} ★
                                 </span>
 
                                 {lowestFields.map((f) => (
                                   <span
                                     key={f.key}
-                                    className="field-badge warning"
+                                    className="field-badge"
+                                    style={{
+                                      backgroundColor: getRatingColor(f.value),
+                                      color: "#fff"
+                                    }}
                                   >
-                                    {t(`kpiShort.${f.key}`)}: {f.value}
+                                    {t(`kpiShort.${f.key}`)}: {f.value} ★
                                   </span>
                                 ))}
                               </div>
 
                               <p className="recent-time">
-                                {new Date(
-                                  rating.createdAt
-                                ).toLocaleDateString()}
+                                {new Date(rating.createdAt).toLocaleString(undefined, {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: false
+                                })}
                               </p>
                             </div>
                           </div>
@@ -343,37 +351,32 @@ function WorkerHome({ worker }) {
         )}
       </div>
 
-      <div className="quick-stats">
-        <div className="quick-stat">
-          <span className="label">{t("workerHome.totalRatings")}</span>
-          <span className="value">{dashboard.totalRatings}</span>
-        </div>
-
-        <div className="quick-stat">
-          <span className="label">{t("workerHome.updated7Days")}</span>
-          <span className="value">{dashboard.updatedInLastWeek}</span>
-        </div>
-
-        {dashboard.lowestAreas.length > 0 && (
+      {/* QUICK STATS — total ratings and "updated in last 7 days" already
+          live in the stat cards above, so only "needs attention" is left here. */}
+      {dashboard.lowestAreas.length > 0 && (
+        <div className="quick-stats">
           <div className="quick-stat">
             <span className="label">{t("workerHome.needsAttention")}</span>
             <span className="value">
               {dashboard.lowestAreas.map((f) => t(`kpiShort.${f.key}`)).join(", ")}
             </span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="legend-box">
         <div
           className="legend-header"
           onClick={() => setShowLegend((prev) => !prev)}
         >
-          <span className="legend-title">{t("workerHome.legendTitle")}</span>
+          <span className="legend-title">
+            <Info size={16} style={{ marginRight: "6px", verticalAlign: "-3px" }} />
+            {t("workerHome.legendTitle")}
+          </span>
           <span className="legend-toggle">
             {showLegend
-              ? `– ${t("workerHome.hide")}`
-              : `+ ${t("workerHome.show")}`}
+              ? `▲ ${t("workerHome.hide")}`
+              : `▼ ${t("workerHome.show")}`}
           </span>
         </div>
         {showLegend && (
@@ -389,57 +392,66 @@ function WorkerHome({ worker }) {
       </div>
 
       <div className="recent-section">
-        <h2>{t("workerHome.monthlyHistory")}</h2>
+        <div
+          className="legend-header"
+          onClick={() => setShowMonthlyHistory((prev) => !prev)}
+          style={{ cursor: "pointer" }}
+        >
+          <h2 style={{ margin: 0 }}>{t("workerHome.monthlyHistory")}</h2>
+          <span className="legend-toggle">
+            {showMonthlyHistory
+              ? `▲ ${t("workerHome.hide")}`
+              : `▼ ${t("workerHome.show")}`}
+          </span>
+        </div>
 
-        {dashboard.monthlyHistory.length > 0 ? (
-          <>
-            <div className="recent-list">
-              {dashboard.monthlyHistory.map((month) => (
-                <div key={month.monthKey} className="recent-item">
-                  <div className="recent-worker">
-                    <div className="worker-details">
-                      <h4>{month.monthLabel}</h4>
-                      <p className="worker-email">
-                        {month.count}{" "}
-                        {month.count !== 1
-                          ? t("workerHome.ratingsSuffix")
-                          : t("workerHome.ratingSuffix")}
-                      </p>
+        {showMonthlyHistory && (
+          dashboard.monthlyHistory.length > 0 ? (
+            <>
+              <div className="recent-list" style={{ marginTop: "10px" }}>
+                {dashboard.monthlyHistory.map((month) => (
+                  <div key={month.monthKey} className="recent-item">
+                    <div className="recent-worker">
+                      <div className="worker-details">
+                        <h4>{month.monthLabel}</h4>
+                        <p className="worker-email">
+                          {month.count}{" "}
+                          {month.count !== 1
+                            ? t("workerHome.ratingsSuffix")
+                            : t("workerHome.ratingSuffix")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="recent-rating">
+                      <div
+                        className="stat-number"
+                        style={{
+                          color: getRatingColor(Number(month.average.toFixed(2)))
+                        }}
+                      >
+                        {month.average.toFixed(2)} ★
+                      </div>
                     </div>
                   </div>
-
-                  <div className="recent-rating">
-                    <div
-                      className="stat-number"
-                      style={{
-                        color: getRatingColor(
-                          Number(month.average.toFixed(2))
-                        )
-                      }}
-                    >
-                      {month.average.toFixed(2)} {t("workerHome.avgShort")}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="quick-stats" style={{ marginTop: "12px" }}>
-              <div className="quick-stat">
-                <span className="label">{t("workerHome.overallRating")}</span>
-                <span
-                  className="value"
-                  style={{
-                    color: getRatingColor(Number(dashboard.avgRating))
-                  }}
-                >
-                  {dashboard.avgRating}
-                </span>
+                ))}
               </div>
-            </div>
-          </>
-        ) : (
-          <p className="no-data">{t("workerHome.noMonthlyHistory")}</p>
+
+              <div className="quick-stats" style={{ marginTop: "12px" }}>
+                <div className="quick-stat">
+                  <span className="label">{t("workerHome.overallRating")}</span>
+                  <span
+                    className="value"
+                    style={{ color: getRatingColor(Number(dashboard.avgRating)) }}
+                  >
+                    {dashboard.avgRating}
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="no-data">{t("workerHome.noMonthlyHistory")}</p>
+          )
         )}
       </div>
     </div>

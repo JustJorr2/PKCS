@@ -163,22 +163,23 @@ async function getSupervisorRatings(req, res) {
     const rater = await User.findById(req.params.supervisorId).select("role");
     if (!rater) return res.status(404).json({ message: "User not found" });
 
-    const currentMonth = getMonthKey();
-    const previousMonth = getPreviousMonthKey();
-    const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
-    const requestedMonth = req.query.month || defaultMonth;
+    const filter = { ratedBy: req.params.supervisorId };
 
-    let month = requestedMonth;
-    if (rater.role === "worker") {
-      const allowedMonths = getAllowedMonthsForRole(rater.role);
-      month = allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth;
+    if (req.query.month) {
+      const currentMonth = getMonthKey();
+      const previousMonth = getPreviousMonthKey();
+      const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
+
+      let month = req.query.month;
+      if (rater.role === "worker") {
+        const allowedMonths = getAllowedMonthsForRole(rater.role);
+        month = allowedMonths.has(month) ? month : defaultMonth;
+      }
+
+      filter.dateKey = month;
     }
 
-    const ratings = await Rating.find({
-      ratedBy: req.params.supervisorId,
-      dateKey: month
-    });
-
+    const ratings = await Rating.find(filter);
     res.json(ratings);
   } catch (err) {
     res.status(500).json({ message: err.message });
