@@ -3,16 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { adminService } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
+import { ClipboardPlus, LoaderCircle, ShieldCheck, Star, UserRound, Users } from "lucide-react";
 
 const ROLE_META = {
-  admin: { emoji: "🛡️" },
-  supervisor: { emoji: "🧑‍💼" },
-  worker: { emoji: "👷" }
+  admin: { icon: ShieldCheck },
+  supervisor: { icon: UserRound },
+  worker: { icon: UserRound }
 };
 
-const StatCard = ({ color, emoji, label, value }) => (
+const StatCard = ({ color, icon: Icon, label, value }) => (
   <div className={`admin-stat-card ${color}`}>
-    <span className="stat-emoji">{emoji}</span>
+    <Icon className="stat-icon" size={20} aria-hidden="true" />
     <p className="stat-number">{value}</p>
     <h3>{label}</h3>
   </div>
@@ -56,26 +57,26 @@ function AdminHome() {
     [users]
   );
 
-  if (loading) return <div className="admin-loading"><span>⏳</span> {t("adminHome.loading")}</div>;
+  if (loading) return <div className="admin-loading"><LoaderCircle className="spin" size={18} aria-hidden="true" /> {t("adminHome.loading")}</div>;
   if (error) return <div className="admin-error">{error}</div>;
 
   return (
     <div className="page-content admin-page">
       <div className="page-header">
-        <h1>🛡️ {t("adminHome.title")}</h1>
+        <h1><ShieldCheck size={28} aria-hidden="true" /> {t("adminHome.title")}</h1>
         <p>{t("adminHome.subtitle")}</p>
       </div>
 
       <div className="admin-stats-grid">
-        <StatCard color="blue"   emoji="👥" label={t("adminHome.totalUsers")}    value={stats.totalUsers} />
-        <StatCard color="purple" emoji="🧑‍💼" label={t("adminHome.supervisors")}   value={stats.supervisors} />
-        <StatCard color="green"  emoji="👷" label={t("adminHome.workers")}        value={stats.workers} />
-        <StatCard color="red"    emoji="🛡️" label={t("adminHome.admins")}         value={stats.admins} />
-        <StatCard color="gold"   emoji="⭐" label={t("adminHome.avgWorkerRating")} value={Number(stats.avgRating || 0).toFixed(2)} />
+        <StatCard color="blue" icon={Users} label={t("adminHome.totalUsers")} value={stats.totalUsers} />
+        <StatCard color="purple" icon={UserRound} label={t("adminHome.supervisors")} value={stats.supervisors} />
+        <StatCard color="green" icon={UserRound} label={t("adminHome.workers")} value={stats.workers} />
+        <StatCard color="red" icon={ShieldCheck} label={t("adminHome.admins")} value={stats.admins} />
+        <StatCard color="gold" icon={Star} label={t("adminHome.avgWorkerRating")} value={Number(stats.avgRating || 0).toFixed(2)} />
       </div>
 
       <div className="admin-section">
-        <h2 className="section-title">🆕 {t("adminHome.recentAccounts")}</h2>
+        <h2 className="section-title"><ClipboardPlus size={18} aria-hidden="true" /> {t("adminHome.recentAccounts")}</h2>
 
         {recentUsers.length === 0 ? (
           <div className="admin-empty">{t("adminHome.noUsers")}</div>
@@ -92,7 +93,7 @@ function AdminHome() {
               </thead>
               <tbody>
                 {recentUsers.map((u) => {
-                  const meta = ROLE_META[u.role] ?? { emoji: "?" };
+                  const meta = ROLE_META[u.role] ?? { icon: UserRound };
                   const roleLabel = t(`adminHome.role_${u.role}`) !== `adminHome.role_${u.role}`
                     ? t(`adminHome.role_${u.role}`)
                     : u.role;
@@ -107,7 +108,7 @@ function AdminHome() {
                       <td className="td-email" data-label={t("common.email")}>{u.email}</td>
                       <td data-label={t("common.role")}>
                         <span className={`admin-role admin-role-${u.role}`}>
-                          {meta.emoji} {roleLabel}
+                          <meta.icon size={14} aria-hidden="true" /> {roleLabel}
                         </span>
                       </td>
                       <td data-label={t("adminHome.created")}>

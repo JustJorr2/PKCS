@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { adminService } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
+import { Check, ClipboardList, FilePenLine, HardHat, LoaderCircle, Timer, X } from "lucide-react";
 
 function AdminRatingEditRequests() {
   const admin = JSON.parse(localStorage.getItem("worker") || "{}");
@@ -89,7 +90,7 @@ function AdminRatingEditRequests() {
   return (
     <div className="page-content admin-page">
       <div className="page-header">
-        <h1>📋 {t("adminEditRequests.title")}</h1>
+        <h1><ClipboardList size={28} aria-hidden="true" /> {t("adminEditRequests.title")}</h1>
         <p>{t("adminEditRequests.subtitle")}</p>
       </div>
 
@@ -97,13 +98,13 @@ function AdminRatingEditRequests() {
 
       {loading ? (
         <div className="admin-loading">
-          <span>⏳</span> {t("adminEditRequests.loading")}
+          <LoaderCircle className="spin" size={18} aria-hidden="true" /> {t("adminEditRequests.loading")}
         </div>
       ) : (
         <>
           {/* ===== WORKER APPROVALS SECTION ===== */}
           <div className="admin-section admin-card" style={{ marginBottom: "40px" }}>
-            <h2 className="section-title">👷 {t("adminEditRequests.workerApprovalsTitle")}</h2>
+            <h2 className="section-title"><HardHat size={18} aria-hidden="true" /> {t("adminEditRequests.workerApprovalsTitle")}</h2>
             {workers.length === 0 ? (
               <div className="admin-empty">{t("adminEditRequests.noWorkerApprovals")}</div>
             ) : (
@@ -132,14 +133,14 @@ function AdminRatingEditRequests() {
                             disabled={submittingId === worker._id}
                             style={{ marginRight: 8 }}
                           >
-                            {submittingId === worker._id ? t("adminEditRequests.processing") : `✓ ${t("adminEditRequests.approve")}`}
+                            {submittingId === worker._id ? t("adminEditRequests.processing") : <><Check size={15} aria-hidden="true" /> {t("adminEditRequests.approve")}</>}
                           </button>
                           <button
                             className="btn btn-danger"
                             onClick={() => handleReject(worker._id)}
                             disabled={submittingId === worker._id}
                           >
-                            {submittingId === worker._id ? t("adminEditRequests.processing") : `✕ ${t("adminEditRequests.reject")}`}
+                            {submittingId === worker._id ? t("adminEditRequests.processing") : <><X size={15} aria-hidden="true" /> {t("adminEditRequests.reject")}</>}
                           </button>
                         </td>
                       </tr>
@@ -152,7 +153,7 @@ function AdminRatingEditRequests() {
 
           {/* ===== RATING EDIT REQUESTS SECTION ===== */}
           <div className="admin-section admin-card" style={{ marginBottom: "40px" }}>
-            <h2 className="section-title">📝 {t("adminEditRequests.ratingEditRequestsTitle")}</h2>
+            <h2 className="section-title"><FilePenLine size={18} aria-hidden="true" /> {t("adminEditRequests.ratingEditRequestsTitle")}</h2>
             {requests.length === 0 ? (
               <div className="admin-empty">{t("adminEditRequests.noEditRequests")}</div>
             ) : (
@@ -211,7 +212,7 @@ function AdminRatingEditRequests() {
 
           {/* ===== LATE SUBMISSION PERMISSION REQUESTS SECTION ===== */}
           <div className="admin-section admin-card">
-            <h2 className="section-title">🕒 {t("adminEditRequests.lateSubmissionRequestsTitle")}</h2>
+            <h2 className="section-title"><Timer size={18} aria-hidden="true" /> {t("adminEditRequests.lateSubmissionRequestsTitle")}</h2>
             {lateSubmissionRequests.length === 0 ? (
               <div className="admin-empty">{t("adminEditRequests.noLateSubmissionRequests")}</div>
             ) : (

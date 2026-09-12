@@ -133,6 +133,9 @@ export const adminService = {
   updateUserRole: (id, role) =>
     apiClient.put(`/api/admin/users/${id}/role`, { role }),
 
+  updateWorkerArea: (id, area) =>
+    apiClient.put(`/api/admin/users/${id}/area`, { area }),
+
   deleteUser: (id) =>
     apiClient.delete(`/api/admin/users/${id}`),
 

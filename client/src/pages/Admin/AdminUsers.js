@@ -4,22 +4,25 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { config } from "../../config/config";
 import "../../styles/Admin/AdminPages.css";
+import { BarChart3, LoaderCircle, ShieldCheck, UserRound, Users, X } from "lucide-react";
+
+const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
 
 function AdminUsers() {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
   const ROLES = [
-    { value: "worker", label: t("adminUsers.roleWorker"), emoji: "👷" },
-    { value: "supervisor", label: t("adminUsers.roleSupervisor"), emoji: "🧑‍💼" },
-    { value: "admin", label: t("adminUsers.roleAdmin"), emoji: "🛡️" }
+    { value: "worker", label: t("adminUsers.roleWorker") },
+    { value: "supervisor", label: t("adminUsers.roleSupervisor") },
+    { value: "admin", label: t("adminUsers.roleAdmin") }
   ];
 
   const FILTER_TABS = [
-    { key: "all", label: t("adminUsers.filterAll"), emoji: "📊" },
-    { key: "worker", label: t("adminUsers.filterWorkers"), emoji: "👷" },
-    { key: "supervisor", label: t("adminUsers.filterSupervisors"), emoji: "🧑‍💼" },
-    { key: "admin", label: t("adminUsers.filterAdmins"), emoji: "🛡️" }
+    { key: "all", label: t("adminUsers.filterAll"), icon: BarChart3 },
+    { key: "worker", label: t("adminUsers.filterWorkers"), icon: UserRound },
+    { key: "supervisor", label: t("adminUsers.filterSupervisors"), icon: UserRound },
+    { key: "admin", label: t("adminUsers.filterAdmins"), icon: ShieldCheck }
   ];
 
   const EMPTY_FORM = { name: "", email: "", username: "", password: "", role: "worker" };
@@ -51,6 +54,15 @@ function AdminUsers() {
       fetchUsers();
     } catch (err) {
       alert(err.response?.data?.message || t("adminUsers.roleUpdateFailed"));
+    }
+  };
+
+  const handleAreaChange = async (id, area) => {
+    try {
+      await adminService.updateWorkerArea(id, area || null);
+      fetchUsers();
+    } catch (err) {
+      alert(err.response?.data?.message || t("adminUsers.areaUpdateFailed"));
     }
   };
 
@@ -123,7 +135,7 @@ function AdminUsers() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{t("adminUsers.resetPasswordTitle")}</h3>
-              <button className="modal-close" onClick={handleClosePasswordModal}>×</button>
+              <button className="modal-close" onClick={handleClosePasswordModal} aria-label={t("common.cancel")}><X size={18} /></button>
             </div>
             <div className="modal-body">
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
@@ -166,7 +178,7 @@ function AdminUsers() {
       )}
 
       <div className="page-header">
-        <h1>👥 {t("adminUsers.title")}</h1>
+        <h1><Users size={28} aria-hidden="true" /> {t("adminUsers.title")}</h1>
         <p>{t("adminUsers.subtitle")}</p>
       </div>
 
@@ -192,7 +204,7 @@ function AdminUsers() {
           <input className="admin-input" type="password" placeholder={t("login.password")} value={form.password} onChange={setField("password")} required />
           <select className="admin-select" value={form.role} onChange={setField("role")}>
             {ROLES.map((r) => (
-              <option key={r.value} value={r.value}>{r.emoji} {r.label}</option>
+              <option key={r.value} value={r.value}>{r.label}</option>
             ))}
           </select>
           <button className="admin-btn primary" type="submit" disabled={submitting}>
@@ -215,7 +227,7 @@ function AdminUsers() {
           <div className="filter-tabs">
             {FILTER_TABS.map((tab) => (
               <button key={tab.key} className={`filter-tab ${filterRole === tab.key ? "active" : ""}`} onClick={() => setFilter(tab.key)}>
-                {tab.emoji} {tab.label}
+                <tab.icon size={15} aria-hidden="true" /> {tab.label}
                 <span className="tab-count">{roleCounts[tab.key]}</span>
               </button>
             ))}
@@ -223,7 +235,7 @@ function AdminUsers() {
         </div>
 
         {loading ? (
-          <div className="admin-loading"><span>⏳</span> {t("adminUsers.loadingUsers")}</div>
+          <div className="admin-loading"><LoaderCircle className="spin" size={18} aria-hidden="true" /> {t("adminUsers.loadingUsers")}</div>
         ) : filteredUsers.length === 0 ? (
           <div className="admin-empty">{t("adminUsers.noUsersMatch")}</div>
         ) : (
@@ -235,6 +247,7 @@ function AdminUsers() {
                   <th>{t("common.username")}</th>
                   <th>{t("common.email")}</th>
                   <th>{t("common.role")}</th>
+                  <th>{t("adminUsers.area")}</th>
                   <th>{t("adminHome.created")}</th>
                   <th>{t("adminUsers.actions")}</th>
                 </tr>
@@ -266,9 +279,21 @@ function AdminUsers() {
                     <td data-label={t("common.role")}>
                       <select className="admin-select admin-select-inline" value={u.role} onChange={(e) => handleRoleChange(u._id, e.target.value)}>
                         {ROLES.map((r) => (
-                          <option key={r.value} value={r.value}>{r.emoji} {r.label}</option>
+                          <option key={r.value} value={r.value}>{r.label}</option>
                         ))}
                       </select>
+                    </td>
+                    <td data-label={t("adminUsers.area")}>
+                      {u.role === "worker" ? (
+                        <select
+                          className="admin-select admin-select-inline"
+                          value={u.area || ""}
+                          onChange={(e) => handleAreaChange(u._id, e.target.value)}
+                        >
+                          <option value="">{t("adminUsers.unassigned")}</option>
+                          {WORKER_AREAS.map((area) => <option key={area} value={area}>{area}</option>)}
+                        </select>
+                      ) : <span>-</span>}
                     </td>
                     <td data-label={t("adminHome.created")}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
                     <td data-label={t("adminUsers.actions")}>

@@ -1,4 +1,5 @@
 ﻿const mongoose = require("mongoose");
+const { WORKER_AREAS } = require("../constants/workerAreas");
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -24,6 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   password: { type: String, required: true },
   role: { type: String, enum: ["worker", "supervisor", "admin"], default: "worker" },
+  area: { type: String, enum: WORKER_AREAS, default: null },
   isApproved: { type: Boolean, default: function() { return this.role !== "worker"; } },
   profilePicture: { type: String, default: null },
   averageRating: { type: Number, default: 0 },

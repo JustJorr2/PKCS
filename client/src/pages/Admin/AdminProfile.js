@@ -4,6 +4,7 @@ import "../../styles/Admin/AdminPages.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
 import { config } from "../../config/config";
+import { Camera, TriangleAlert } from "lucide-react";
 
 function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   const { language, setLanguage, t } = useLanguage();
@@ -172,7 +173,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
                   <span className="upload-loader"></span>
                 ) : (
                   <>
-                    <span className="camera-icon">📷</span>
+                    <Camera className="camera-icon" size={18} aria-hidden="true" />
                     <span className="upload-text">
                       {t("profile.changePhoto")}
                     </span>
@@ -182,7 +183,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
             </div>
             {photoError && (
               <div className="profile-photo-error" role="alert">
-                <span className="profile-photo-error-icon">⚠️</span>
+                <TriangleAlert className="profile-photo-error-icon" size={18} aria-hidden="true" />
                 <span>{photoError}</span>
               </div>
             )}

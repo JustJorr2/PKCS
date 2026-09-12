@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { adminService } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
+import { Check, HardHat, LoaderCircle, X } from "lucide-react";
 
 function AdminApprovals() {
   const { t } = useLanguage();
@@ -56,7 +57,7 @@ function AdminApprovals() {
   return (
     <div className="page-content admin-page">
       <div className="page-header">
-        <h1>👷 {t("adminApprovals.title")}</h1>
+        <h1><HardHat size={28} aria-hidden="true" /> {t("adminApprovals.title")}</h1>
         <p>{t("adminApprovals.subtitle")}</p>
       </div>
 
@@ -64,7 +65,7 @@ function AdminApprovals() {
 
       {loading ? (
         <div className="admin-loading">
-          <span>⏳</span> {t("adminApprovals.loading")}
+          <LoaderCircle className="spin" size={18} aria-hidden="true" /> {t("adminApprovals.loading")}
         </div>
       ) : workers.length === 0 ? (
         <div className="admin-empty">
@@ -96,14 +97,14 @@ function AdminApprovals() {
                       disabled={actionInProgress === worker._id}
                       style={{ marginRight: 8 }}
                     >
-                      {actionInProgress === worker._id ? t("adminApprovals.processing") : `✓ ${t("adminApprovals.approve")}`}
+                      {actionInProgress === worker._id ? t("adminApprovals.processing") : <><Check size={15} aria-hidden="true" /> {t("adminApprovals.approve")}</>}
                     </button>
                     <button
                       className="btn btn-danger"
                       onClick={() => handleReject(worker._id)}
                       disabled={actionInProgress === worker._id}
                     >
-                      {actionInProgress === worker._id ? t("adminApprovals.processing") : `✕ ${t("adminApprovals.reject")}`}
+                      {actionInProgress === worker._id ? t("adminApprovals.processing") : <><X size={15} aria-hidden="true" /> {t("adminApprovals.reject")}</>}
                     </button>
                   </td>
                 </tr>

@@ -439,7 +439,10 @@ export const translations = {
       roleWorker: "Worker",
       roleSupervisor: "Supervisor",
       roleAdmin: "Admin",
-      roleUpdateFailed: "Failed to update role"
+      roleUpdateFailed: "Failed to update role",
+      area: "Area",
+      unassigned: "Unassigned",
+      areaUpdateFailed: "Failed to update worker area"
     },
     adminDataTools: {
       title: "Data Tools",
@@ -983,7 +986,10 @@ export const translations = {
       roleWorker: "Pekerja",
       roleSupervisor: "Supervisor",
       roleAdmin: "Admin",
-      roleUpdateFailed: "Gagal memperbarui peran"
+      roleUpdateFailed: "Gagal memperbarui peran",
+      area: "Area",
+      unassigned: "Belum ditetapkan",
+      areaUpdateFailed: "Gagal memperbarui area pekerja"
     },
     adminDataTools: {
       title: "Alat Data",
