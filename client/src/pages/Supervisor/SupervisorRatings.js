@@ -53,12 +53,13 @@ function formatRating(value, language) {
 }
 
 const RATING_COLOR_LEGEND = [
-  { color: "#95a5a6", key: "noRatings", fallback: "No ratings yet" },
   { color: "#27ae60", key: "excellent", fallback: "Excellent (≥ 3.51)" },
   { color: "#2f80ed", key: "good", fallback: "Good (2.76 – 3.50)" },
   { color: "#f39c12", key: "average", fallback: "Average (2.00 – 2.75)" },
   { color: "#e74c3c", key: "needsImprovement", fallback: "Needs Improvement (< 2.00)" }
 ];
+
+const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
 
 function SupervisorRatings({ worker: supervisor }) {
   const { t, language } = useLanguage();
@@ -69,6 +70,7 @@ function SupervisorRatings({ worker: supervisor }) {
   const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterArea, setFilterArea] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
   const [filterMonth, setFilterMonth] = useState("");
@@ -167,7 +169,9 @@ function SupervisorRatings({ worker: supervisor }) {
           filterStatus === "all" ||
           (filterStatus === "rated" && isAlreadyRated(worker._id)) ||
           (filterStatus === "unrated" && !isAlreadyRated(worker._id));
-        return matchesSearch && matchesFilter;
+        const matchesArea = filterArea === "all"
+          || (filterArea === "unassigned" ? !worker.area : worker.area === filterArea);
+        return matchesSearch && matchesFilter && matchesArea;
       })
       .sort((a, b) => {
         if (sortBy === "rating") return (b.cumulativeAverageRating || 0) - (a.cumulativeAverageRating || 0);
@@ -180,7 +184,7 @@ function SupervisorRatings({ worker: supervisor }) {
       });
 
     return { filteredWorkers: list, ratedCount: ratedWorkers, unratedCount: unratedWorkers };
-  }, [workers, searchTerm, filterStatus, sortBy, isAlreadyRated]);
+  }, [workers, searchTerm, filterStatus, filterArea, sortBy, isAlreadyRated]);
 
   const myAverageRatingThisMonth = useMemo(() => {
     const rated = workers.filter((w) => typeof w.monthAverageRating === "number");
@@ -363,6 +367,15 @@ function SupervisorRatings({ worker: supervisor }) {
             {t("supervisorRatings.unrated")} ({unratedCount})
           </button>
         </div>
+
+        <div className="sort-group">
+          <label htmlFor="details-area-filter">{t("common.area")}</label>
+          <select id="details-area-filter" value={filterArea} onChange={(e) => setFilterArea(e.target.value)} className="sort-select">
+            <option value="all">{t("common.allAreas")}</option>
+            <option value="unassigned">{t("common.unassigned")}</option>
+            {WORKER_AREAS.map((area) => <option key={area} value={area}>{area}</option>)}
+          </select>
+        </div>
       </div>
 
       {/* RATING COLOR LEGEND - replaces the old per-row status badge */}
@@ -419,6 +432,7 @@ function SupervisorRatings({ worker: supervisor }) {
               <tr>
                 <th>#</th>
                 <th>{t("supervisorRatings.name")}</th>
+                <th>{t("common.area")}</th>
                 <th>{t("supervisorRatings.avgRating")}</th>
                 <th>{t("supervisorRatings.sessions")}</th>
                 <th>{t("supervisorRatings.latestRating")}</th>
@@ -451,6 +465,7 @@ function SupervisorRatings({ worker: supervisor }) {
                       {worker.name}
                     </div>
                   </td>
+                  <td data-label={t("common.area")}>{worker.area || "-"}</td>
                   <td data-label={t("supervisorRatings.avgRating")}>
                     {typeof worker.cumulativeAverageRating === "number" ? (
                       <span

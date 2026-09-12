@@ -35,6 +35,9 @@ async function updateUserRole(req, res) {
     }
 
     user.role = role;
+    if (role !== "worker") {
+      user.area = null;
+    }
     await user.save();
 
     const updated = user.toObject();

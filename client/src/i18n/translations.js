@@ -15,7 +15,10 @@ export const translations = {
       username: "Username",
       optional: "Optional",
       name : "Full Name",
-      close: "Close"
+      close: "Close",
+      area: "Area",
+      allAreas: "All areas",
+      unassigned: "Unassigned"
     },
     login: {
       createAccount: "Create Account",
@@ -563,7 +566,10 @@ export const translations = {
       username: "Nama Pengguna",
       optional: "Opsional",
       name : "Nama Lengkap",
-      close: "Tutup"
+      close: "Tutup",
+      area: "Area",
+      allAreas: "Semua area",
+      unassigned: "Belum ditugaskan"
     },
     login: {
       createAccount: "Buat Akun",

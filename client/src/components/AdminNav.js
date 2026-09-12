@@ -37,7 +37,7 @@ function AdminNav({
           onClick={() => setCollapsed(!collapsed)}
           title={collapsed ? t("adminNav.expand") : t("adminNav.collapse")}
         >
-          {collapsed ? ">" : "<"}
+          {collapsed ? "»" : "«"}
         </button>
 
         <div className="nav-brand">

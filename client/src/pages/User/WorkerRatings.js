@@ -9,12 +9,13 @@ import { config } from "../../config/config";
 import { Users, CircleCheck, Clock, TrendingUp } from "lucide-react";
 
 const RATING_COLOR_LEGEND = [
-  { color: "#95a5a6", key: "noRatings", fallback: "No ratings yet" },
   { color: "#27ae60", key: "excellent", fallback: "Excellent (≥ 3.51)" },
   { color: "#2f80ed", key: "good", fallback: "Good (2.76 – 3.50)" },
   { color: "#f39c12", key: "average", fallback: "Average (2.00 – 2.75)" },
   { color: "#e74c3c", key: "needsImprovement", fallback: "Needs Improvement (< 2.00)" }
 ];
+
+const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
 
 const ratingFieldKeys = [
   "workAreaCompliance",
@@ -90,6 +91,7 @@ function WorkerRatings({ worker }) {
   const [allTimeRatings, setAllTimeRatings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterArea, setFilterArea] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
@@ -337,12 +339,14 @@ function WorkerRatings({ worker }) {
           filterStatus === "all" ||
           (filterStatus === "rated" && isAlreadyRated(w._id)) ||
           (filterStatus === "unrated" && !isAlreadyRated(w._id));
-        return matchesSearch && matchesFilter;
+        const matchesArea = filterArea === "all"
+          || (filterArea === "unassigned" ? !w.area : w.area === filterArea);
+        return matchesSearch && matchesFilter && matchesArea;
       })
       .sort((a, b) => a.name.localeCompare(b.name));
 
     return { filteredWorkers: list, ratedCount: ratedWorkers, unratedCount: unratedWorkers };
-  }, [workers, searchTerm, filterStatus, isAlreadyRated]);
+  }, [workers, searchTerm, filterStatus, filterArea, isAlreadyRated]);
 
   return (
     <div className="page-content supervisor-details">
@@ -579,6 +583,15 @@ function WorkerRatings({ worker }) {
             {t("workerRatings.unrated")} ({unratedCount})
           </button>
         </div>
+
+        <div className="sort-group">
+          <label htmlFor="worker-area-filter">{t("common.area")}</label>
+          <select id="worker-area-filter" value={filterArea} onChange={(e) => setFilterArea(e.target.value)} className="sort-select">
+            <option value="all">{t("common.allAreas")}</option>
+            <option value="unassigned">{t("common.unassigned")}</option>
+            {WORKER_AREAS.map((area) => <option key={area} value={area}>{area}</option>)}
+          </select>
+        </div>
       </div>
 
       {/* RATING COLOR LEGEND, same as SupervisorRatings */}
@@ -640,6 +653,7 @@ function WorkerRatings({ worker }) {
               <tr>
                 <th>{t("workerRatings.tableIndex")}</th>
                 <th>{t("workerRatings.tableName")}</th>
+                <th>{t("common.area")}</th>
                 <th style={{ textAlign: "center" }}>
                   {t("workerRatings.myCumulativeRating") || "My Cumulative Rating"}
                 </th>
@@ -688,6 +702,8 @@ function WorkerRatings({ worker }) {
                         {w.name}
                       </div>
                     </td>
+
+                    <td data-label={t("common.area")}>{w.area || "-"}</td>
 
                     <td
                       className="center"
@@ -770,7 +786,7 @@ function WorkerRatings({ worker }) {
                       if (rating?.workerEditRequestStatus === "approved")
                           return (
                               <button
-                                  className="btn btn-primary"
+                                  className="btn btn-edit"
                                   onClick={() => handleEditWorker(w)}
                               >
                                   {t("workerRatings.edit")}
@@ -779,7 +795,7 @@ function WorkerRatings({ worker }) {
 
                       return (
                           <button
-                              className="btn btn-primary"
+                              className="btn btn-warning"
                               onClick={() => handleRequestEdit(w._id)}
                           >
                               {t("workerRatings.requestEdit")}

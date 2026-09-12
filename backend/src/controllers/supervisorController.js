@@ -22,7 +22,7 @@ async function getDashboard(req, res) {
     const isWorkerViewer = viewerRole === "worker";
 
     const workers = await User.find({ role: "worker" })
-      .select("_id name email role profilePicture averageRating totalRatings createdAt")
+      .select("_id name email role area profilePicture averageRating totalRatings createdAt")
       .lean()
       .sort({ averageRating: -1 });
 
