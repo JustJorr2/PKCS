@@ -1101,6 +1101,32 @@
   color: #9ca3af;
 }
 
+/* ===== TREND LOADING STATE ===== */
+.trend-loading {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.trend-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2f80ed;
+  animation: spin 0.7s linear infinite;
+}
+
+.filter-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 
 /* =========================================================
    TOP PERFORMERS

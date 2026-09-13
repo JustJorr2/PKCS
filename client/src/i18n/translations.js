@@ -338,7 +338,13 @@ export const translations = {
       viewOwn: "My Ratings",
       minRaters: "Minimum Raters",
       anyRaters: "Any",
-      ratersLabel: "raters"
+      ratersLabel: "raters",
+      trendMonthly : "3 Months",
+      trendSixMonths : "6 Months",
+      trendYearly : "Yearly",
+      trendLoading : "Loading trend...",
+      areaPerformance : "Performance by Area",
+      areaPerformanceNote : "Average rating per work area for the selected period."
     },
     kpi: {
       workAreaCompliance: "Work Area Compliance",
@@ -895,7 +901,13 @@ export const translations = {
       viewOwn: "Rating Saya",
       minRaters: "Jumlah Penilai Minimum",
       anyRaters: "Semua",
-      ratersLabel: "penilai"
+      ratersLabel: "penilai",
+      trendMonthly: "3 Bulan",
+      trendSixMonths: "6 Bulan",
+      trendYearly: "Tahunan",
+      trendLoading: "Memuat tren...",
+      areaPerformance: "Kinerja per Area",
+      areaPerformanceNote: "Rata-rata penilaian per area kerja untuk periode yang dipilih."
     },
     kpi: {
       workAreaCompliance: "Kepatuhan Area Kerja",
