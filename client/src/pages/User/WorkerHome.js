@@ -20,6 +20,7 @@ const ratingFields = [
   { key: "leaveOnTime", short: "LT" }
 ];
 const RECENT_MONTHS_LIMIT = 6;
+const RECENT_RATINGS_LIMIT = 5;
 
 function monthLabelFor(monthKey) {
   return /^\d{4}-\d{2}$/.test(monthKey)
@@ -143,15 +144,22 @@ function WorkerHome({ worker }) {
       b.localeCompare(a)
     );
 
+    let recentRatingsRemaining = RECENT_RATINGS_LIMIT;
     const ratingsByMonth = sortedMonthKeys
       .slice(0, RECENT_MONTHS_LIMIT)
-      .map((monthKey) => ({
-        monthKey,
-        monthLabel: monthLabelFor(monthKey),
-        entries: [...monthlyMap[monthKey]].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        )
-      }));
+      .map((monthKey) => {
+        const entries = [...monthlyMap[monthKey]]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, recentRatingsRemaining);
+        recentRatingsRemaining -= entries.length;
+
+        return {
+          monthKey,
+          monthLabel: monthLabelFor(monthKey),
+          entries
+        };
+      })
+      .filter((month) => month.entries.length > 0);
 
     const monthlyHistory = sortedMonthKeys.map((monthKey) => {
       const entries = monthlyMap[monthKey];

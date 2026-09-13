@@ -1172,10 +1172,7 @@
   font-size: 15px;
   font-weight: 700;
   color: #333333;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .performer-email {

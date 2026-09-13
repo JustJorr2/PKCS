@@ -9,6 +9,11 @@ const FIELD_MAP = {
   id: "Supervisor"
   },
 
+  rater: {
+  en: "Rater",
+  id: "Penilai"
+  },
+
   ratedByType: {
   en: "Rated By Type",
   id: "Tipe Penilai"

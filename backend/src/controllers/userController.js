@@ -87,6 +87,7 @@ async function login(req, res) {
       email: worker.email,
       username: worker.username,
       role: worker.role,
+      area: worker.area,
       profilePicture: worker.profilePicture,
       averageRating: worker.averageRating,
       totalRatings: worker.totalRatings,
