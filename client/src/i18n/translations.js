@@ -97,6 +97,8 @@ export const translations = {
       ratingsSuffix: "ratings",
       ratingSuffix: "rating",
       overallRating: "Overall Rating",
+      cumulativeRanking: "Cumulative Ranking",
+      notRanked: "Not ranked",
       noMonthlyHistory: "No monthly history available yet.",
       avgShort: "avg",
       overview: "Your Performance Overview"
@@ -660,6 +662,8 @@ export const translations = {
       ratingsSuffix: "penilaian",
       ratingSuffix: "penilaian",
       overallRating: "Nilai Keseluruhan",
+      cumulativeRanking: "Peringkat Kumulatif Anda",
+      notRanked: "Belum masuk peringkat",
       noMonthlyHistory: "Belum ada riwayat bulanan.",
       avgShort: "rata-rata",
       overview: "Ringkasan Performa Anda"

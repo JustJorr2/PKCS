@@ -3,7 +3,7 @@ import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
-import { Star, Trophy, AlertTriangle, Info } from "lucide-react";
+import { Star, Trophy, Medal, AlertTriangle, Info } from "lucide-react";
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -48,6 +48,7 @@ function WorkerHome({ worker }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [ratingData, setRatingData] = useState([]);
+  const [ranking, setRanking] = useState(null);
   const [showLegend, setShowLegend] = useState(true);
   const [showMonthlyHistory, setShowMonthlyHistory] = useState(true);
   const [expandedMonths, setExpandedMonths] = useState({});
@@ -64,11 +65,21 @@ function WorkerHome({ worker }) {
 
     try {
       setLoading(true);
-      const response = await supervisorService.getRatingsForUser(worker._id);
-      setRatingData(Array.isArray(response.data) ? response.data : []);
+      const [ratingsResponse, dashboardResponse] = await Promise.all([
+        supervisorService.getRatingsForUser(worker._id),
+        supervisorService.getDashboard(undefined, worker._id)
+      ]);
+      setRatingData(Array.isArray(ratingsResponse.data) ? ratingsResponse.data : []);
+      const currentWorker = (dashboardResponse.data || []).find((item) => item._id === worker._id);
+      setRanking(currentWorker?.cumulativeRank ? {
+        rank: currentWorker.cumulativeRank,
+        total: currentWorker.cumulativeRankedWorkers,
+        score: currentWorker.cumulativeAverageRating
+      } : null);
     } catch (err) {
       console.error("Error fetching worker ratings:", err);
       setRatingData([]);
+      setRanking(null);
     } finally {
       setLoading(false);
     }
@@ -224,6 +235,20 @@ function WorkerHome({ worker }) {
             <h3>{t("workerHome.updated7Days")}</h3>
             <p className="stat-number">{dashboard.updatedInLastWeek}</p>
           </div>
+        </div>
+      </div>
+
+      <div className="quick-stats">
+        <div className="quick-stat">
+          <span className="label"><Medal size={16} aria-hidden="true" /> {t("workerHome.cumulativeRanking")}</span>
+          <span className="value">
+            {ranking ? `#${ranking.rank} / ${ranking.total}` : t("workerHome.notRanked")}
+          </span>
+          {ranking?.score !== null && ranking?.score !== undefined && (
+            <span className="quick-stat-note" style={{ color: getRatingColor(ranking.score) }}>
+              {ranking.score.toFixed(2)} ★
+            </span>
+          )}
         </div>
       </div>
 
