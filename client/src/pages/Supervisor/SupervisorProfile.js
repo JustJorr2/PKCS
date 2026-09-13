@@ -134,6 +134,9 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
         </div>
       </div>
 
+      {message && <p className="profile-success">{message}</p>}
+      {error && <p className="profile-error">{error}</p>}
+
       <div className="profile-container">
         <div className="profile-header">
           <div className="profile-picture-container">
@@ -239,9 +242,6 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
             </>
           )}
         </div>
-
-        {message && <p className="profile-success">{message}</p>}
-        {error && <p className="profile-error">{error}</p>}
       </div>
 
       <ConfirmDialog

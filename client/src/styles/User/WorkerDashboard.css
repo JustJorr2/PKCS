@@ -700,6 +700,18 @@
     padding: 4px 8px;
   }
 
+  .monthly-avg-rating {
+    text-align: right;
+    width: auto;
+  }
+
+  @media (max-width: 480px) {
+    .monthly-avg-rating {
+      text-align: center;
+      width: 100%;
+    }
+  }
+
   .quick-stats {
     grid-template-columns: 1fr;
     gap: 12px;

@@ -118,7 +118,7 @@ function WorkerHome({ worker }) {
       const values = ratings.map((r) => Number(r[f.key]) || 0);
       fieldAverages[f.key] =
         values.length > 0
-          ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
+          ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2)
           : "0.0";
     });
 
@@ -320,7 +320,7 @@ function WorkerHome({ worker }) {
                                   AVG: {ratingAvg} ★
                                 </span>
 
-                                <div style={{ display: "flex", gap: "8px" }}>
+                                <div style={{ display: "flex", gap: "8px", marginRight: "12px" }}>
                                   <span
                                     className="field-badge"
                                     style={{
@@ -329,7 +329,7 @@ function WorkerHome({ worker }) {
                                     }}
                                     title={t("workerHome.highest") || "Highest"}
                                   >
-                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value} ★
+                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value.toFixed(2)} ★
                                   </span>
 
                                   <span
@@ -340,7 +340,7 @@ function WorkerHome({ worker }) {
                                     }}
                                     title={t("workerHome.weakest") || "Weakest"}
                                   >
-                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value} ★
+                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value.toFixed(2)} ★
                                   </span>
                                 </div>
                               </div>
@@ -442,7 +442,7 @@ function WorkerHome({ worker }) {
                       </div>
                     </div>
 
-                    <div className="recent-rating">
+                    <div className="recent-rating monthly-avg-rating">
                       <div
                         className="stat-number"
                         style={{

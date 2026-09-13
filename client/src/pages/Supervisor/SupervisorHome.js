@@ -550,13 +550,13 @@ function SupervisorHome({ worker }) {
                                   AVG: {ratingAvg} ★
                                 </span>
 
-                                <div style={{ display: "flex", gap: "8px" }}>
+                                <div style={{ display: "flex", gap: "8px", marginRight: "12px" }}>
                                   <span
                                     className="field-badge"
                                     style={{ backgroundColor: getRatingColor(highest.value), color: "#fff" }}
                                     title={t("supervisorHome.highest") || "Highest"}
                                   >
-                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value} ★
+                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value.toFixed(2)} ★
                                   </span>
 
                                   <span
@@ -564,7 +564,7 @@ function SupervisorHome({ worker }) {
                                     style={{ backgroundColor: getRatingColor(lowest.value), color: "#fff" }}
                                     title={t("supervisorHome.weakest") || "Weakest"}
                                   >
-                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value} ★
+                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value.toFixed(2)} ★
                                   </span>
                                 </div>
                               </div>
