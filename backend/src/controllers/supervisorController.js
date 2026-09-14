@@ -27,6 +27,27 @@ async function getDashboard(req, res) {
       .sort({ averageRating: -1 });
 
     if (isWorkerViewer) {
+      const ratingsByWorker = await Rating.find({})
+        .select("ratedUser workAreaCompliance taskCompletion cleanliness wasteManagement organization uniformCompliance independence initiative teamworkSupport punctuality attendance leaveOnTime")
+        .lean();
+      const workerScores = workers.map((worker) => {
+        const workerRatings = ratingsByWorker.filter((rating) => String(rating.ratedUser) === String(worker._id));
+        if (workerRatings.length === 0) return { workerId: String(worker._id), score: null };
+
+        const score = workerRatings.reduce((sum, rating) => {
+          const total = KPI_FIELDS.reduce((ratingSum, field) => ratingSum + (Number(rating[field]) || 0), 0);
+          return sum + total / KPI_FIELDS.length;
+        }, 0) / workerRatings.length;
+
+        return { workerId: String(worker._id), score };
+      });
+      const rankedWorkers = workerScores
+        .filter((entry) => entry.score !== null)
+        .sort((a, b) => b.score - a.score);
+      const currentWorkerId = String(viewerId);
+      const currentWorkerScore = workerScores.find((entry) => entry.workerId === currentWorkerId);
+      const currentWorkerRankIndex = rankedWorkers.findIndex((entry) => entry.workerId === currentWorkerId);
+
       const workersWithComment = await Promise.all(
         workers.map(async (worker) => {
           const latestRatingFilter = selectedMonth
@@ -39,8 +60,14 @@ async function getDashboard(req, res) {
             .sort({ createdAt: -1 });
 
           const { averageRating, totalRatings, ...rest } = worker;
+          const isCurrentWorker = String(worker._id) === currentWorkerId;
           return {
             ...rest,
+            ...(isCurrentWorker ? {
+              cumulativeAverageRating: currentWorkerScore?.score ?? null,
+              cumulativeRank: currentWorkerRankIndex >= 0 ? currentWorkerRankIndex + 1 : null,
+              cumulativeRankedWorkers: rankedWorkers.length
+            } : {}),
             latestComment: latest
               ? { comment: latest.comment, createdAt: latest.createdAt, dateKey: latest.dateKey }
               : null

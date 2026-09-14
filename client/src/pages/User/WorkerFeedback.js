@@ -4,6 +4,7 @@ import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
 import "../../styles/Supervisor/SupervisorPages.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { Info } from "lucide-react";
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -16,7 +17,8 @@ const ratingFields = [
   { key: "initiative", short: "IV" },
   { key: "teamworkSupport", short: "TS" },
   { key: "punctuality", short: "PU" },
-  { key: "attendance", short: "AT" }
+  { key: "attendance", short: "AT" },
+  { key: "leaveOnTime", short: "LT" }
 ];
 
 // Same thresholds/colors as WorkerRatings, minus "No ratings yet" —
@@ -58,6 +60,7 @@ function WorkerFeedback({ worker }) {
   const [filterMonth, setFilterMonth] = useState(getPreviousMonthKey());
   const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
+  const [showKpiLegend, setShowKpiLegend] = useState(true);
 
   const fetchFeedback = useCallback(async (month = selectedMonth) => {
     try {
@@ -253,6 +256,28 @@ function WorkerFeedback({ worker }) {
               <div className="feedback-list">
                 {peerFeedback.map((item, i) => (
                   <div key={i}>{renderCard(item)}</div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="legend-box">
+            <div className="legend-header" onClick={() => setShowKpiLegend((prev) => !prev)}>
+              <span className="legend-title">
+                <Info size={16} style={{ marginRight: "6px", verticalAlign: "-3px" }} />
+                {t("workerHome.legendTitle")}
+              </span>
+              <span className="legend-toggle">
+                {showKpiLegend ? `▲ ${t("workerHome.hide")}` : `▼ ${t("workerHome.show")}`}
+              </span>
+            </div>
+            {showKpiLegend && (
+              <div className="legend-grid">
+                {ratingFields.map((field) => (
+                  <div key={field.key} className="legend-item">
+                    <span className="legend-short">{t(`kpiShort.${field.key}`)}</span>
+                    <span className="legend-label">{t(`kpi.${field.key}`)}</span>
+                  </div>
                 ))}
               </div>
             )}

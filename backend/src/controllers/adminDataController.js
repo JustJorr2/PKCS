@@ -66,6 +66,8 @@ const formatted = ratings.map((r) => {
   return {
     worker: r.ratedUser?.name || "-",
 
+    rater: r.ratedBy?.name || "-",
+
     supervisor:
       r.ratedBy?.role === "supervisor"
         ? r.ratedBy.name

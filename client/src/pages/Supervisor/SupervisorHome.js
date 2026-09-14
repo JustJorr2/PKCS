@@ -23,6 +23,7 @@ const ratingFields = [
 
 const BELOW_THRESHOLD = 2.0;
 const RECENT_MONTHS_LIMIT = 6;
+const RECENT_RATINGS_LIMIT = 5;
 
 function getLastMonthKey() {
   const now = new Date();
@@ -162,12 +163,18 @@ function SupervisorHome({ worker }) {
    * Cumulative -> all recent monthly groups
    */
   const visibleRatingsByMonth = useMemo(() => {
-    if (filterMode === "lastMonth") {
-      const lastMonthKey = getLastMonthKey();
-      return ratingsByMonth.filter((month) => month.monthKey === lastMonthKey);
-    }
+    const months = filterMode === "lastMonth"
+      ? ratingsByMonth.filter((month) => month.monthKey === getLastMonthKey())
+      : ratingsByMonth;
+    const remaining = { count: RECENT_RATINGS_LIMIT };
 
-    return ratingsByMonth;
+    return months
+      .map((month) => {
+        const entries = month.entries.slice(0, remaining.count);
+        remaining.count -= entries.length;
+        return { ...month, entries };
+      })
+      .filter((month) => month.entries.length > 0);
   }, [ratingsByMonth, filterMode]);
 
   const dashboard = useMemo(() => {
@@ -550,13 +557,13 @@ function SupervisorHome({ worker }) {
                                   AVG: {ratingAvg} ★
                                 </span>
 
-                                <div style={{ display: "flex", gap: "8px" }}>
+                                <div style={{ display: "flex", gap: "8px", marginRight: "12px" }}>
                                   <span
                                     className="field-badge"
                                     style={{ backgroundColor: getRatingColor(highest.value), color: "#fff" }}
                                     title={t("supervisorHome.highest") || "Highest"}
                                   >
-                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value} ★
+                                    ↑ {t(`kpiShort.${highest.key}`)}: {highest.value.toFixed(2)} ★
                                   </span>
 
                                   <span
@@ -564,7 +571,7 @@ function SupervisorHome({ worker }) {
                                     style={{ backgroundColor: getRatingColor(lowest.value), color: "#fff" }}
                                     title={t("supervisorHome.weakest") || "Weakest"}
                                   >
-                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value} ★
+                                    ↓ {t(`kpiShort.${lowest.key}`)}: {lowest.value.toFixed(2)} ★
                                   </span>
                                 </div>
                               </div>

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { adminService } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
-import { Check, ClipboardList, FilePenLine, HardHat, LoaderCircle, Timer, X } from "lucide-react";
+import { Check, ChevronDown, ClipboardList, FilePenLine, HardHat, LoaderCircle, Timer, X } from "lucide-react";
 
 function AdminRatingEditRequests() {
   const admin = JSON.parse(localStorage.getItem("worker") || "{}");
@@ -13,6 +13,18 @@ function AdminRatingEditRequests() {
   const [loading, setLoading] = useState(true);
   const [submittingId, setSubmittingId] = useState("");
   const [error, setError] = useState("");
+  const [expandedSections, setExpandedSections] = useState({
+    workerApprovals: true,
+    ratingEdits: true,
+    lateSubmissions: true
+  });
+
+  const toggleSection = (section) => {
+    setExpandedSections((previous) => ({
+      ...previous,
+      [section]: !previous[section]
+    }));
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -104,8 +116,17 @@ function AdminRatingEditRequests() {
         <>
           {/* ===== WORKER APPROVALS SECTION ===== */}
           <div className="admin-section admin-card" style={{ marginBottom: "40px" }}>
-            <h2 className="section-title"><HardHat size={18} aria-hidden="true" /> {t("adminEditRequests.workerApprovalsTitle")}</h2>
-            {workers.length === 0 ? (
+            <button
+              type="button"
+              className="section-title admin-section-toggle"
+              onClick={() => toggleSection("workerApprovals")}
+              aria-expanded={expandedSections.workerApprovals}
+            >
+              <HardHat size={18} aria-hidden="true" />
+              <span>{t("adminEditRequests.workerApprovalsTitle")}</span>
+              <ChevronDown className={expandedSections.workerApprovals ? "section-chevron expanded" : "section-chevron"} size={18} aria-hidden="true" />
+            </button>
+            {expandedSections.workerApprovals && (workers.length === 0 ? (
               <div className="admin-empty">{t("adminEditRequests.noWorkerApprovals")}</div>
             ) : (
               <div className="table-responsive admin-table">
@@ -148,13 +169,22 @@ function AdminRatingEditRequests() {
                   </tbody>
                 </table>
               </div>
-            )}
+            ))}
           </div>
 
           {/* ===== RATING EDIT REQUESTS SECTION ===== */}
           <div className="admin-section admin-card" style={{ marginBottom: "40px" }}>
-            <h2 className="section-title"><FilePenLine size={18} aria-hidden="true" /> {t("adminEditRequests.ratingEditRequestsTitle")}</h2>
-            {requests.length === 0 ? (
+            <button
+              type="button"
+              className="section-title admin-section-toggle"
+              onClick={() => toggleSection("ratingEdits")}
+              aria-expanded={expandedSections.ratingEdits}
+            >
+              <FilePenLine size={18} aria-hidden="true" />
+              <span>{t("adminEditRequests.ratingEditRequestsTitle")}</span>
+              <ChevronDown className={expandedSections.ratingEdits ? "section-chevron expanded" : "section-chevron"} size={18} aria-hidden="true" />
+            </button>
+            {expandedSections.ratingEdits && (requests.length === 0 ? (
               <div className="admin-empty">{t("adminEditRequests.noEditRequests")}</div>
             ) : (
               <div className="table-responsive admin-table">
@@ -207,13 +237,22 @@ function AdminRatingEditRequests() {
                   </tbody>
                 </table>
               </div>
-            )}
+            ))}
           </div>
 
           {/* ===== LATE SUBMISSION PERMISSION REQUESTS SECTION ===== */}
           <div className="admin-section admin-card">
-            <h2 className="section-title"><Timer size={18} aria-hidden="true" /> {t("adminEditRequests.lateSubmissionRequestsTitle")}</h2>
-            {lateSubmissionRequests.length === 0 ? (
+            <button
+              type="button"
+              className="section-title admin-section-toggle"
+              onClick={() => toggleSection("lateSubmissions")}
+              aria-expanded={expandedSections.lateSubmissions}
+            >
+              <Timer size={18} aria-hidden="true" />
+              <span>{t("adminEditRequests.lateSubmissionRequestsTitle")}</span>
+              <ChevronDown className={expandedSections.lateSubmissions ? "section-chevron expanded" : "section-chevron"} size={18} aria-hidden="true" />
+            </button>
+            {expandedSections.lateSubmissions && (lateSubmissionRequests.length === 0 ? (
               <div className="admin-empty">{t("adminEditRequests.noLateSubmissionRequests")}</div>
             ) : (
               <div className="table-responsive admin-table">
@@ -264,7 +303,7 @@ function AdminRatingEditRequests() {
                   </tbody>
                 </table>
               </div>
-            )}
+            ))}
           </div>
         </>
       )}

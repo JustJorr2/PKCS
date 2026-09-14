@@ -31,6 +31,25 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
     });
   }, [worker]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    if (!worker?._id) return undefined;
+
+    usersService.getUserById(worker._id)
+      .then((response) => {
+        const latestWorker = response.data?.worker;
+        if (isActive && latestWorker) {
+          setCurrentWorker(latestWorker);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isActive = false;
+    };
+  }, [worker?._id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

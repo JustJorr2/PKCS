@@ -1,7 +1,9 @@
 import "../styles/Supervisor/SupervisorNav.css";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { config } from "../config/config";
+import { adminService } from "../services/api";
 
 function AdminNav({
   worker,
@@ -13,6 +15,39 @@ function AdminNav({
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const fetchPendingRequestCount = async () => {
+      try {
+        const [editRequests, workerApprovals, lateSubmissions] = await Promise.all([
+          adminService.getPendingRatingEditRequests(),
+          adminService.getPendingWorkerApprovals(),
+          adminService.getPendingLateSubmissionRequests()
+        ]);
+
+        if (isActive) {
+          setPendingRequestCount(
+            (editRequests.data?.length || 0) +
+            (workerApprovals.data?.length || 0) +
+            (lateSubmissions.data?.length || 0)
+          );
+        }
+      } catch {
+        if (isActive) setPendingRequestCount(0);
+      }
+    };
+
+    fetchPendingRequestCount();
+    const intervalId = window.setInterval(fetchPendingRequestCount, 30000);
+
+    return () => {
+      isActive = false;
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   const pages = [
     { id: "home", label: t("adminNav.home"), icon: "\u{1F3E0}", path: "/" },
@@ -55,6 +90,9 @@ function AdminNav({
               >
                 <span className="nav-icon">{page.icon}</span>
                 {!collapsed && <span className="nav-label">{page.label}</span>}
+                {page.id === "edit-requests" && pendingRequestCount > 0 && (
+                  <span className="nav-badge">{pendingRequestCount}</span>
+                )}
               </button>
             ))}
           </div>

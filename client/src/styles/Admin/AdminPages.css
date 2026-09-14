@@ -46,6 +46,24 @@
   margin: 0 0 20px;
 }
 
+.admin-section-toggle {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.section-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.section-chevron.expanded {
+  transform: rotate(180deg);
+}
+
 /* ── Stats Grid ─────────────────────────────── */
 .admin-stats-grid {
   display: grid;

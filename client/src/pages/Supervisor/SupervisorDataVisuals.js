@@ -30,6 +30,9 @@ const PIE_SEGMENTS = [
 
 const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
 
+// How many trailing months each independent trend-range option pulls in.
+const TREND_RANGE_MONTHS = { monthly: 3, sixMonths: 6, yearly: 12 };
+
 /* =========================================================
    PERIOD OPTIONS
    ========================================================= */
@@ -149,6 +152,50 @@ function buildStats(data, isPeriodScoped, minRaters) {
 }
 
 /* =========================================================
+   AREA BREAKDOWN
+   ========================================================= */
+
+function buildAreaStats(data, isPeriodScoped) {
+  const getScore = (w) =>
+    isPeriodScoped
+      ? (typeof w.monthAverageRating === "number" ? w.monthAverageRating : null)
+      : (typeof w.cumulativeAverageRating === "number" ? w.cumulativeAverageRating : null);
+
+  const getRatingsCount = (w) => (isPeriodScoped ? w.monthRatingsCount || 0 : w.cumulativeRatingsCount || 0);
+
+  const areaMap = new Map();
+
+  (data || []).forEach((w) => {
+    const areaKey = w.area || "unassigned";
+    const score = getScore(w);
+    const ratingsCount = getRatingsCount(w);
+
+    if (!areaMap.has(areaKey)) {
+      areaMap.set(areaKey, { area: areaKey, totalScore: 0, ratedCount: 0, totalWorkers: 0, totalRatings: 0 });
+    }
+
+    const entry = areaMap.get(areaKey);
+    entry.totalWorkers += 1;
+
+    if (score !== null && ratingsCount > 0) {
+      entry.totalScore += score;
+      entry.ratedCount += 1;
+      entry.totalRatings += ratingsCount;
+    }
+  });
+
+  return Array.from(areaMap.values())
+    .map((entry) => ({
+      area: entry.area,
+      avg: entry.ratedCount > 0 ? entry.totalScore / entry.ratedCount : 0,
+      ratedCount: entry.ratedCount,
+      totalWorkers: entry.totalWorkers,
+      totalRatings: entry.totalRatings
+    }))
+    .sort((a, b) => b.avg - a.avg);
+}
+
+/* =========================================================
    TREND CHART
    ========================================================= */
 
@@ -212,7 +259,10 @@ function SupervisorDataVisuals({ worker }) {
   const [loading, setLoading] = useState(true);
   const [isPeriodScoped, setIsPeriodScoped] = useState(false);
 
-  const [trend, setTrend] = useState([]);
+  /* TREND — independent of the main period filter below */
+  const [trendRange, setTrendRange] = useState("sixMonths");
+  const [trendRaw, setTrendRaw] = useState([]);
+  const [trendLoading, setTrendLoading] = useState(true);
 
   /* PERIOD FILTER */
   const [filterMode, setFilterMode] = useState("month");
@@ -330,42 +380,60 @@ function SupervisorDataVisuals({ worker }) {
     [worker?._id, buildViewParams]
   );
 
-  /* RATING TREND */
-  const fetchTrend = useCallback(async () => {
-    const monthsAsc = generateMonthChecklistOptions(6).slice().reverse();
+  /* RATING TREND — fetches raw per-month data for the selected range.
+     Area filtering happens client-side in the `trend` memo below, so
+     switching the area dropdown doesn't need a refetch. */
+  const fetchTrendRaw = useCallback(async () => {
+    setTrendLoading(true);
+    const count = TREND_RANGE_MONTHS[trendRange] || 6;
+    const monthsAsc = generateMonthChecklistOptions(count).slice().reverse();
 
     try {
       const responses = await Promise.all(
         monthsAsc.map((opt) => supervisorService.getDashboard(opt.key, worker?._id, buildViewParams()))
       );
 
-      const points = monthsAsc.map((opt, idx) => {
-        const data = (responses[idx].data || []).filter((w) => (
-          filterArea === "all"
-          || (filterArea === "unassigned" ? !w.area : w.area === filterArea)
-        ));
+      const raw = monthsAsc.map((opt, idx) => ({
+        label: opt.label,
+        data: responses[idx].data || []
+      }));
 
-        const scores = data
-          .map((w) => (typeof w.monthAverageRating === "number" ? w.monthAverageRating : null))
-          .filter((v) => v !== null);
-
-        const avg = scores.length ? scores.reduce((s, v) => s + v, 0) / scores.length : 0;
-
-        return { label: opt.label, avg: Number(avg.toFixed(2)) };
-      });
-
-      setTrend(points);
+      setTrendRaw(raw);
     } catch (err) {
       console.error("Error fetching trend data:", err);
+    } finally {
+      setTrendLoading(false);
     }
-  }, [worker?._id, buildViewParams, filterArea]);
+  }, [worker?._id, buildViewParams, trendRange]);
 
   useEffect(() => {
     fetchSingleMonth();
-    fetchTrend();
     // Initial load only. Filter changes are handled by Apply.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Independent from the main "Apply" period filter: refetches whenever
+  // the trend range or rating view changes.
+  useEffect(() => {
+    fetchTrendRaw();
+  }, [fetchTrendRaw]);
+
+  const trend = useMemo(() => {
+    return trendRaw.map(({ label, data }) => {
+      const filtered = data.filter((w) => (
+        filterArea === "all"
+        || (filterArea === "unassigned" ? !w.area : w.area === filterArea)
+      ));
+
+      const scores = filtered
+        .map((w) => (typeof w.monthAverageRating === "number" ? w.monthAverageRating : null))
+        .filter((v) => v !== null);
+
+      const avg = scores.length ? scores.reduce((s, v) => s + v, 0) / scores.length : 0;
+
+      return { label, avg: Number(avg.toFixed(2)) };
+    });
+  }, [trendRaw, filterArea]);
 
   const toggleMonthChecked = (key) => {
     setSelectedMonths((prev) => (prev.includes(key) ? prev.filter((m) => m !== key) : [...prev, key]));
@@ -397,7 +465,6 @@ function SupervisorDataVisuals({ worker }) {
       );
     }
 
-    fetchTrend();
     setShowPeriodPicker(false);
   };
 
@@ -409,7 +476,6 @@ function SupervisorDataVisuals({ worker }) {
     setActiveFilter("");
 
     fetchSingleMonth("");
-    fetchTrend();
   };
 
   const filteredWorkers = useMemo(() => workers.filter((w) => (
@@ -417,6 +483,7 @@ function SupervisorDataVisuals({ worker }) {
     || (filterArea === "unassigned" ? !w.area : w.area === filterArea)
   )), [workers, filterArea]);
   const filteredStats = useMemo(() => buildStats(filteredWorkers, isPeriodScoped, minRaters), [filteredWorkers, isPeriodScoped, minRaters]);
+  const areaStats = useMemo(() => buildAreaStats(workers, isPeriodScoped), [workers, isPeriodScoped]);
   const ratedWorkers = useMemo(() => filteredWorkers.filter((w) => w.latestRating), [filteredWorkers]);
   const totalWorkers = filteredWorkers.length;
   const getBarWidth = (count) => (totalWorkers > 0 ? (count / totalWorkers) * 100 : 0);
@@ -717,8 +784,76 @@ function SupervisorDataVisuals({ worker }) {
             </div>
 
             <div className="chart-section chart-half">
-              <h2>{t("supervisorVisuals.trendTitle") || "Rating Trend"}</h2>
-              <TrendMiniChart data={trend} emptyLabel={t("supervisorVisuals.noTrendData") || "No trend data yet"} />
+              <div className="chart-section-header-row">
+                <h2>{t("supervisorVisuals.trendTitle") || "Rating Trend"}</h2>
+
+                <div className="filter-buttons">
+                  <button
+                    type="button"
+                    className={`filter-btn ${trendRange === "monthly" ? "active" : ""}`}
+                    onClick={() => setTrendRange("monthly")}
+                    disabled={trendLoading}
+                  >
+                    {t("supervisorVisuals.trendMonthly") || "Monthly"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`filter-btn ${trendRange === "sixMonths" ? "active" : ""}`}
+                    onClick={() => setTrendRange("sixMonths")}
+                    disabled={trendLoading}
+                  >
+                    {t("supervisorVisuals.trendSixMonths") || "6 Months"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`filter-btn ${trendRange === "yearly" ? "active" : ""}`}
+                    onClick={() => setTrendRange("yearly")}
+                    disabled={trendLoading}
+                  >
+                    {t("supervisorVisuals.trendYearly") || "Yearly"}
+                  </button>
+                </div>
+              </div>
+
+              {trendLoading ? (
+                <div className="trend-loading">
+                  <span className="trend-spinner" />
+                  <span>{t("supervisorVisuals.trendLoading") || "Loading trend..."}</span>
+                </div>
+              ) : (
+                <TrendMiniChart data={trend} emptyLabel={t("supervisorVisuals.noTrendData") || "No trend data yet"} />
+              )}
+            </div>
+          </div>
+
+          {/* AREA PERFORMANCE */}
+          <div className="chart-section">
+            <h2>{t("supervisorVisuals.areaPerformance") || "Performance by Area"}</h2>
+            <p className="kpi-note">
+              {t("supervisorVisuals.areaPerformanceNote") || "Average rating per work area for the selected period."}
+            </p>
+
+            <div className="skills-overview">
+              {areaStats.map((item) => {
+                const label = item.area === "unassigned" ? (t("common.unassigned") || "Unassigned") : item.area;
+                const color = item.ratedCount > 0 ? getRatingColor(item.avg) : "#d1d5db";
+
+                return (
+                  <div className="skill-item" key={item.area}>
+                    <span className="skill-name">{label}</span>
+
+                    <div className="skill-bar">
+                      <div className="skill-fill" style={{ width: `${(item.avg / 4) * 100}%`, backgroundColor: color }} />
+                    </div>
+
+                    <span className="skill-value" style={{ color }}>
+                      {item.ratedCount > 0 ? item.avg.toFixed(2) : "—"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -744,6 +879,7 @@ function SupervisorDataVisuals({ worker }) {
                   </div>
 
                   <div className="performer-meta">
+                    <p>{w.area || t("common.unassigned") || "Unassigned"}</p>
                     <p>
                       {w._ratingsCount || 0} {t("supervisorVisuals.ratings")}
                       {" · "}
@@ -779,7 +915,7 @@ function SupervisorDataVisuals({ worker }) {
                       <div className="skill-fill" style={{ width: `${(avg / 4) * 100}%`, backgroundColor: color }} />
                     </div>
 
-                    <span className="skill-value" style={{ color }}>{avg.toFixed(1)}</span>
+                    <span className="skill-value" style={{ color }}>{avg.toFixed(2)}</span>
                   </div>
                 );
               })}
@@ -859,7 +995,9 @@ function SupervisorDataVisuals({ worker }) {
                         <div style={{ color: "#111827", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {w.name}
                         </div>
-                        <div style={{ color: "#9ca3af", fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.email}</div>
+                        <div style={{ color: "#9ca3af", fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {w.email}{w.area ? ` · ${w.area}` : ""}
+                        </div>
                       </div>
                     </div>
 
