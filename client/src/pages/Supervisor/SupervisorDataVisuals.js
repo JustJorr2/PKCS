@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
@@ -17,7 +18,8 @@ const ratingFields = [
   { key: "initiative" },
   { key: "teamworkSupport" },
   { key: "punctuality" },
-  { key: "attendance" }
+  { key: "attendance" },
+  { key: "leaveOnTime" }
 ];
 
 const PIE_SEGMENTS = [
@@ -32,6 +34,11 @@ const WORKER_AREAS = ["Komperta", "Kantor", "Rudis GM", "CCR 1-4", "PLTP 5&6"];
 
 // How many trailing months each independent trend-range option pulls in.
 const TREND_RANGE_MONTHS = { monthly: 3, sixMonths: 6, yearly: 12 };
+
+function formatMonthKey(monthKey) {
+  if (!/^\d{4}-\d{2}$/.test(monthKey)) return monthKey;
+  return new Date(`${monthKey}-01`).toLocaleDateString(undefined, { year: "numeric", month: "long" });
+}
 
 /* =========================================================
    PERIOD OPTIONS
@@ -82,8 +89,9 @@ function generateMonthChecklistOptions(count = 24) {
   return options;
 }
 
+const LOW_RATING_THRESHOLD = 2.0; 
 
-function buildStats(data, isPeriodScoped, minRaters) {
+function buildStats(data, isPeriodScoped, minRaters, selectedMonthKeys = null) {
   const empty = {
     avgRating: "0.00",
     topRated: [],
@@ -128,9 +136,46 @@ function buildStats(data, isPeriodScoped, minRaters) {
   const allRanked = [...calibrated].sort((a, b) => b._score - a._score);
   const topRated = allRanked.slice(0, 6);
 
-  const belowTwoWorkers = ratedInPeriod
-    .filter((w) => w._score > 0 && w._score < 2.0)
-    .sort((a, b) => a._score - b._score);
+  // Below-2.0 workers:
+  // - Period filter active (selectedMonthKeys set): workers whose average
+  //   score IN THAT PERIOD is at/below the threshold.
+  // - No filter (all time): workers who have EVER had a month at/below the
+  //   threshold, using their full lowRatingHistory from the backend.
+  let belowTwoWorkers;
+
+  if (selectedMonthKeys) {
+    belowTwoWorkers = ratedInPeriod
+      .filter((w) => w._score <= LOW_RATING_THRESHOLD)
+      .map((w) => ({
+        ...w,
+        _lowRatingHistory: [{
+          dateKey: Array.from(selectedMonthKeys).join(", "),
+          average: w._score,
+          createdAt: w.latestRating?.createdAt
+        }]
+      }))
+      .sort((a, b) => a._score - b._score);
+  } else {
+    belowTwoWorkers = ratedInPeriod
+      .map((w) => {
+        const historyByMonth = new Map();
+        (w.lowRatingHistory || []).forEach((entry) => historyByMonth.set(entry.dateKey, entry));
+
+        const history = Array.from(historyByMonth.values()).sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        return { ...w, _lowRatingHistory: history };
+      })
+      .filter((w) => w._lowRatingHistory.length > 0)
+      .sort((a, b) => {
+        if (b._lowRatingHistory.length !== a._lowRatingHistory.length) {
+          return b._lowRatingHistory.length - a._lowRatingHistory.length;
+        }
+        return Math.min(...a._lowRatingHistory.map((e) => e.average)) -
+          Math.min(...b._lowRatingHistory.map((e) => e.average));
+      });
+  }
 
   const distribution = { excellent: 0, good: 0, average: 0, poor: 0, notRated: 0 };
 
@@ -254,6 +299,7 @@ function TrendMiniChart({ data, emptyLabel }) {
 
 function SupervisorDataVisuals({ worker }) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -342,18 +388,24 @@ function SupervisorDataVisuals({ worker }) {
               workerMap.set(w._id, {
                 ...w,
                 _raterIdSet: new Set(raterIds),
-                _ratingsCountSum: ratingsCount
+                _ratingsCountSum: ratingsCount,
+                _scoreTotal: typeof w.monthAverageRating === "number" ? w.monthAverageRating * ratingsCount : 0,
+                _kpiTotals: Object.fromEntries(
+                  ratingFields.map(({ key }) => [key, (w.monthKpiAverages?.[key] || 0) * ratingsCount])
+                )
               });
             } else {
               const existing = workerMap.get(w._id);
               existing._ratingsCountSum += ratingsCount;
+              if (typeof w.monthAverageRating === "number") {
+                existing._scoreTotal += w.monthAverageRating * ratingsCount;
+              }
+              ratingFields.forEach(({ key }) => {
+                existing._kpiTotals[key] += (w.monthKpiAverages?.[key] || 0) * ratingsCount;
+              });
               raterIds.forEach((id) => existing._raterIdSet.add(id));
 
-              if (
-                typeof w.monthAverageRating === "number" &&
-                (typeof existing.monthAverageRating !== "number" || w.monthAverageRating > existing.monthAverageRating)
-              ) {
-                existing.monthAverageRating = w.monthAverageRating;
+              if (new Date(w.latestRating?.createdAt || 0) > new Date(existing.latestRating?.createdAt || 0)) {
                 existing.latestRating = w.latestRating;
               }
             }
@@ -363,8 +415,12 @@ function SupervisorDataVisuals({ worker }) {
         // Sums ratings/raters across every month in the group, so a
         // quarter's "ratings received" reflects the whole quarter, not
         // just whichever single month had the best average.
-        const mergedData = Array.from(workerMap.values()).map(({ _raterIdSet, _ratingsCountSum, ...rest }) => ({
+        const mergedData = Array.from(workerMap.values()).map(({ _raterIdSet, _ratingsCountSum, _scoreTotal, _kpiTotals, ...rest }) => ({
           ...rest,
+          monthAverageRating: _ratingsCountSum > 0 ? _scoreTotal / _ratingsCountSum : null,
+          monthKpiAverages: Object.fromEntries(
+            ratingFields.map(({ key }) => [key, _ratingsCountSum > 0 ? _kpiTotals[key] / _ratingsCountSum : 0])
+          ),
           monthRatingsCount: _ratingsCountSum,
           monthRaterIds: Array.from(_raterIdSet)
         }));
@@ -482,14 +538,31 @@ function SupervisorDataVisuals({ worker }) {
     filterArea === "all"
     || (filterArea === "unassigned" ? !w.area : w.area === filterArea)
   )), [workers, filterArea]);
-  const filteredStats = useMemo(() => buildStats(filteredWorkers, isPeriodScoped, minRaters), [filteredWorkers, isPeriodScoped, minRaters]);
+  const selectedMonthKeys = useMemo(() => {
+    if (!activeFilter) return null;
+    if (filterMode === "month") return filterMonth ? new Set([filterMonth]) : null;
+    if (filterMode === "quarter") {
+      return new Set(quarterOptions.find((quarter) => quarter.key === filterQuarter)?.months || []);
+    }
+    return new Set(selectedMonths);
+  }, [activeFilter, filterMode, filterMonth, filterQuarter, quarterOptions, selectedMonths]);
+  const filteredStats = useMemo(
+    () => buildStats(filteredWorkers, isPeriodScoped, minRaters, selectedMonthKeys),
+    [filteredWorkers, isPeriodScoped, minRaters, selectedMonthKeys]
+  );
   const areaStats = useMemo(() => buildAreaStats(workers, isPeriodScoped), [workers, isPeriodScoped]);
-  const ratedWorkers = useMemo(() => filteredWorkers.filter((w) => w.latestRating), [filteredWorkers]);
+  const ratedWorkers = useMemo(() => filteredWorkers.filter((w) => {
+    const score = isPeriodScoped ? w.monthAverageRating : w.cumulativeAverageRating;
+    const count = isPeriodScoped ? w.monthRatingsCount : w.cumulativeRatingsCount;
+    return typeof score === "number" && count > 0;
+  }), [filteredWorkers, isPeriodScoped]);
   const totalWorkers = filteredWorkers.length;
   const getBarWidth = (count) => (totalWorkers > 0 ? (count / totalWorkers) * 100 : 0);
 
   const getKpiAverage = (key) => {
-    const kpiValues = ratedWorkers.map((w) => w.latestRating?.[key]).filter((v) => typeof v === "number");
+    const kpiValues = ratedWorkers
+      .map((w) => (isPeriodScoped ? w.monthKpiAverages?.[key] : w.cumulativeKpiAverages?.[key]))
+      .filter((v) => typeof v === "number");
     if (kpiValues.length === 0) return 0;
     return kpiValues.reduce((sum, v) => sum + v, 0) / kpiValues.length;
   };
@@ -529,6 +602,10 @@ function SupervisorDataVisuals({ worker }) {
     if (activeFilter) return activeFilter;
     return t("supervisorVisuals.allTime") || "All Time";
   }, [activeFilter, t]);
+
+  const belowTwoLabel = activeFilter
+    ? (t("supervisorVisuals.belowTwoTitle") || "At or below 2.0")
+    : (t("supervisorVisuals.belowTwoAllTimeTitle") || "Workers with a rating at or below 2.0");
 
   const viewLabel = useMemo(() => {
     if (ratingView === "supervisor") return t("supervisorVisuals.viewSupervisor") || "Supervisor Ratings";
@@ -722,7 +799,7 @@ function SupervisorDataVisuals({ worker }) {
         <div className="summary-card">
           <div className="summary-card-title">
             <AlertTriangle size={16} />
-            <h3>{t("supervisorVisuals.belowTwoTitle") || "Below 2.0"}</h3>
+            <h3>{belowTwoLabel}</h3>
           </div>
           <div className="big-stat" style={{ color: "#e74c3c" }}>{stats.belowTwoWorkers.length} / {totalWorkers}</div>
           <button type="button" className="summary-card-link" onClick={() => setShowBelowTwoModal(true)}>
@@ -868,7 +945,14 @@ function SupervisorDataVisuals({ worker }) {
                 <div key={w._id} className="performer-item">
                   <div className="performer-info">
                     <h4>#{index + 1}</h4>
-                    <p className="performer-name">{w.name}</p>
+                    <button
+                      type="button"
+                      className="performer-name"
+                      onClick={() => navigate(`/worker/${w._id}`)}
+                      style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
+                    >
+                      {w.name}
+                    </button>
                     <p className="performer-email">{w.email}</p>
                   </div>
 
@@ -933,7 +1017,7 @@ function SupervisorDataVisuals({ worker }) {
             style={{ display: "flex", flexDirection: "column", maxHeight: "80vh", width: "min(900px, 94vw)" }}
           >
             <h3 style={{ marginBottom: "4px" }}>
-              {t("supervisorVisuals.belowTwoModalTitle") || "Workers Below 2.0"} — {periodLabel}
+              {belowTwoLabel} — {periodLabel}
             </h3>
 
             {stats.belowTwoWorkers.length === 0 ? (
@@ -945,7 +1029,20 @@ function SupervisorDataVisuals({ worker }) {
                     key={w._id}
                     style={{ background: "#f9fafb", borderRadius: "10px", padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                   >
-                    <span style={{ color: "#111827", fontWeight: 600 }}>{w.name}</span>
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/worker/${w._id}`)}
+                        style={{ background: "none", border: "none", padding: 0, color: "#111827", fontWeight: 600, cursor: "pointer" }}
+                      >
+                        {w.name}
+                      </button>
+                      {!activeFilter && w._lowRatingHistory.map((entry, index) => (
+                        <div key={`${w._id}-${entry.dateKey}-${index}`} style={{ color: "#6b7280", fontSize: "12px", marginTop: "4px" }}>
+                          {formatMonthKey(entry.dateKey)}: {entry.average.toFixed(2)} ★
+                        </div>
+                      ))}
+                    </div>
 
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                       <span style={{ color: getRatingColor(w._score), fontWeight: 700 }}>{Number(w._score).toFixed(2)} ★</span>
@@ -992,9 +1089,13 @@ function SupervisorDataVisuals({ worker }) {
                       <span style={{ color: "#9ca3af", fontWeight: 700, width: "20px", flexShrink: 0 }}>#{idx + 1}</span>
 
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ color: "#111827", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/worker/${w._id}`)}
+                          style={{ color: "#111827", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", background: "none", border: "none", padding: 0, cursor: "pointer" }}
+                        >
                           {w.name}
-                        </div>
+                        </button>
                         <div style={{ color: "#9ca3af", fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {w.email}{w.area ? ` · ${w.area}` : ""}
                         </div>

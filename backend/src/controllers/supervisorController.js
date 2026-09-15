@@ -96,6 +96,8 @@ async function getDashboard(req, res) {
             cumulativeAverageRating: null,
             cumulativeRatingsCount: 0,
             cumulativeRaterIds: [],
+            monthKpiAverages: {},
+            cumulativeKpiAverages: {},
             lowRatingHistory: []
           };
         }
@@ -127,6 +129,17 @@ async function getDashboard(req, res) {
               .filter(Boolean)
           )];
 
+        const getKpiAverages = (ratings) => {
+          if (ratings.length === 0) return {};
+
+          return Object.fromEntries(
+            KPI_FIELDS.map((field) => [
+              field,
+              ratings.reduce((sum, rating) => sum + (Number(rating[field]) || 0), 0) / ratings.length
+            ])
+          );
+        };
+
         const latestRating = selectedMonth
           ? allRatingsForWorker.find((r) => r.dateKey === selectedMonth) || null
           : allRatingsForWorker[0] || null;
@@ -134,11 +147,13 @@ async function getDashboard(req, res) {
         let monthAverageRating = null;
         let monthRatingsCount = 0;
         let monthRaterIds = [];
+        let monthKpiAverages = {};
 
         if (selectedMonth) {
           const monthRatings = allRatingsForWorker.filter((r) => r.dateKey === selectedMonth);
           monthRatingsCount = monthRatings.length;
           monthRaterIds = uniqueRaterIds(monthRatings);
+          monthKpiAverages = getKpiAverages(monthRatings);
 
           if (monthRatings.length > 0) {
             const monthAverages = monthRatings.map(toKpiAverage);
@@ -147,6 +162,7 @@ async function getDashboard(req, res) {
         }
 
         let cumulativeAverageRating = null;
+        const cumulativeKpiAverages = getKpiAverages(allRatingsForWorker);
         if (allRatingsForWorker.length > 0) {
           const cumulativeAverages = allRatingsForWorker.map(toKpiAverage);
           cumulativeAverageRating =
@@ -156,13 +172,27 @@ async function getDashboard(req, res) {
         const cumulativeRatingsCount = allRatingsForWorker.length;
         const cumulativeRaterIds = uniqueRaterIds(allRatingsForWorker);
 
-        const lowRatingHistory = allRatingsForWorker
-          .map((r) => ({
-            dateKey: r.dateKey,
-            average: toKpiAverage(r),
-            createdAt: r.createdAt
-          }))
-          .filter((r) => r.average < LOW_RATING_THRESHOLD)
+        const ratingsByMonth = new Map();
+        allRatingsForWorker.forEach((rating) => {
+          const average = toKpiAverage(rating);
+          const existing = ratingsByMonth.get(rating.dateKey) || {
+            dateKey: rating.dateKey,
+            total: 0,
+            count: 0,
+            createdAt: rating.createdAt
+          };
+
+          existing.total += average;
+          existing.count += 1;
+          if (new Date(rating.createdAt) > new Date(existing.createdAt)) {
+            existing.createdAt = rating.createdAt;
+          }
+          ratingsByMonth.set(rating.dateKey, existing);
+        });
+
+        const lowRatingHistory = Array.from(ratingsByMonth.values())
+          .map(({ total, count, ...entry }) => ({ ...entry, average: total / count }))
+          .filter((entry) => entry.average <= LOW_RATING_THRESHOLD)
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         return {
@@ -174,6 +204,8 @@ async function getDashboard(req, res) {
           cumulativeAverageRating,
           cumulativeRatingsCount,
           cumulativeRaterIds,
+          monthKpiAverages,
+          cumulativeKpiAverages,
           lowRatingHistory
         };
       })

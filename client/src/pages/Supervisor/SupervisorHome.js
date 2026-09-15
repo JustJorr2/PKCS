@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
@@ -72,6 +73,7 @@ function getFieldVariation(rating) {
 
 function SupervisorHome({ worker }) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const [allTimeWorkers, setAllTimeWorkers] = useState([]);
   const [lastMonthWorkers, setLastMonthWorkers] = useState([]);
@@ -87,7 +89,7 @@ function SupervisorHome({ worker }) {
     try {
       setLoading(true);
 
-      const monthKeys = getRecentMonthKeys(RECENT_MONTHS_LIMIT);
+      const monthKeys = getRecentMonthKeys(RECENT_MONTHS_LIMIT + 1);
 
       const [allTimeRes, lastMonthRes, ...monthlyResponses] = await Promise.all([
         supervisorService.getDashboard(undefined, worker?._id),
@@ -166,12 +168,10 @@ function SupervisorHome({ worker }) {
     const months = filterMode === "lastMonth"
       ? ratingsByMonth.filter((month) => month.monthKey === getLastMonthKey())
       : ratingsByMonth;
-    const remaining = { count: RECENT_RATINGS_LIMIT };
 
     return months
       .map((month) => {
-        const entries = month.entries.slice(0, remaining.count);
-        remaining.count -= entries.length;
+        const entries = month.entries.slice(0, RECENT_RATINGS_LIMIT);
         return { ...month, entries };
       })
       .filter((month) => month.entries.length > 0);
@@ -205,7 +205,7 @@ function SupervisorHome({ worker }) {
       filterMode === "lastMonth"
         ? activeWorkers.filter((w) => {
             const r = getFilteredRating(w);
-            return r !== null && r > 0 && r < BELOW_THRESHOLD;
+            return r !== null && r > 0 && r <= BELOW_THRESHOLD;
           })
         : activeWorkers.filter((w) => (w.lowRatingHistory || []).length > 0);
 
@@ -257,6 +257,9 @@ function SupervisorHome({ worker }) {
     filterMode === "lastMonth"
       ? t("supervisorHome.filterLastMonth") || "Last Month"
       : t("supervisorHome.filterCumulative") || "Cumulative";
+  const belowTwoLabel = filterMode === "lastMonth"
+    ? t("supervisorHome.belowTwoLastMonth") || "2.0 Last Month"
+    : t("supervisorHome.belowTwoTitle") || "Workers at or below 2.0";
 
   return (
     <div className="page-content supervisor-home">
@@ -331,7 +334,17 @@ function SupervisorHome({ worker }) {
           <div className="stat-info">
             <h3>{t("supervisorHome.topPerformer")}</h3>
             <p className="stat-text">
-              {dashboard.topWorker?.name || t("supervisorHome.notAvailable")}
+              {dashboard.topWorker ? (
+                <button
+                  type="button"
+                  onClick={() => navigate(`/worker/${dashboard.topWorker._id}`)}
+                  style={{ background: "none", border: "none", padding: 0, color: "inherit", font: "inherit", cursor: "pointer" }}
+                >
+                  {dashboard.topWorker.name}
+                </button>
+              ) : (
+                t("supervisorHome.notAvailable")
+              )}
             </p>
 
             {dashboard.topWorker && (
@@ -348,7 +361,7 @@ function SupervisorHome({ worker }) {
         <div className="stat-card warning">
           <div className="stat-icon"><AlertTriangle size={20} /></div>
           <div className="stat-info">
-            <h3>{t("supervisorHome.belowTwoTitle") || "Workers Below 2.0"}</h3>
+            <h3>{belowTwoLabel}</h3>
             <p className="stat-number" style={{ color: "#e74c3c" }}>
               {dashboard.belowTwoWorkers.length}
             </p>
@@ -388,7 +401,7 @@ function SupervisorHome({ worker }) {
             }}
           >
             <h3 style={{ marginBottom: "4px" }}>
-              {t("supervisorHome.belowTwoTitle") || "Workers Below 2.0"} — {filterLabel}
+              {belowTwoLabel} — {filterLabel}
             </h3>
 
             {dashboard.belowTwoWorkers.length === 0 ? (
@@ -425,7 +438,13 @@ function SupervisorHome({ worker }) {
                           alignItems: "center"
                         }}
                       >
-                        <span style={{ color: "#111827", fontWeight: 600 }}>{w.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/worker/${w._id}`)}
+                          style={{ background: "none", border: "none", padding: 0, color: "#111827", fontWeight: 600, cursor: "pointer" }}
+                        >
+                          {w.name}
+                        </button>
                         <span style={{ color: getRatingColor(rating), fontWeight: 700 }}>
                           {rating.toFixed(2)} ★
                         </span>
@@ -535,7 +554,13 @@ function SupervisorHome({ worker }) {
                               </div>
 
                               <div className="worker-details">
-                                <h4>{item.worker.name}</h4>
+                                <button
+                                  type="button"
+                                  onClick={() => navigate(`/worker/${item.worker._id}`)}
+                                  style={{ background: "none", border: "none", padding: 0, color: "inherit", font: "inherit", cursor: "pointer", textAlign: "left" }}
+                                >
+                                  {item.worker.name}
+                                </button>
                                 <p className="worker-email">{item.worker.email}</p>
                               </div>
                             </div>
