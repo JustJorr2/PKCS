@@ -111,7 +111,11 @@ function buildStats(data, isPeriodScoped, minRaters, selectedMonthKeys = null) {
   const getRatingsCount = (w) => (isPeriodScoped ? w.monthRatingsCount || 0 : w.cumulativeRatingsCount || 0);
   const getRaterIds = (w) => (isPeriodScoped ? w.monthRaterIds : w.cumulativeRaterIds) || [];
 
-  const scoredWorkers = data.map((w) => {
+  const uniqueWorkers = Array.from(
+    new Map(data.map((worker) => [String(worker._id), worker])).values()
+  );
+
+  const scoredWorkers = uniqueWorkers.map((w) => {
     const raterIds = getRaterIds(w);
     return {
       ...w,
@@ -145,7 +149,7 @@ function buildStats(data, isPeriodScoped, minRaters, selectedMonthKeys = null) {
 
   if (selectedMonthKeys) {
     belowTwoWorkers = ratedInPeriod
-      .filter((w) => w._score <= LOW_RATING_THRESHOLD)
+      .filter((w) => w._score < LOW_RATING_THRESHOLD)
       .map((w) => ({
         ...w,
         _lowRatingHistory: [{
@@ -604,8 +608,8 @@ function SupervisorDataVisuals({ worker }) {
   }, [activeFilter, t]);
 
   const belowTwoLabel = activeFilter
-    ? (t("supervisorVisuals.belowTwoTitle") || "At or below 2.0")
-    : (t("supervisorVisuals.belowTwoAllTimeTitle") || "Workers with a rating at or below 2.0");
+    ? (t("supervisorVisuals.belowTwoTitle") || "Below 2.0")
+    : (t("supervisorVisuals.belowTwoAllTimeTitle") || "Workers rated at or below 2.0");
 
   const viewLabel = useMemo(() => {
     if (ratingView === "supervisor") return t("supervisorVisuals.viewSupervisor") || "Supervisor Ratings";
@@ -801,7 +805,9 @@ function SupervisorDataVisuals({ worker }) {
             <AlertTriangle size={16} />
             <h3>{belowTwoLabel}</h3>
           </div>
-          <div className="big-stat" style={{ color: "#e74c3c" }}>{stats.belowTwoWorkers.length} / {totalWorkers}</div>
+          <div className="big-stat" style={{ color: "#e74c3c" }}>
+            {activeFilter ? `${stats.belowTwoWorkers.length} / ${totalWorkers}` : stats.belowTwoWorkers.length}
+          </div>
           <button type="button" className="summary-card-link" onClick={() => setShowBelowTwoModal(true)}>
             {t("supervisorVisuals.seeDetails") || "See details"}
           </button>

@@ -192,7 +192,7 @@ async function getDashboard(req, res) {
 
         const lowRatingHistory = Array.from(ratingsByMonth.values())
           .map(({ total, count, ...entry }) => ({ ...entry, average: total / count }))
-          .filter((entry) => entry.average <= LOW_RATING_THRESHOLD)
+          .filter((entry) => entry.average < LOW_RATING_THRESHOLD)
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         return {

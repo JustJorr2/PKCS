@@ -205,7 +205,7 @@ function SupervisorHome({ worker }) {
       filterMode === "lastMonth"
         ? activeWorkers.filter((w) => {
             const r = getFilteredRating(w);
-            return r !== null && r > 0 && r <= BELOW_THRESHOLD;
+            return r !== null && r > 0 && r < BELOW_THRESHOLD;
           })
         : activeWorkers.filter((w) => (w.lowRatingHistory || []).length > 0);
 
@@ -259,7 +259,7 @@ function SupervisorHome({ worker }) {
       : t("supervisorHome.filterCumulative") || "Cumulative";
   const belowTwoLabel = filterMode === "lastMonth"
     ? t("supervisorHome.belowTwoLastMonth") || "2.0 Last Month"
-    : t("supervisorHome.belowTwoTitle") || "Workers at or below 2.0";
+    : t("supervisorHome.belowTwoTitle") || "Workers below 2.0";
 
   return (
     <div className="page-content supervisor-home">
