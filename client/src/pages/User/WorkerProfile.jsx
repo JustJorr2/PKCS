@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { usersService } from "../../services/api";
-import "../../styles/Admin/AdminPages.css";
+import { getProfilePictureUrl } from "../../utils/helpers";
+import "../../styles/User/WorkerProfile.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
-import { config } from "../../config/config";
-import { Camera, TriangleAlert } from "lucide-react";
 
-function AdminProfile({ worker, onLogout, onProfileUpdated }) {
+function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   const { language, setLanguage, t } = useLanguage();
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -20,7 +19,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   const [formData, setFormData] = useState({
     name: worker?.name || "",
     email: worker?.email || "",
-    role: worker?.role || "admin"
+    role: worker?.role || "worker"
   });
 
   useEffect(() => {
@@ -28,22 +27,42 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
-      role: worker?.role || "admin"
+      role: worker?.role || "worker"
     });
   }, [worker]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    if (!worker?._id) return undefined;
+
+    usersService.getUserById(worker._id)
+      .then((response) => {
+        const latestWorker = response.data?.worker;
+        if (isActive && latestWorker) {
+          setCurrentWorker(latestWorker);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isActive = false;
+    };
+  }, [worker?._id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSave = async () => {
     if (!worker?._id) return;
-
     setSaving(true);
     setMessage("");
     setError("");
-
     try {
       const response = await usersService.updateProfile(worker._id, { name: formData.name });
       onProfileUpdated?.(response.data);
@@ -60,7 +79,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
-      role: worker?.role || "admin"
+      role: worker?.role || "worker"
     });
     setMessage("");
     setError("");
@@ -72,22 +91,26 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
     if (file) {
       setPhotoError("");
 
+      // Validate file type
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
         setPhotoError(t("profile.invalidFileType"));
-        e.target.value = "";
+        e.target.value = ""; // Clear input
         return;
       }
-
+      
+      // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
         setPhotoError(t("profile.fileTooLarge"));
-        e.target.value = "";
+        e.target.value = ""; // Clear input
         return;
       }
 
+      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePicturePreview(reader.result);
+        // Upload after preview is set
         handleUploadProfilePicture(file, e);
       };
       reader.readAsDataURL(file);
@@ -95,28 +118,33 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   };
 
   const handleUploadProfilePicture = async (file, e) => {
-    if (!worker?._id || uploading) return;
+    if (!worker?._id || uploading) return; // Prevent duplicate uploads
     setUploading(true);
     setPhotoError("");
     setMessage("");
-
+    
     try {
       const response = await usersService.uploadProfilePicture(worker._id, file);
       const updatedUser = response.data.user;
-
+      
+      // Update local state immediately for instant display
       setCurrentWorker(updatedUser);
       setProfilePicturePreview(null);
-
+      
+      // Clear file input to prevent duplicate uploads
       if (e?.target) {
         e.target.value = "";
       }
-
+      
+      // Also notify parent component
       onProfileUpdated?.(updatedUser);
+      
       setMessage(t("profile.pictureUpdatedSuccess"));
     } catch (err) {
       setPhotoError(err?.response?.data?.message || t("profile.pictureUploadFailed"));
       setProfilePicturePreview(null);
-
+      
+      // Clear file input on error
       if (e?.target) {
         e.target.value = "";
       }
@@ -126,7 +154,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   };
 
   return (
-    <div className="page-content admin-page admin-profile-page">
+    <div className="page-content worker-profile">
       <div className="page-header">
         <h1>{t("profile.title")}</h1>
         <p>{t("profile.subtitle")}</p>
@@ -137,15 +165,15 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
         </div>
       </div>
 
-      <div className="admin-profile-container">
-        <div className="admin-profile-header">
-          <div className="admin-profile-avatar-container">
+      <div className="profile-container">
+        <div className="profile-header">
+          <div className="profile-picture-container">
             <div className="profile-avatar-wrapper">
               {profilePicturePreview || currentWorker?.profilePicture ? (
                 <img
                   src={
                     profilePicturePreview ||
-                    `${config.API_BASE_URL.replace(/\/$/, "")}/${currentWorker.profilePicture}`
+                    getProfilePictureUrl(currentWorker.profilePicture)
                   }
                   alt="Profile"
                   className={`profile-avatar-large profile-image ${
@@ -154,11 +182,9 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
                 />
               ) : (
                 <div className="profile-avatar-large profile-avatar-fallback">
-                  {currentWorker?.name?.charAt(0)?.toUpperCase() || "A"}
+                  {currentWorker?.name?.charAt(0)?.toUpperCase()}
                 </div>
               )}
-
-              <span className="profile-status-dot admin"></span>
 
               <label className="profile-upload-overlay">
                 <input
@@ -173,7 +199,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
                   <span className="upload-loader"></span>
                 ) : (
                   <>
-                    <Camera className="camera-icon" size={18} aria-hidden="true" />
+                    <span className="camera-icon">📷</span>
                     <span className="upload-text">
                       {t("profile.changePhoto")}
                     </span>
@@ -183,92 +209,75 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
             </div>
             {photoError && (
               <div className="profile-photo-error" role="alert">
-                <TriangleAlert className="profile-photo-error-icon" size={18} aria-hidden="true" />
+                <span className="profile-photo-error-icon">⚠️</span>
                 <span>{photoError}</span>
               </div>
             )}
           </div>
-          <div className="admin-profile-headline">
+          <div className="profile-header-info">
             <h2>{currentWorker?.name}</h2>
-            <p>{currentWorker?.email}</p>
-            <span className="admin-profile-badge">{currentWorker?.role?.toUpperCase()}</span>
+            <p className="profile-email">{currentWorker?.email}</p>
+            <span className="profile-badge">{currentWorker?.role?.toUpperCase()}</span>
           </div>
         </div>
 
-        <div className="admin-profile-grid">
-          <div className="admin-card">
+        <div className="profile-grid">
+          <div className="profile-card">
             <h3>{t("profile.accountInfo")}</h3>
             {editMode ? (
-              <>
-                <div className="form-group" style={{ marginBottom: "15px" }}>
-                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>{t("common.fullName")}</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="admin-input"
-                  />
-                </div>
-                <div className="form-group" style={{ marginBottom: "15px" }}>
-                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>{t("common.email")}</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="admin-input"
-                    disabled
-                  />
-                </div>
-              </>
+              <div className="form-group">
+                <label>{t("common.fullName")}</label>
+                <input type="text" name="name" value={formData.name} onChange={handleChange} className="form-input" />
+              </div>
             ) : (
-              <>
-                <div className="admin-profile-row">
-                  <span>{t("common.fullName")}</span>
-                  <strong>{formData.name}</strong>
-                </div>
-                <div className="admin-profile-row">
-                  <span>{t("common.email")}</span>
-                  <strong>{formData.email}</strong>
-                </div>
-              </>
+              <div className="info-row">
+                <span className="info-label">{t("common.fullName")}</span>
+                <span className="info-value">{formData.name}</span>
+              </div>
             )}
-            <div className="admin-profile-row">
-              <span>{t("common.role")}</span>
-              <strong>{formData.role}</strong>
+
+            {editMode ? (
+              <div className="form-group">
+                <label>{t("common.email")}</label>
+                <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" disabled />
+              </div>
+            ) : (
+              <div className="info-row">
+                <span className="info-label">{t("common.email")}</span>
+                <span className="info-value">{formData.email}</span>
+              </div>
+            )}
+
+            <div className="info-row">
+              <span className="info-label">{t("common.role")}</span>
+              <span className="info-value">{formData.role}</span>
+            </div>
+
+            <div className="info-row">
+              <span className="info-label">{t("common.area")}</span>
+              <span className="info-value">{currentWorker?.area || "-"}</span>
             </div>
           </div>
 
-          <div className="admin-card">
+          <div className="profile-card">
             <h3>{t("profile.statistics")}</h3>
-            <div className="admin-profile-stats">
-              <div className="admin-profile-stat"><span>{t("profile.accountCreated")}</span><strong>{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : t("profile.notAvailable")}</strong></div>
-              <div className="admin-profile-stat"><span>{t("profile.avgRating")}</span><strong>{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</strong></div>
-              <div className="admin-profile-stat"><span>{t("profile.totalRatings")}</span><strong>{worker?.totalRatings ?? "N/A"}</strong></div>
-              <div className="admin-profile-stat"><span>{t("profile.accountId")}</span><strong>{worker?._id ? String(worker._id).slice(-8) : "N/A"}</strong></div>
+            <div className="stats-list">
+              <div className="stat-row"><span className="stat-label">{t("profile.accountCreated")}</span><span className="stat-value">{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : t("profile.notAvailable")}</span></div>
+              <div className="stat-row"><span className="stat-label">{t("profile.avgRating")}</span><span className="stat-value">{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</span></div>
+              <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsReceived")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
             </div>
           </div>
         </div>
 
-        <div className="admin-profile-actions" style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+        <div className="profile-actions">
           {editMode ? (
             <>
-              <button className="admin-btn primary" onClick={handleSave} disabled={saving}>
-                {saving ? `${t("common.saveChanges")}...` : t("common.saveChanges")}
-              </button>
-              <button className="admin-btn secondary" onClick={handleCancel}>
-                {t("common.cancel")}
-              </button>
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? `${t("common.saveChanges")}...` : t("common.saveChanges")}</button>
+              <button className="btn btn-secondary" onClick={handleCancel}>{t("common.cancel")}</button>
             </>
           ) : (
             <>
-              <button className="admin-btn primary" onClick={() => setEditMode(true)}>
-                {t("common.editProfile")}
-              </button>
-              <button className="admin-btn primary" onClick={() => setShowLogoutConfirm(true)}>
-                {t("common.logout")}
-              </button>
+              <button className="btn btn-primary" onClick={() => setShowLogoutConfirm(true)}>{t("common.logout")}</button>
             </>
           )}
         </div>
@@ -293,4 +302,4 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   );
 }
 
-export default AdminProfile;
+export default WorkerProfile;

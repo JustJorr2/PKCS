@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
-import { getRatingColor } from "../../utils/helpers";
+import { getProfilePictureUrl, getRatingColor } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
@@ -456,7 +456,7 @@ function SupervisorRatings({ worker: supervisor }) {
                     >
                       {worker.profilePicture ? (
                         <img
-                          src={`${config.API_BASE_URL}/${worker.profilePicture}`}
+                          src={getProfilePictureUrl(worker.profilePicture)}
                           alt={worker.name}
                           className="worker-badge worker-badge-image"
                         />

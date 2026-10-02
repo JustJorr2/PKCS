@@ -1,4 +1,5 @@
-import { translations } from "../i18n/translations.js";
+import { translations } from "../i18n/translations.jsx";
+import { config } from "../config/config";
 
 const resolve = (obj, key) =>
   key.split(".").reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), obj);
@@ -38,4 +39,10 @@ export const calculateAverage = (values) => {
   return (
     values.reduce((sum, val) => sum + val, 0) / values.length
   ).toFixed(2);
+};
+
+export const getProfilePictureUrl = (profilePicture) => {
+  if (!profilePicture) return null;
+  const filename = profilePicture.split("/").pop();
+  return `${config.API_BASE_URL}/uploads/${filename}`;
 };

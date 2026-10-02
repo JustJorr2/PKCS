@@ -1,18 +1,18 @@
-import "../styles/Supervisor/SupervisorNav.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useLanguage } from "../context/LanguageContext";
-import { config } from "../config/config";
+import "../../styles/Supervisor/SupervisorNav.css";
+import { useLanguage } from "../../context/LanguageContext";
+import { getProfilePictureUrl } from "../../utils/helpers";
 
-function SupervisorNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
+function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
   const pages = [
-    { id: "home", label: t("supervisorNav.home"), icon: "\uD83C\uDFE0", path: "/" },
-    { id: "details", label: t("supervisorNav.details"), icon: "\uD83D\uDC65", path: "/details" },
-    { id: "visuals", label: t("supervisorNav.dataVisuals"), icon: "\uD83D\uDCCA", path: "/visuals" },
-    { id: "profile", label: t("supervisorNav.profile"), icon: "\uD83D\uDC64", path: "/profile" }
+    { id: "home", path: "/", label: t("workerNav.home"), icon: "\uD83C\uDFE0" },
+    { id: "ratings", path: "/ratings", label: t("workerNav.rateColleagues"), icon: "\u2B50" },
+    { id: "feedback", path: "/feedback", label: t("workerNav.feedback"), icon: "\uD83D\uDCAC" },
+    { id: "profile", path: "/profile", label: t("workerNav.profile"), icon: "\uD83D\uDC64" }
   ];
 
   const isActive = (path) => {
@@ -27,7 +27,7 @@ function SupervisorNav({ worker, userName, onLogout, collapsed, setCollapsed }) 
         <button
           className="toggle-btn"
           onClick={() => setCollapsed(!collapsed)}
-          title={collapsed ? t("supervisorNav.expand") : t("supervisorNav.collapse")}
+          title={collapsed ? t("workerNav.expand") : t("workerNav.collapse")}
         >
           {collapsed ? "»" : "«"}
         </button>
@@ -55,19 +55,19 @@ function SupervisorNav({ worker, userName, onLogout, collapsed, setCollapsed }) 
             <div className="worker-info">
               {worker?.profilePicture ? (
                 <img
-                  src={`${config.API_BASE_URL}/${worker.profilePicture}`}
+                  src={getProfilePictureUrl(worker.profilePicture)}
                   alt="Profile"
                   className="worker-avatar worker-avatar-image"
                 />
               ) : (
-                <div className="worker-avatar">{userName?.charAt(0)?.toUpperCase()}</div>
+                <div className="worker-avatar">{userName.charAt(0).toUpperCase()}</div>
               )}
               {!collapsed && <span className="worker-name">{userName}</span>}
             </div>
 
             {!collapsed && (
               <button className="logout-btn" onClick={onLogout}>
-                {t("supervisorNav.logout")}
+                {t("workerNav.logout")}
               </button>
             )}
           </div>
@@ -77,4 +77,4 @@ function SupervisorNav({ worker, userName, onLogout, collapsed, setCollapsed }) 
   );
 }
 
-export default SupervisorNav;
+export default WorkerNav;

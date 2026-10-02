@@ -1,5 +1,5 @@
-// API Configuration and base URL
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/";
+const RAW_API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_BASE_URL = RAW_API_URL.replace(/\/+$/, "");
 
 // dev_purpose = [
 // sarapanpagipge : https://sarapanpagipge.com/
@@ -12,3 +12,4 @@ export const config = {
 };
 
 export default config;
+

@@ -2,8 +2,8 @@ import "../styles/Supervisor/SupervisorNav.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { config } from "../config/config";
 import { adminService } from "../services/api";
+import { getProfilePictureUrl } from "../utils/helpers";
 
 function AdminNav({
   worker,
@@ -101,7 +101,7 @@ function AdminNav({
             <div className="worker-info">
               {worker?.profilePicture ? (
                 <img
-                  src={`${config.API_BASE_URL}/${worker.profilePicture}`}
+                  src={getProfilePictureUrl(worker.profilePicture)}
                   alt="Profile"
                   className="worker-avatar worker-avatar-image"
                 />

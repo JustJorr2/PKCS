@@ -2,6 +2,7 @@
 const Rating = require("../models/Rating");
 const fs = require("fs");
 const path = require("path");
+const { UPLOADS_DIR } = require("../config/uploads");
 
 async function getWorkers(req, res) {
   try {
@@ -15,8 +16,13 @@ async function getWorkers(req, res) {
 async function getUserById(req, res) {
   try {
     const worker = await User.findById(req.params.id).select("-password");
-    const ratings = await Rating.find({ ratedUser: req.params.id })
-      .populate("ratedBy", "name role")
+    const ratings = await Rating.find({
+      ratedUser: req.params.id
+    })
+      .populate(
+        "ratedBy",
+        "name role profilePicture"
+      )
       .sort({ createdAt: -1 });
     res.json({ worker, ratings });
   } catch (err) {
@@ -138,19 +144,12 @@ async function uploadProfilePicture(req, res) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // Delete old profile picture if it exists
     if (user.profilePicture) {
-      const oldFilePath = path.join(__dirname, "../../", user.profilePicture);
-      if (fs.existsSync(oldFilePath)) {
-        fs.unlinkSync(oldFilePath);
-      }
+      const oldFilePath = path.join(UPLOADS_DIR, path.basename(user.profilePicture));
+      if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
     }
 
-    // Store relative path for serving
-    const profilePicturePath = path.relative(
-      path.join(__dirname, ".."),
-      req.file.path
-    ).replace(/\\/g, "/");
+    const profilePicturePath = `/uploads/${req.file.filename}`;
 
     console.log("Stored path:", profilePicturePath);
     console.log("File path:", req.file.path);

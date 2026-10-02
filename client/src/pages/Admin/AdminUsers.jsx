@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { adminService } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
-import { config } from "../../config/config";
+import { getProfilePictureUrl } from "../../utils/helpers";
 import "../../styles/Admin/AdminPages.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import FeedbackDialog from "../../components/common/FeedbackDialog";
@@ -297,7 +297,7 @@ const FILTER_TABS = [
                       <div className="worker-name-cell">
                         {u.profilePicture ? (
                           <img
-                            src={`${config.API_BASE_URL}/${u.profilePicture}`}
+                            src={getProfilePictureUrl(u.profilePicture)}
                             alt={u.name}
                             className="worker-badge worker-badge-image"
                           />

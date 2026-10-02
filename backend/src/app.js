@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const { UPLOADS_DIR } = require("./config/uploads");
 
 const userRoutes = require("./routes/userRoutes");
 const ratingRoutes = require("./routes/ratingRoutes");
@@ -13,7 +14,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(UPLOADS_DIR));
+app.use("/uploads", (req, res) => res.sendStatus(404)); 
 
 app.use("/api", userRoutes);
 app.use("/api", ratingRoutes);

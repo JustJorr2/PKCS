@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useMemo, useCallback } from "react";
 import { supervisorService } from "../../services/api";
-import { getRatingColor } from "../../utils/helpers";
+import { getProfilePictureUrl, getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { Star, Trophy, Medal, AlertTriangle, Info } from "lucide-react";
@@ -313,11 +313,19 @@ function WorkerHome({ worker }) {
                           >
                             <div className="recent-worker">
                               {isSupervisor && (
-                                <div className="worker-avatar">
-                                  {(rating.ratedBy?.name || "S")
-                                    .charAt(0)
-                                    .toUpperCase()}
-                                </div>
+                                rating.ratedBy?.profilePicture ? (
+                                  <img
+                                    src={getProfilePictureUrl(rating.ratedBy.profilePicture)}
+                                    alt={rating.ratedBy?.name || "Supervisor"}
+                                    className="worker-avatar worker-avatar-image"
+                                  />
+                                ) : (
+                                  <div className="worker-avatar">
+                                    {(rating.ratedBy?.name || "S")
+                                      .charAt(0)
+                                      .toUpperCase()}
+                                  </div>
+                                )
                               )}
 
                               <div className="worker-details">
