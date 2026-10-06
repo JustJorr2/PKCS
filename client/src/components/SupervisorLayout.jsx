@@ -7,6 +7,7 @@ import SupervisorRatings from "../pages/Supervisor/SupervisorRatings";
 import SupervisorDataVisuals from "../pages/Supervisor/SupervisorDataVisuals";
 import SupervisorProfile from "../pages/Supervisor/SupervisorProfile";
 import WorkerInformation from "../components/common/WorkerInformation";
+import SchedulePage from "../pages/SchedulePage";
 
 import "../styles/Supervisor/SupervisorLayout.css";
 
@@ -35,6 +36,8 @@ function SupervisorLayout({ worker, onLogout, onProfileUpdated }) {
             path="details"
             element={<SupervisorRatings worker={worker} />}
           />
+
+          <Route path="schedule" element={<SchedulePage worker={worker} />} />
 
           {/* Data Visuals */}
           <Route

@@ -12,6 +12,7 @@ function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
     { id: "home", path: "/", label: t("workerNav.home"), icon: "\uD83C\uDFE0" },
     { id: "ratings", path: "/ratings", label: t("workerNav.rateColleagues"), icon: "\u2B50" },
     { id: "feedback", path: "/feedback", label: t("workerNav.feedback"), icon: "\uD83D\uDCAC" },
+    { id: "schedule", path: "/schedule", label: t("workerNav.schedule"), icon: "\uD83D\uDCC5" },
     { id: "profile", path: "/profile", label: t("workerNav.profile"), icon: "\uD83D\uDC64" }
   ];
 

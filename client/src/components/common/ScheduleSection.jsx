@@ -21,6 +21,18 @@ function currentSlotIndex(slots, nowMin) {
   });
 }
 
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const onChange = (e) => setMatches(e.matches);
+    setMatches(mql.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, [query]);
+  return matches;
+}
+
 function Timeline({ group, nowMin, t }) {
   const nowIdx = currentSlotIndex(group.slots, nowMin);
 
@@ -60,7 +72,7 @@ function Timeline({ group, nowMin, t }) {
 }
 
 function AreaBlock({
-  area, expanded, collapsible, open, onToggle, isOwn,
+  area, grid, collapsible, open, onToggle, isOwn,
   pickedGroupId, onPickGroup, nowMin, t
 }) {
   const groups = area.groups;
@@ -85,7 +97,7 @@ function AreaBlock({
       )}
 
       {showBody && (
-        expanded ? (
+        grid ? (
           <div className="sched-group-grid">
             {groups.map((g) => (
               <section key={g.id} className="sched-group-card">
@@ -126,17 +138,35 @@ function AreaBlock({
  * role: "worker" | "supervisor" | "admin"
  * area: the logged-in worker's area (worker.area). Ignored for other roles.
  */
-export default function ScheduleSection({ role = "worker", area = null }) {
+export default function ScheduleSection({ role = "worker", area = null, variant = "section" }) {
   const { t } = useLanguage();
   const areas = schedule.areas;
   const isWorker = role === "worker";
   const ownArea = isWorker && areas.some((a) => a.id === area) ? area : null;
 
+  const isPage = variant === "page";
+  const wide = useMediaQuery("(min-width: 1000px)");
   const [selection, setSelection] = useState(ownArea ? "mine" : "all");
+  const [touched, setTouched] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [openMap, setOpenMap] = useState({});
   const [groupPick, setGroupPick] = useState({});
   const [nowMin, setNowMin] = useState(readMinutes);
+
+  // Side-by-side cards when expanded, or on a wide dedicated page.
+  const showGrid = expanded || (isPage && wide);
+  const Heading = isPage ? "h1" : "h2";
+
+  const chooseSelection = (value) => {
+    setTouched(true);
+    setSelection(value);
+  };
+
+  // The worker's area can arrive after first render (fresh fetch on the page).
+  // Until they pick a filter themselves, follow it.
+  useEffect(() => {
+    if (!touched) setSelection(ownArea ? "mine" : "all");
+  }, [ownArea, touched]);
 
   // A worker whose area is missing can only see the whole schedule.
   const effectiveSelection = selection === "mine" && !ownArea ? "all" : selection;
@@ -178,7 +208,7 @@ export default function ScheduleSection({ role = "worker", area = null }) {
     setOpenMap((prev) => ({ ...prev, [id]: !(prev[id] ?? id === defaultOpenId) }));
 
   return (
-    <section className={`sched${expanded ? " sched--expanded" : ""}`} aria-labelledby="sched-heading">
+    <section className={`sched${isPage ? " sched--page" : ""}${expanded ? " sched--expanded" : ""}`} aria-labelledby="sched-heading">
       <div
         className="sched-panel"
         role={expanded ? "dialog" : undefined}
@@ -187,9 +217,9 @@ export default function ScheduleSection({ role = "worker", area = null }) {
       >
         <div className="sched-head">
           <div className="sched-head-text">
-            <h2 id="sched-heading">
+            <Heading id="sched-heading">
               <CalendarDays size={20} aria-hidden="true" /> {t("schedule.title")}
-            </h2>
+            </Heading>
             <p>{t("schedule.subtitle")}</p>
           </div>
           <button
@@ -212,7 +242,7 @@ export default function ScheduleSection({ role = "worker", area = null }) {
                 className={effectiveSelection === "mine" ? "is-active" : ""}
                 aria-pressed={effectiveSelection === "mine"}
                 disabled={!ownArea}
-                onClick={() => setSelection("mine")}
+                onClick={() => chooseSelection("mine")}
               >
                 {t("schedule.myArea")}{ownArea ? ` · ${ownArea}` : ""}
               </button>
@@ -220,7 +250,7 @@ export default function ScheduleSection({ role = "worker", area = null }) {
                 type="button"
                 className={effectiveSelection === "all" ? "is-active" : ""}
                 aria-pressed={effectiveSelection === "all"}
-                onClick={() => setSelection("all")}
+                onClick={() => chooseSelection("all")}
               >
                 {t("schedule.wholeSchedule")}
               </button>
@@ -228,7 +258,7 @@ export default function ScheduleSection({ role = "worker", area = null }) {
           ) : (
             <label className="sched-select">
               <span>{t("common.area")}</span>
-              <select value={effectiveSelection} onChange={(e) => setSelection(e.target.value)}>
+              <select value={effectiveSelection} onChange={(e) => chooseSelection(e.target.value)}>
                 <option value="all">{t("schedule.wholeSchedule")}</option>
                 {areas.map((a) => (
                   <option key={a.id} value={a.id}>{a.id}</option>
@@ -248,7 +278,7 @@ export default function ScheduleSection({ role = "worker", area = null }) {
               <AreaBlock
                 key={a.id}
                 area={a}
-                expanded={expanded}
+                grid={showGrid}
                 collapsible={collapsible}
                 open={openMap[a.id] ?? a.id === defaultOpenId}
                 onToggle={() => toggleArea(a.id)}

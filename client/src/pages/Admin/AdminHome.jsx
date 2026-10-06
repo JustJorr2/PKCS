@@ -5,7 +5,6 @@ import { getProfilePictureUrl } from "../../utils/helpers";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
 import { ClipboardPlus, LoaderCircle, ShieldCheck, Star, UserCog, UserRound, Users } from "lucide-react";
-import ScheduleSection from "../../components/common/ScheduleSection";
 
 const ROLE_META = {
   admin: { icon: ShieldCheck },
@@ -137,8 +136,6 @@ function AdminHome() {
           </div>
         )}
       </div>
-
-      <ScheduleSection role="admin" />
     </div>
   );
 }

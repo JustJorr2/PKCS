@@ -6,7 +6,6 @@ import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/common/ConfirmDialog.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { Users, Star, Trophy, AlertTriangle, Info } from "lucide-react";
-import ScheduleSection from "../../components/common/ScheduleSection";
 
 
 const ratingFields = [
@@ -672,10 +671,6 @@ function SupervisorHome({ worker }) {
           </div>
         )}
       </div>
-
-      {/* WORK SCHEDULE */}
-            <ScheduleSection role="supervisor" />
-
     </div>
   );
 }

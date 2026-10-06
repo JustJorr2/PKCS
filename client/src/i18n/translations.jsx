@@ -211,7 +211,8 @@ export const translations = {
       profile: "Profile",
       logout: "Logout",
       expand: "Expand",
-      collapse: "Collapse"
+      collapse: "Collapse",
+      schedule: "Work Schedule"
     },
     supervisorNav: {
       home: "Home",
@@ -220,7 +221,8 @@ export const translations = {
       profile: "Profile",
       logout: "Logout",
       expand: "Expand",
-      collapse: "Collapse"
+      collapse: "Collapse",
+      schedule: "Work Schedule"
     },
     supervisorHome: {
       loading: "Loading...",
@@ -540,7 +542,8 @@ export const translations = {
       profile: "Profile",
       logout: "Logout",
       expand: "Expand",
-      collapse: "Collapse"
+      collapse: "Collapse",
+      schedule: "Work Schedule"
     },
     workerInformation: {
       loadingProfile: "Loading worker profile...",
@@ -793,7 +796,8 @@ export const translations = {
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
-      collapse: "Ciutkan"
+      collapse: "Ciutkan",
+      schedule: "Jadwal Kerja"
     },
     supervisorNav: {
       home: "Beranda",
@@ -802,7 +806,8 @@ export const translations = {
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
-      collapse: "Ciutkan"
+      collapse: "Ciutkan",
+      schedule: "Jadwal Kerja",
     },
     supervisorHome: {
       loading: "Memuat...",
@@ -1122,7 +1127,8 @@ export const translations = {
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
-      collapse: "Ciutkan"
+      collapse: "Ciutkan",
+      schedule: "Jadwal Kerja"
     },
     workerInformation: {
       loadingProfile: "Memuat profil pekerja...",

@@ -12,6 +12,7 @@ function SupervisorNav({ worker, userName, onLogout, collapsed, setCollapsed }) 
     { id: "home", label: t("supervisorNav.home"), icon: "\uD83C\uDFE0", path: "/" },
     { id: "details", label: t("supervisorNav.details"), icon: "\uD83D\uDC65", path: "/details" },
     { id: "visuals", label: t("supervisorNav.dataVisuals"), icon: "\uD83D\uDCCA", path: "/visuals" },
+    { id: "schedule", label: t("supervisorNav.schedule"), icon: "\uD83D\uDCC5", path: "/schedule" },
     { id: "profile", label: t("supervisorNav.profile"), icon: "\uD83D\uDC64", path: "/profile" }
   ];
 

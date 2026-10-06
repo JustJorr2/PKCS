@@ -330,6 +330,16 @@
   }
 }
 
+@media (max-width: 400px) {
+  .nav-pages { gap: 2px; }
+  .nav-item { padding: 6px 1px; }
+  .nav-icon { font-size: 18px; }
+}
+
+@media (max-width: 340px) {
+  .nav-icon { font-size: 16px; }
+}
+
 .nav-badge {
   min-width: 18px;
   height: 18px;

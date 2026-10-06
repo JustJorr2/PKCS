@@ -10,6 +10,7 @@ import AdminProfile from "../pages/Admin/AdminProfile";
 import WorkerInformation from "../components/common/WorkerInformation";
 import "../styles/Supervisor/SupervisorLayout.css";
 import "../styles/Admin/AdminPages.css";
+import SchedulePage from "../pages/SchedulePage";
 
 function AdminLayout({ worker, onLogout, onProfileUpdated }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -30,6 +31,8 @@ function AdminLayout({ worker, onLogout, onProfileUpdated }) {
         <Routes>
           {/* Home */}
           <Route path="/" element={<AdminHome />} />
+
+          <Route path="/schedule" element={<SchedulePage worker={worker} />} />
 
           {/* Users */}
           <Route path="/users" element={<AdminUsers />} />
