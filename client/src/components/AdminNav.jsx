@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { adminService } from "../services/api";
 import { getProfilePictureUrl } from "../utils/helpers";
+import { PENDING_REQUESTS_EVENT } from "../utils/pendingRequests";
 
 function AdminNav({
   worker,
@@ -42,10 +43,12 @@ function AdminNav({
 
     fetchPendingRequestCount();
     const intervalId = window.setInterval(fetchPendingRequestCount, 30000);
+    window.addEventListener(PENDING_REQUESTS_EVENT, fetchPendingRequestCount);
 
     return () => {
       isActive = false;
       window.clearInterval(intervalId);
+      window.removeEventListener(PENDING_REQUESTS_EVENT, fetchPendingRequestCount);
     };
   }, []);
 

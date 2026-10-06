@@ -340,6 +340,41 @@
   .nav-icon { font-size: 16px; }
 }
 
+.nav-item { position: relative; }
+
+/* Expanded sidebar: badge sits at the right edge of the row */
+.nav-badge {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Minimized sidebar: float over the icon's top-right corner */
+.supervisor-nav.collapsed .nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  margin-left: 0;
+}
+
+/* Phone bottom bar: same idea, a bit smaller */
+@media (max-width: 768px) {
+  .nav-badge {
+    position: absolute;
+    top: 2px;
+    right: 8px;
+    margin-left: 0;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .nav-badge { right: 4px; }
+}
+
 .nav-badge {
   min-width: 18px;
   height: 18px;
