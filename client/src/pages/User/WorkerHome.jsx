@@ -4,6 +4,7 @@ import { getProfilePictureUrl, getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { Star, Trophy, Medal, AlertTriangle, Info } from "lucide-react";
+import ScheduleSection from "../../components/common/ScheduleSection";
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -514,6 +515,10 @@ function WorkerHome({ worker }) {
           )
         )}
       </div>
+
+       {/* Schedule  */}
+      <ScheduleSection role="worker" area={worker?.area} />
+
     </div>
   );
 }

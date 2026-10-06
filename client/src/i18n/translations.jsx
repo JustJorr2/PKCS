@@ -40,7 +40,21 @@ export const translations = {
       registrationFailed: "Registration failed",
       password: "Password",
       emailOrUsername: "Email or Username",
-      
+    },
+    schedule: {
+      title: "Work Schedule",
+      subtitle: "Daily cleaning schedule by area",
+      myArea: "My Area",
+      myAreaBadge: "Your area",
+      wholeSchedule: "Whole Schedule",
+      filterLabel: "Schedule filter",
+      sections: "Sections",
+      now: "Now",
+      expand: "Expand",
+      closeExpanded: "Close",
+      noAreaAssigned: "You haven't been assigned an area yet, so the whole schedule is shown.",
+      empty: "No schedule available for this area.",
+      note: "Tasks are not binding. If other work is needed, adjust as directed by the supervisor and with the knowledge of PJP & FM."
     },
     profile: {
       title: "My Profile",
@@ -669,6 +683,21 @@ export const translations = {
       noMonthlyHistory: "Belum ada riwayat bulanan.",
       avgShort: "rata-rata",
       overview: "Ringkasan Performa Anda"
+    },
+    schedule: {
+      title: "Jadwal Kerja",
+      subtitle: "Jadwal kebersihan harian per area",
+      myArea: "Area Saya",
+      myAreaBadge: "Area Anda",
+      wholeSchedule: "Seluruh Jadwal",
+      filterLabel: "Filter jadwal",
+      sections: "Bagian",
+      now: "Sekarang",
+      expand: "Perbesar",
+      closeExpanded: "Tutup",
+      noAreaAssigned: "Anda belum ditugaskan ke area mana pun, jadi seluruh jadwal ditampilkan.",
+      empty: "Tidak ada jadwal untuk area ini.",
+      note: "Pekerjaan sifatnya tidak mengikat. Jika dibutuhkan untuk pekerjaan lain, dapat menyesuaikan sesuai arahan pengawas"
     },
     workerRatings: {
       modalTitle: "Minta Edit Penilaian",

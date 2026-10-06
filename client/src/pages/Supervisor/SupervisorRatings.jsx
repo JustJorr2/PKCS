@@ -7,7 +7,6 @@ import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import FeedbackDialog from "../../components/common/FeedbackDialog";
-import { config } from "../../config/config";
 import { Users, CircleCheck, Clock, TrendingUp  } from "lucide-react";
 
 function getPreviousMonthKey() {
