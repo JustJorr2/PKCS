@@ -5,17 +5,17 @@
 ```
 src/
 ├── pages/                    # Page components for different roles
-│   ├── LoginPage.js         # Login and registration page
-│   ├── SupervisorDashboard.js  # Supervisor dashboard
-│   ├── AdminDashboard.js    # (Coming soon) Admin dashboard
-│   └── WorkerDashboard.js   # (Coming soon) Worker dashboard
+│   ├── LoginPage.jsx         # Login and registration page
+│   ├── SupervisorDashboard.jsx  # Supervisor dashboard
+│   ├── AdminDashboard.jsx    # (Coming soon) Admin dashboard
+│   └── WorkerDashboard.jsx   # (Coming soon) Worker dashboard
 │
 ├── components/              # Reusable UI components
 │   └── common/              # Common components used across the app
-│       └── Header.js        # (Future) Navigation header
+│       └── Header.jsx        # (Future) Navigation header
 │
 ├── services/                # API calls and backend communication
-│   └── api.js              # All API endpoints and services
+│   └── api.jsx              # All API endpoints and services
 │
 ├── styles/                  # CSS files
 │   ├── App.css             # Global app styles
@@ -23,19 +23,19 @@ src/
 │   └── SupervisorDashboard.css # Supervisor dashboard styles
 │
 ├── config/                  # Configuration files
-│   └── config.js           # App configuration and constants
+│   └── config.jsx           # App configuration and constants
 │
 ├── utils/                   # Helper functions and utilities
-│   └── helpers.js          # Rating helpers, formatting, etc.
+│   └── helpers.jsx          # Rating helpers, formatting, etc.
 │
-└── index.js                 # App entry point
+└── index.jsx                 # App entry point
 ```
 
 ## 🔧 Key Features by Folder
 
 ### `/pages` - Page Components
-- **LoginPage.js**: Handles user authentication (login/register)
-- **SupervisorDashboard.js**: Displays worker overview and ratings analytics
+- **LoginPage.jsx**: Handles user authentication (login/register)
+- **SupervisorDashboard.jsx**: Displays worker overview and ratings analytics
 - Future pages for Admin and Worker dashboards
 
 ### `/services` - API Integration
@@ -67,7 +67,7 @@ src/
 ### Add a New Page
 1. Create file in `/pages/` folder
 2. Style it with a new CSS file in `/styles/`
-3. Import in `App.js` and add routing logic
+3. Import in `App.jsx` and add routing logic
 
 ### Add a New Component
 1. Create folder in `/components/` (e.g., `/components/workers/`)
@@ -75,7 +75,7 @@ src/
 3. Import and use in pages
 
 ### Add New API Endpoints
-1. Update `/services/api.js` with new endpoint calls
+1. Update `/services/api.jsx` with new endpoint calls
 2. Use existing service patterns (authService, managerService, etc.)
 
 ## 📦 Dependencies

@@ -1,11 +1,12 @@
 ﻿import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supervisorService } from "../../services/api";
-import { getRatingColor } from "../../utils/helpers";
+import { getRatingColor, getProfilePictureUrl } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/common/ConfirmDialog.css";
 import { useLanguage } from "../../context/LanguageContext";
 import { Users, Star, Trophy, AlertTriangle, Info } from "lucide-react";
+
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -549,9 +550,17 @@ function SupervisorHome({ worker }) {
                             className="recent-item"
                           >
                             <div className="recent-worker">
-                              <div className="worker-avatar">
-                                {item.worker.name?.charAt(0).toUpperCase()}
-                              </div>
+                              {item.worker.profilePicture ? (
+                                <img
+                                  src={getProfilePictureUrl(item.worker.profilePicture)}
+                                  alt={item.worker.name}
+                                  className="worker-avatar worker-avatar-image"
+                                />
+                              ) : (
+                                <div className="worker-avatar">
+                                  {item.worker.name?.charAt(0).toUpperCase()}
+                                </div>
+                              )}
 
                               <div className="worker-details">
                                 <button

@@ -1,13 +1,12 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
-import { getRatingColor } from "../../utils/helpers";
+import { getProfilePictureUrl, getRatingColor } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import FeedbackDialog from "../../components/common/FeedbackDialog";
-import { config } from "../../config/config";
 import { Users, CircleCheck, Clock, TrendingUp  } from "lucide-react";
 
 function getPreviousMonthKey() {
@@ -456,7 +455,7 @@ function SupervisorRatings({ worker: supervisor }) {
                     >
                       {worker.profilePicture ? (
                         <img
-                          src={`${config.API_BASE_URL}/${worker.profilePicture}`}
+                          src={getProfilePictureUrl(worker.profilePicture)}
                           alt={worker.name}
                           className="worker-badge worker-badge-image"
                         />

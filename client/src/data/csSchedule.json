@@ -1,0 +1,2129 @@
+{
+ "period": "2026",
+ "areas": [
+  {
+   "id": "Komperta",
+   "groups": [
+    {
+     "id": "komperta-0-halaman-komperta",
+     "label": "Halaman Komperta",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu seluruh halaman sesuai petunjuk pengawas/pimpinan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam (selain rumah) + Mushola"
+        },
+        {
+         "text": "Menyapu & mengepel lantai gedung Komperta (selain rumah), Membersihkan langit-langit ruangan + Mushola"
+        },
+        {
+         "text": "Membersihkan drainase dari sampah dan rumput liar dan memastikan air yang mengalir lancar"
+        },
+        {
+         "text": "Memastikan tidak adanya rumput liar yang tumbuh di pilah-pilah maupun bahu dan badan jalan dan Memotong dan membentuk keindahan tanaman"
+        },
+        {
+         "text": "Menyiangi tanaman sesuai petunjuk pengawas dan Mengganti tanaman yang tidak sehat dengan tanaman baru yang sehat"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Memastikan semua permukaan beton tidak terdapat kotoran/rumput liar/serangga dan memastikan rumput terpelihara baik (rintis jika perlu)"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Mengumpulkan sampah yang timbul akibat pekerjaan penyiangan rumput yang selanjutnya menempatkan sampah di tempat yang telah ditentukan untuk memudahkan petugas dalam pengangkutan."
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah tanaman yang ada dalam pot dan yang ada di halaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Memupuk dan menyiram tanaman dalam pot dan yang ada di lahan agar tumbuh subur bila di perlukan"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "komperta-1-rudis-komperta",
+     "label": "Rudis Komperta",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyiapkan sarapan pagi untuk tamu VIP yang menginap dikomperta"
+        },
+        {
+         "text": "Membersihkan Rumah Dinas Komperta"
+        },
+        {
+         "text": "Menyapu & mengepel lantai ruangan"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum dan amenitis perlengkapan mandi & handuk untuk para tamu)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Rumah dinas Seperti",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, televisi,",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan",
+          "Membersihkan dapur termasuk peralatan yang ada di dapur & tempat cuci piring"
+         ]
+        },
+        {
+         "text": "Memastikan Ruangan Tidur Siap digunakan dan dialasi seprey ditiap kamar"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Lanjut Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Melanjutkan pekerjaan Pembersihan Rumah Dinas"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan/mencuci/menjemur keset dan tong sampah setiap rumah"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan termasuk mengangkat gelas minum Pekerja & Mitra Kerja di Kantor Utama yang sudah tidak digunakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "Kantor",
+   "groups": [
+    {
+     "id": "kantor-0-halaman-kantor-utama",
+     "label": "Halaman Kantor Utama",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu seluruh halaman sesuai petunjuk pengawas/pimpinan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Menyiram tanaman sesuai petunjuk pengawas"
+        },
+        {
+         "text": "Membersihkan drainase dari sampah dan rumput liar dan memastikan air yang mengalir lancar"
+        },
+        {
+         "text": "Memastikan tidak adanya rumput liar yang tumbuh di pilah-pilah maupun bahu dan badan jalan"
+        },
+        {
+         "text": "Memotong dan membentuk keindahan tanaman"
+        },
+        {
+         "text": "Mengganti tanaman yang tidak sehat dengan tanaman baru yang sehat"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Memastikan semua permukaan beton tidak terdapat kotoran/rumput liar/serangga"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Mengumpulkan sampah yang timbul akibat pekerjaan penyiangan rumput yang selanjutnya menempatkan sampah di tempat yang telah ditentukan untuk memudahkan petugas dalam pengangkutan."
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah tanaman yang ada dalam pot dan yang ada di halaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Memupuk dan menyiram tanaman dalam pot dan yang ada di lahan agar tumbuh subur bila di perlukan"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-1-gedung-utama-depan",
+     "label": "Gedung Utama Depan",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan kerja, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Memastikan ruangan rapat siap digunakan"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Lanjut Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan railing tangga"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah dalam pot, menyiangi tanaman, menyiram tanaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan/merapihkan Ruang Rapat"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-2-gedung-staff-admin-fungsi",
+     "label": "Gedung Staff Admin Fungsi",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan kerja, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Memastikan ruangan rapat siap digunakan"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan/merapihkan Ruang Rapat"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-3-petugas-makanan-gedung-pwp-gsg-resepsionis",
+     "label": "Petugas Makanan, Gedung PWP, GSG & Resepsionis",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan kerja, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Memastikan ruangan rapat siap digunakan"
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membantu layanan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membantu layanan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Membantu layanan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Mengatur dan menata kembali peralatan makan/minum serta menjaga kebersihannya"
+        },
+        {
+         "text": "Membersihkan/merapihkan Ruang Rapat"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-4-pos-security-gsg-petugas-makanan",
+     "label": "Pos Security, GSG & Petugas Makanan",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-8:45",
+       "tasks": [
+        {
+         "text": "Mengatur dan menyiapkan minuman untuk semua Pekerja & Mitra Kerja yang ada di kantor Utama"
+        },
+        {
+         "text": "Membantu mengatur dan menyiapkan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan kerja, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Memastikan ruangan rapat siap digunakan"
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membantu layanan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membantu layanan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Membantu layanan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Mengatur dan menata kembali peralatan makan/minum serta menjaga kebersihannya"
+        },
+        {
+         "text": "Membersihkan/merapihkan Ruang Rapat"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-5-demo-room-workshop-mt-pool-angkutan-lab",
+     "label": "Demo Room, Workshop MT, Pool Angkutan, & Lab",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Memastikan ruangan rapat siap digunakan"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam, railing/partisi"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam, railing/partisi"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam, railing/partisi"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah, Menyiangi tanaman, menyiram tanaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan/merapihkan Ruang Rapat"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-6-ruangan-cc-gsg-petugas-makanan-resepsionis",
+     "label": "Ruangan CC, GSG Petugas Makanan, & Resepsionis",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Menyiapkan Makanan Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Membersihkan/Merapikan kembali peralatan makan manajemen yang digunakan termasuk dapur"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan/Merapikan kembali peralatan makan manajemen yang digunakan termasuk dapur"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-7-ict-fitnes-poliklinik-kopkarmila-lab",
+     "label": "ICT/FITNES, Poliklinik, Kopkarmila, & Lab",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-8-ruang-staff-hsse-maintenance-mushola",
+     "label": "Ruang Staff HSSE, Maintenance & Mushola",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan/Perlengkapan Yang ada di ruang tsb",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner (jika ada), televisi",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "kantor-9-petugas-layanan-makan-minum",
+     "label": "Petugas Layanan Makan/Minum",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-8:45",
+       "tasks": [
+        {
+         "text": "Mengatur dan menyiapkan minuman untuk semua Pekerja & Mitra Kerja yang ada di kantor Utama"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "8:45-10:00",
+       "tasks": [
+        {
+         "text": "Membantu mengatur dan menyiapkan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-11:00",
+       "tasks": [
+        {
+         "text": "Break - Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "11:00-14:15",
+       "tasks": [
+        {
+         "text": "Membantu layanan makan/minum Manajemen"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:45",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:45-16:00",
+       "tasks": [
+        {
+         "text": "Mengatur dan menata kembali peralatan makan/minum serta menjaga kebersihannya"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "Rudis GM",
+   "groups": [
+    {
+     "id": "rudis-gm-0-rudis-gm",
+     "label": "Rudis GM",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Perjalanan Ke Rudis Winangun"
+        },
+        {
+         "text": "Menyapu & mengepel lantai semua ruangan temasuk dapur"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan pot/vas dan rangkaian bunga dan memastikan ketersedian air minum dan gas rumah dinas"
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Membersihkan pot/vas dan rangkaian bunga"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        },
+        {
+         "text": "Membersihkan/mencuci/menjemur keset"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CCR 1-4",
+   "groups": [
+    {
+     "id": "ccr-1-4-0-halaman",
+     "label": "Halaman",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu seluruh halaman sesuai petunjuk pengawas/pimpinan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Menyiangi tanaman sesuai petunjuk pengawas"
+        },
+        {
+         "text": "Membersihkan drainase dari sampah dan rumput liar dan memastikan air yang mengalir lancar"
+        },
+        {
+         "text": "Memastikan tidak adanya rumput liar yang tumbuh di pilah-pilah maupun bahu dan badan jalan"
+        },
+        {
+         "text": "Memotong dan membentuk keindahan tanaman"
+        },
+        {
+         "text": "Mengganti tanaman yang tidak sehat dengan tanaman baru yang sehat"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Memastikan semua permukaan beton tidak terdapat kotoran/rumput liar/serangga"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Mengumpulkan sampah yang timbul akibat pekerjaan penyiangan rumput yang selanjutnya menempatkan sampah di tempat yang telah ditentukan untuk memudahkan petugas dalam pengangkutan."
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah tanaman yang ada dalam pot dan yang ada di halaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Memupuk dan menyiram tanaman dalam pot dan yang ada di lahan agar tumbuh subur bila di perlukan"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "ccr-1-4-1-dalam-gedung",
+     "label": "Dalam Gedung",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan kerja, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Memastikan ruangan rapat siap digunakan"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Lanjut Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan railing tangga"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah dalam pot, menyiangi tanaman, menyiram tanaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan/merapihkan Ruang Rapat"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PLTP 5&6",
+   "groups": [
+    {
+     "id": "pltp-5-6-0-halaman",
+     "label": "Halaman",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu seluruh halaman sesuai petunjuk pengawas/pimpinan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Menyiangi tanaman sesuai petunjuk pengawas"
+        },
+        {
+         "text": "Membersihkan drainase dari sampah dan rumput liar dan memastikan air yang mengalir lancar"
+        },
+        {
+         "text": "Memastikan tidak adanya rumput liar yang tumbuh di pilah-pilah maupun bahu dan badan jalan"
+        },
+        {
+         "text": "Memotong dan membentuk keindahan tanaman"
+        },
+        {
+         "text": "Mengganti tanaman yang tidak sehat dengan tanaman baru yang sehat"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Memastikan semua permukaan beton tidak terdapat kotoran/rumput liar/serangga"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Mengumpulkan sampah yang timbul akibat pekerjaan penyiangan rumput yang selanjutnya menempatkan sampah di tempat yang telah ditentukan untuk memudahkan petugas dalam pengangkutan."
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah tanaman yang ada dalam pot dan yang ada di halaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Memupuk dan menyiram tanaman dalam pot dan yang ada di lahan agar tumbuh subur bila di perlukan"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    },
+    {
+     "id": "pltp-5-6-1-dalam-gedung",
+     "label": "Dalam Gedung",
+     "slots": [
+      {
+       "time": "6:30-6:45",
+       "tasks": [
+        {
+         "text": "Mengisi Absen & menyiapkan perlengkapan kerja"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "6:45-10:00",
+       "tasks": [
+        {
+         "text": "Menyapu & mengepel lantai ruangan kerja, lobby & lorong"
+        },
+        {
+         "text": "Membersihkan langit-langit ruangan"
+        },
+        {
+         "text": "Mengumpulkan dan Membuang sampah ke tempat pengumpulan sampah"
+        },
+        {
+         "text": "Memastikan ruangan rapat siap digunakan"
+        },
+        {
+         "text": "Membersihkan Toilet",
+         "items": [
+          "membersihkan langit-langit, dinding, wastafel, & cermin",
+          "Menyikat lantai dan closet, mengepel lantai dan memeriksa kelengkapan peralatan toilet (sabun, tissue, pengharum)"
+         ]
+        },
+        {
+         "text": "Membersihkan Peralatan Gedung",
+         "items": [
+          "Membersihkan lemari, rak, meja kursi, telepon, peralatan komputer, printer & scanner",
+          "Membersihkan dispenser dan memastikan ketersediaan air minum",
+          "Membersihkan pot/vas dan rangkaian bunga",
+          "Membersihkan piguran atau lukisan"
+         ]
+        },
+        {
+         "text": "Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "10:00-10:15",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "10:15-11:45",
+       "tasks": [
+        {
+         "text": "Lanjut Membersihkan kaca (jendela & pintu), kusen luar dan dalam"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "11:45-13:15",
+       "tasks": [
+        {
+         "text": "Lunch"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "13:15-13:45",
+       "tasks": [
+        {
+         "text": "Membersihkan railing tangga"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "13:45-14:15",
+       "tasks": [
+        {
+         "text": "Menggemburkan tanah dalam pot, menyiangi tanaman, menyiram tanaman"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "14:15-14:30",
+       "tasks": [
+        {
+         "text": "Break"
+        }
+       ],
+       "kind": "break"
+      },
+      {
+       "time": "14:30-15:30",
+       "tasks": [
+        {
+         "text": "Membersihkan/merapihkan Ruang Rapat"
+        }
+       ],
+       "kind": "work"
+      },
+      {
+       "time": "15:30-16:00",
+       "tasks": [
+        {
+         "text": "Membersihkan dan merapikan alat-alat kerja dan simpan ke tempat yang disediakan"
+        },
+        {
+         "text": "Absen Pulang"
+        }
+       ],
+       "kind": "work"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

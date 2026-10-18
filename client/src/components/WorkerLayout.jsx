@@ -5,6 +5,7 @@ import WorkerRatings from "../pages/User/WorkerRatings";
 import WorkerNav from "../pages/User/WorkerNavigation";
 import WorkerFeedback from "../pages/User/WorkerFeedback";
 import WorkerProfile from "../pages/User/WorkerProfile";
+import SchedulePage from "../pages/SchedulePage";
 
 function WorkerLayout({ worker, onLogout, onProfileUpdated }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -26,6 +27,7 @@ function WorkerLayout({ worker, onLogout, onProfileUpdated }) {
           <Route path="/" element={<WorkerHome worker={worker} />} />
           <Route path="/ratings" element={<WorkerRatings worker={worker} />} />
           <Route path="/feedback" element={<WorkerFeedback worker={worker} />} />
+          <Route path="/schedule" element={<SchedulePage worker={worker} />} />
           <Route path="/profile" element={<WorkerProfile worker={worker} onLogout={onLogout} onProfileUpdated={onProfileUpdated} />} />
           <Route path="/worker/:id" element={<Navigate to="/worker/ratings" />} />
           <Route path="*" element={<Navigate to="/" />} />

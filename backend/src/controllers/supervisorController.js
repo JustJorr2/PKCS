@@ -108,7 +108,10 @@ async function getDashboard(req, res) {
         };
 
         const fetchedRatings = await Rating.find(baseFilter)
-          .populate("ratedBy", "name role")
+          .populate(
+            "ratedBy",
+            "name role profilePicture"
+          )
           .lean()
           .sort({ createdAt: -1 });
 

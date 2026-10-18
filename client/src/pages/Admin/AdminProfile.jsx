@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { usersService } from "../../services/api";
-import "../../styles/Supervisor/SupervisorPages.css";
+import { getProfilePictureUrl } from "../../utils/helpers";
+import "../../styles/Admin/AdminPages.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
-import { config } from "../../config/config";
+import { Camera, TriangleAlert } from "lucide-react";
 
-function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
+function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   const { language, setLanguage, t } = useLanguage();
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -19,7 +20,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   const [formData, setFormData] = useState({
     name: worker?.name || "",
     email: worker?.email || "",
-    role: worker?.role || "supervisor"
+    role: worker?.role || "admin"
   });
 
   useEffect(() => {
@@ -27,7 +28,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
-      role: worker?.role || "supervisor"
+      role: worker?.role || "admin"
     });
   }, [worker]);
 
@@ -38,9 +39,11 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
 
   const handleSave = async () => {
     if (!worker?._id) return;
+
     setSaving(true);
     setMessage("");
     setError("");
+
     try {
       const response = await usersService.updateProfile(worker._id, { name: formData.name });
       onProfileUpdated?.(response.data);
@@ -57,7 +60,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
-      role: worker?.role || "supervisor"
+      role: worker?.role || "admin"
     });
     setMessage("");
     setError("");
@@ -123,7 +126,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   };
 
   return (
-    <div className="page-content supervisor-profile">
+    <div className="page-content admin-page admin-profile-page">
       <div className="page-header">
         <h1>{t("profile.title")}</h1>
         <p>{t("profile.subtitle")}</p>
@@ -134,18 +137,15 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
         </div>
       </div>
 
-      {message && <p className="profile-success">{message}</p>}
-      {error && <p className="profile-error">{error}</p>}
-
-      <div className="profile-container">
-        <div className="profile-header">
-          <div className="profile-picture-container">
+      <div className="admin-profile-container">
+        <div className="admin-profile-header">
+          <div className="admin-profile-avatar-container">
             <div className="profile-avatar-wrapper">
               {profilePicturePreview || currentWorker?.profilePicture ? (
                 <img
                   src={
                     profilePicturePreview ||
-                    `${config.API_BASE_URL.replace(/\/$/, "")}/${currentWorker.profilePicture}`
+                    getProfilePictureUrl(currentWorker.profilePicture)
                   }
                   alt="Profile"
                   className={`profile-avatar-large profile-image ${
@@ -154,11 +154,11 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
                 />
               ) : (
                 <div className="profile-avatar-large profile-avatar-fallback">
-                  {currentWorker?.name?.charAt(0)?.toUpperCase()}
+                  {currentWorker?.name?.charAt(0)?.toUpperCase() || "A"}
                 </div>
               )}
 
-              <span className="profile-status-dot"></span>
+              <span className="profile-status-dot admin"></span>
 
               <label className="profile-upload-overlay">
                 <input
@@ -173,7 +173,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
                   <span className="upload-loader"></span>
                 ) : (
                   <>
-                    <span className="camera-icon">📷</span>
+                    <Camera className="camera-icon" size={18} aria-hidden="true" />
                     <span className="upload-text">
                       {t("profile.changePhoto")}
                     </span>
@@ -183,65 +183,98 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
             </div>
             {photoError && (
               <div className="profile-photo-error" role="alert">
-                <span className="profile-photo-error-icon">⚠️</span>
+                <TriangleAlert className="profile-photo-error-icon" size={18} aria-hidden="true" />
                 <span>{photoError}</span>
               </div>
             )}
           </div>
-          <div className="profile-header-info">
+          <div className="admin-profile-headline">
             <h2>{currentWorker?.name}</h2>
-            <p className="profile-email">{currentWorker?.email}</p>
-            <span className="profile-badge">{currentWorker?.role?.toUpperCase()}</span>
+            <p>{currentWorker?.email}</p>
+            <span className="admin-profile-badge">{currentWorker?.role?.toUpperCase()}</span>
           </div>
         </div>
 
-        <div className="profile-grid">
-          <div className="profile-card">
+        <div className="admin-profile-grid">
+          <div className="admin-card">
             <h3>{t("profile.accountInfo")}</h3>
             {editMode ? (
-              <div className="form-group">
-                <label>{t("common.fullName")}</label>
-                <input type="text" name="name" value={formData.name} onChange={handleChange} className="form-input" />
-              </div>
+              <>
+                <div className="form-group" style={{ marginBottom: "15px" }}>
+                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>{t("common.fullName")}</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="admin-input"
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: "15px" }}>
+                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>{t("common.email")}</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="admin-input"
+                    disabled
+                  />
+                </div>
+              </>
             ) : (
-              <div className="info-row"><span className="info-label">{t("common.fullName")}</span><span className="info-value">{formData.name}</span></div>
+              <>
+                <div className="admin-profile-row">
+                  <span>{t("common.fullName")}</span>
+                  <strong>{formData.name}</strong>
+                </div>
+                <div className="admin-profile-row">
+                  <span>{t("common.email")}</span>
+                  <strong>{formData.email}</strong>
+                </div>
+              </>
             )}
-
-            {editMode ? (
-              <div className="form-group">
-                <label>{t("common.email")}</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" disabled />
-              </div>
-            ) : (
-              <div className="info-row"><span className="info-label">{t("common.email")}</span><span className="info-value">{formData.email}</span></div>
-            )}
-
-            <div className="info-row"><span className="info-label">{t("common.role")}</span><span className="info-value">{formData.role}</span></div>
+            <div className="admin-profile-row">
+              <span>{t("common.role")}</span>
+              <strong>{formData.role}</strong>
+            </div>
           </div>
 
-          <div className="profile-card">
+          <div className="admin-card">
             <h3>{t("profile.statistics")}</h3>
-            <div className="stats-list">
-              <div className="stat-row"><span className="stat-label">{t("profile.accountCreated")}</span><span className="stat-value">{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : t("profile.notAvailable")}</span></div>
-              <div className="stat-row"><span className="stat-label">{t("profile.avgRating")}</span><span className="stat-value">{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</span></div>
-              <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsGiven")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
+            <div className="admin-profile-stats">
+              <div className="admin-profile-stat"><span>{t("profile.accountCreated")}</span><strong>{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : t("profile.notAvailable")}</strong></div>
+              <div className="admin-profile-stat"><span>{t("profile.avgRating")}</span><strong>{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</strong></div>
+              <div className="admin-profile-stat"><span>{t("profile.totalRatings")}</span><strong>{worker?.totalRatings ?? "N/A"}</strong></div>
+              <div className="admin-profile-stat"><span>{t("profile.accountId")}</span><strong>{worker?._id ? String(worker._id).slice(-8) : "N/A"}</strong></div>
             </div>
           </div>
         </div>
 
-        <div className="profile-actions">
+        <div className="admin-profile-actions" style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
           {editMode ? (
             <>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? `${t("common.saveChanges")}...` : t("common.saveChanges")}</button>
-              <button className="btn btn-secondary" onClick={handleCancel}>{t("common.cancel")}</button>
+              <button className="admin-btn primary" onClick={handleSave} disabled={saving}>
+                {saving ? `${t("common.saveChanges")}...` : t("common.saveChanges")}
+              </button>
+              <button className="admin-btn secondary" onClick={handleCancel}>
+                {t("common.cancel")}
+              </button>
             </>
           ) : (
             <>
-              <button className="btn btn-primary" onClick={() => setEditMode(true)}>{t("common.editProfile")}</button>
-              <button className="btn btn-primary" onClick={() => setShowLogoutConfirm(true)}>{t("common.logout")}</button>
+              <button className="admin-btn primary" onClick={() => setEditMode(true)}>
+                {t("common.editProfile")}
+              </button>
+              <button className="admin-btn primary" onClick={() => setShowLogoutConfirm(true)}>
+                {t("common.logout")}
+              </button>
             </>
           )}
         </div>
+
+        {message && <p className="profile-success">{message}</p>}
+        {error && <p className="profile-error">{error}</p>}
       </div>
 
       <ConfirmDialog
@@ -260,4 +293,4 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   );
 }
 
-export default SupervisorProfile;
+export default AdminProfile;

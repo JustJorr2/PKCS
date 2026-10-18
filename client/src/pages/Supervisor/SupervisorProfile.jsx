@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { usersService } from "../../services/api";
-import "../../styles/User/WorkerProfile.css";
+import { getProfilePictureUrl } from "../../utils/helpers";
+import "../../styles/Supervisor/SupervisorPages.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
-import { config } from "../../config/config";
 
-function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
+function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   const { language, setLanguage, t } = useLanguage();
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -19,7 +19,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   const [formData, setFormData] = useState({
     name: worker?.name || "",
     email: worker?.email || "",
-    role: worker?.role || "worker"
+    role: worker?.role || "supervisor"
   });
 
   useEffect(() => {
@@ -27,35 +27,13 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
-      role: worker?.role || "worker"
+      role: worker?.role || "supervisor"
     });
   }, [worker]);
 
-  useEffect(() => {
-    let isActive = true;
-
-    if (!worker?._id) return undefined;
-
-    usersService.getUserById(worker._id)
-      .then((response) => {
-        const latestWorker = response.data?.worker;
-        if (isActive && latestWorker) {
-          setCurrentWorker(latestWorker);
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      isActive = false;
-    };
-  }, [worker?._id]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
@@ -79,7 +57,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
-      role: worker?.role || "worker"
+      role: worker?.role || "supervisor"
     });
     setMessage("");
     setError("");
@@ -91,26 +69,22 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
     if (file) {
       setPhotoError("");
 
-      // Validate file type
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
         setPhotoError(t("profile.invalidFileType"));
-        e.target.value = ""; // Clear input
-        return;
-      }
-      
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setPhotoError(t("profile.fileTooLarge"));
-        e.target.value = ""; // Clear input
+        e.target.value = "";
         return;
       }
 
-      // Create preview
+      if (file.size > 5 * 1024 * 1024) {
+        setPhotoError(t("profile.fileTooLarge"));
+        e.target.value = "";
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePicturePreview(reader.result);
-        // Upload after preview is set
         handleUploadProfilePicture(file, e);
       };
       reader.readAsDataURL(file);
@@ -118,33 +92,28 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   };
 
   const handleUploadProfilePicture = async (file, e) => {
-    if (!worker?._id || uploading) return; // Prevent duplicate uploads
+    if (!worker?._id || uploading) return;
     setUploading(true);
     setPhotoError("");
     setMessage("");
-    
+
     try {
       const response = await usersService.uploadProfilePicture(worker._id, file);
       const updatedUser = response.data.user;
-      
-      // Update local state immediately for instant display
+
       setCurrentWorker(updatedUser);
       setProfilePicturePreview(null);
-      
-      // Clear file input to prevent duplicate uploads
+
       if (e?.target) {
         e.target.value = "";
       }
-      
-      // Also notify parent component
+
       onProfileUpdated?.(updatedUser);
-      
       setMessage(t("profile.pictureUpdatedSuccess"));
     } catch (err) {
       setPhotoError(err?.response?.data?.message || t("profile.pictureUploadFailed"));
       setProfilePicturePreview(null);
-      
-      // Clear file input on error
+
       if (e?.target) {
         e.target.value = "";
       }
@@ -154,7 +123,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   };
 
   return (
-    <div className="page-content worker-profile">
+    <div className="page-content supervisor-profile">
       <div className="page-header">
         <h1>{t("profile.title")}</h1>
         <p>{t("profile.subtitle")}</p>
@@ -165,6 +134,9 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
         </div>
       </div>
 
+      {message && <p className="profile-success">{message}</p>}
+      {error && <p className="profile-error">{error}</p>}
+
       <div className="profile-container">
         <div className="profile-header">
           <div className="profile-picture-container">
@@ -173,7 +145,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
                 <img
                   src={
                     profilePicturePreview ||
-                    `${config.API_BASE_URL}/${currentWorker.profilePicture}`
+                    getProfilePictureUrl(currentWorker.profilePicture)
                   }
                   alt="Profile"
                   className={`profile-avatar-large profile-image ${
@@ -185,6 +157,8 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
                   {currentWorker?.name?.charAt(0)?.toUpperCase()}
                 </div>
               )}
+
+              <span className="profile-status-dot"></span>
 
               <label className="profile-upload-overlay">
                 <input
@@ -230,10 +204,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
                 <input type="text" name="name" value={formData.name} onChange={handleChange} className="form-input" />
               </div>
             ) : (
-              <div className="info-row">
-                <span className="info-label">{t("common.fullName")}</span>
-                <span className="info-value">{formData.name}</span>
-              </div>
+              <div className="info-row"><span className="info-label">{t("common.fullName")}</span><span className="info-value">{formData.name}</span></div>
             )}
 
             {editMode ? (
@@ -242,21 +213,10 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
                 <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" disabled />
               </div>
             ) : (
-              <div className="info-row">
-                <span className="info-label">{t("common.email")}</span>
-                <span className="info-value">{formData.email}</span>
-              </div>
+              <div className="info-row"><span className="info-label">{t("common.email")}</span><span className="info-value">{formData.email}</span></div>
             )}
 
-            <div className="info-row">
-              <span className="info-label">{t("common.role")}</span>
-              <span className="info-value">{formData.role}</span>
-            </div>
-
-            <div className="info-row">
-              <span className="info-label">{t("common.area")}</span>
-              <span className="info-value">{currentWorker?.area || "-"}</span>
-            </div>
+            <div className="info-row"><span className="info-label">{t("common.role")}</span><span className="info-value">{formData.role}</span></div>
           </div>
 
           <div className="profile-card">
@@ -264,7 +224,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
             <div className="stats-list">
               <div className="stat-row"><span className="stat-label">{t("profile.accountCreated")}</span><span className="stat-value">{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : t("profile.notAvailable")}</span></div>
               <div className="stat-row"><span className="stat-label">{t("profile.avgRating")}</span><span className="stat-value">{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</span></div>
-              <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsReceived")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
+              <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsGiven")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
             </div>
           </div>
         </div>
@@ -277,13 +237,11 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
             </>
           ) : (
             <>
+              <button className="btn btn-primary" onClick={() => setEditMode(true)}>{t("common.editProfile")}</button>
               <button className="btn btn-primary" onClick={() => setShowLogoutConfirm(true)}>{t("common.logout")}</button>
             </>
           )}
         </div>
-
-        {message && <p className="profile-success">{message}</p>}
-        {error && <p className="profile-error">{error}</p>}
       </div>
 
       <ConfirmDialog
@@ -302,4 +260,4 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
   );
 }
 
-export default WorkerProfile;
+export default SupervisorProfile;

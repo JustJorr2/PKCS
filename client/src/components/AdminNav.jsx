@@ -2,8 +2,9 @@ import "../styles/Supervisor/SupervisorNav.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { config } from "../config/config";
 import { adminService } from "../services/api";
+import { getProfilePictureUrl } from "../utils/helpers";
+import { PENDING_REQUESTS_EVENT } from "../utils/pendingRequests";
 
 function AdminNav({
   worker,
@@ -42,10 +43,12 @@ function AdminNav({
 
     fetchPendingRequestCount();
     const intervalId = window.setInterval(fetchPendingRequestCount, 30000);
+    window.addEventListener(PENDING_REQUESTS_EVENT, fetchPendingRequestCount);
 
     return () => {
       isActive = false;
       window.clearInterval(intervalId);
+      window.removeEventListener(PENDING_REQUESTS_EVENT, fetchPendingRequestCount);
     };
   }, []);
 
@@ -54,6 +57,7 @@ function AdminNav({
     { id: "users", label: t("adminNav.manageUsers"), icon: "\u{1F465}", path: "/users" },
     { id: "data", label: t("adminNav.dataVisuals"), icon: "\u{1F4CA}", path: "/data" },
     { id: "tools", label: t("adminNav.dataTools"), icon: "\u{1F527}", path: "/tools" },
+    { id: "schedule", label: t("adminNav.schedule"), icon: "\u{1F4C5}", path: "/schedule" },
     { id: "edit-requests", label: t("adminNav.editRequests"), icon: "\u{1F4E8}", path: "/edit-requests" },
     { id: "profile", label: t("adminNav.profile"), icon: "\u{1F464}", path: "/profile" }
   ];
@@ -101,7 +105,7 @@ function AdminNav({
             <div className="worker-info">
               {worker?.profilePicture ? (
                 <img
-                  src={`${config.API_BASE_URL}/${worker.profilePicture}`}
+                  src={getProfilePictureUrl(worker.profilePicture)}
                   alt="Profile"
                   className="worker-avatar worker-avatar-image"
                 />

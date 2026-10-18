@@ -49,3 +49,7 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+#Upload Folders
+/uploads/
+backend/uploads/

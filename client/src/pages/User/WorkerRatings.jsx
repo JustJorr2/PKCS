@@ -1,12 +1,11 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from "react";
 import { ratingsService, supervisorService } from "../../services/api";
-import { getRatingColor } from "../../utils/helpers";
+import { getProfilePictureUrl, getRatingColor } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
 import FeedbackDialog from "../../components/common/FeedbackDialog";
-import { config } from "../../config/config";
 import { Users, CircleCheck, Clock, TrendingUp } from "lucide-react";
 
 const RATING_COLOR_LEGEND = [
@@ -693,7 +692,7 @@ function WorkerRatings({ worker }) {
                       <div className="worker-name-cell">
                         {w.profilePicture ? (
                           <img
-                            src={`${config.API_BASE_URL}/${w.profilePicture}`}
+                            src={getProfilePictureUrl(w.profilePicture)}
                             alt={w.name}
                             className="worker-badge worker-badge-image"
                           />

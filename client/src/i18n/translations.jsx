@@ -40,7 +40,21 @@ export const translations = {
       registrationFailed: "Registration failed",
       password: "Password",
       emailOrUsername: "Email or Username",
-      
+    },
+    schedule: {
+      title: "Work Schedule",
+      subtitle: "Daily cleaning schedule by area",
+      myArea: "My Area",
+      myAreaBadge: "Your area",
+      wholeSchedule: "Whole Schedule",
+      filterLabel: "Schedule filter",
+      sections: "Sections",
+      now: "Now",
+      expand: "Expand",
+      closeExpanded: "Close",
+      noAreaAssigned: "You haven't been assigned an area yet, so the whole schedule is shown.",
+      empty: "No schedule available for this area.",
+      note: "Tasks are not binding. If other work is needed, adjust as directed by the supervisor and with the knowledge of PJP & FM."
     },
     profile: {
       title: "My Profile",
@@ -197,7 +211,8 @@ export const translations = {
       profile: "Profile",
       logout: "Logout",
       expand: "Expand",
-      collapse: "Collapse"
+      collapse: "Collapse",
+      schedule: "Work Schedule"
     },
     supervisorNav: {
       home: "Home",
@@ -206,7 +221,8 @@ export const translations = {
       profile: "Profile",
       logout: "Logout",
       expand: "Expand",
-      collapse: "Collapse"
+      collapse: "Collapse",
+      schedule: "Work Schedule"
     },
     supervisorHome: {
       loading: "Loading...",
@@ -526,7 +542,8 @@ export const translations = {
       profile: "Profile",
       logout: "Logout",
       expand: "Expand",
-      collapse: "Collapse"
+      collapse: "Collapse",
+      schedule: "Work Schedule"
     },
     workerInformation: {
       loadingProfile: "Loading worker profile...",
@@ -670,6 +687,21 @@ export const translations = {
       avgShort: "rata-rata",
       overview: "Ringkasan Performa Anda"
     },
+    schedule: {
+      title: "Jadwal Kerja",
+      subtitle: "Jadwal kebersihan harian per area",
+      myArea: "Area Saya",
+      myAreaBadge: "Area Anda",
+      wholeSchedule: "Seluruh Jadwal",
+      filterLabel: "Filter jadwal",
+      sections: "Bagian",
+      now: "Sekarang",
+      expand: "Perbesar",
+      closeExpanded: "Tutup",
+      noAreaAssigned: "Anda belum ditugaskan ke area mana pun, jadi seluruh jadwal ditampilkan.",
+      empty: "Tidak ada jadwal untuk area ini.",
+      note: "Pekerjaan sifatnya tidak mengikat. Jika dibutuhkan untuk pekerjaan lain, dapat menyesuaikan sesuai arahan pengawas"
+    },
     workerRatings: {
       modalTitle: "Minta Edit Penilaian",
       modalReasonLabel: "Kenapa Anda perlu mengedit penilaian ini?",
@@ -764,7 +796,8 @@ export const translations = {
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
-      collapse: "Ciutkan"
+      collapse: "Ciutkan",
+      schedule: "Jadwal Kerja"
     },
     supervisorNav: {
       home: "Beranda",
@@ -773,7 +806,8 @@ export const translations = {
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
-      collapse: "Ciutkan"
+      collapse: "Ciutkan",
+      schedule: "Jadwal Kerja",
     },
     supervisorHome: {
       loading: "Memuat...",
@@ -1093,7 +1127,8 @@ export const translations = {
       profile: "Profil",
       logout: "Keluar",
       expand: "Perluas",
-      collapse: "Ciutkan"
+      collapse: "Ciutkan",
+      schedule: "Jadwal Kerja"
     },
     workerInformation: {
       loadingProfile: "Memuat profil pekerja...",

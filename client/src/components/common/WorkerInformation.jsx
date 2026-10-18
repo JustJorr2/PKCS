@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+
 import {
   ChevronLeft,
   ClipboardList,
@@ -10,8 +11,9 @@ import {
   Filter,
   X
 } from "lucide-react";
+
 import { supervisorService } from "../../services/api";
-import { getRatingColor, getRatingStatus } from "../../utils/helpers";
+import { getProfilePictureUrl, getRatingColor, getRatingStatus } from "../../utils/helpers";
 import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/common/WorkerInformation.css";
 
@@ -156,9 +158,17 @@ function WorkerInformation() {
 
       {/* HERO HEADER */}
       <div className="wi-hero">
-        <div className="wi-avatar" style={{ background: getRatingColor(avgRating) || "#4f46e5" }}>
-          {worker.name.charAt(0).toUpperCase()}
-        </div>
+        {worker.profilePicture ? (
+          <img
+            src={getProfilePictureUrl(worker.profilePicture)}
+            alt={worker.name}
+            className="wi-avatar wi-avatar-image"
+          />
+        ) : (
+          <div className="wi-avatar" style={{ background: getRatingColor(avgRating) || "#4f46e5" }}>
+            {worker.name.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div className="wi-hero-info">
           <h1 className="wi-hero-name">{worker.name}</h1>
           <p className="wi-hero-email">{worker.email}</p>
@@ -315,9 +325,18 @@ function WorkerInformation() {
                             year: "numeric", month: "short", day: "numeric"
                           })}
                         </span>
-                       <span className="wi-card-ratedby">
-                        {t("workerInformation.ratedBy")}: {r.ratedBy?.name ?? t("workerInformation.unknown")}
-                      </span>
+                          <div className="wi-card-rater">
+                            {r.ratedBy?.profilePicture && (
+                              <img
+                                src={getProfilePictureUrl(r.ratedBy.profilePicture)}
+                                alt={r.ratedBy?.name || "Rater"}
+                                className="wi-card-rater-avatar"
+                              />
+                            )}
+                            <span className="wi-card-ratedby">
+                              {t("workerInformation.ratedBy")}: {r.ratedBy?.name ?? t("workerInformation.unknown")}
+                            </span>
+                          </div>
                       </div>
                     </div>
                     <div className="wi-card-right">

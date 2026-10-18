@@ -103,6 +103,10 @@
   letter-spacing: -0.5px;
 }
 
+.wi-avatar-image {
+  object-fit: cover;
+}
+
 .wi-hero-info {
   flex: 1;
   min-width: 0;
@@ -439,6 +443,21 @@
 .wi-card-ratedby {
   font-size: 12px;
   color: #9ca3af;
+}
+
+.wi-card-rater {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wi-card-rater-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .wi-card-right {

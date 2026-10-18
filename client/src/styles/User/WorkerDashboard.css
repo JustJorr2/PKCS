@@ -183,6 +183,10 @@
   font-weight: 700;
 }
 
+.worker-avatar-image {
+  object-fit: cover;
+}
+
 .worker-details h4 {
   margin: 0;
 }

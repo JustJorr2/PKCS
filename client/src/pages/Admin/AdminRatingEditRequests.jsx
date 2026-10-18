@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { adminService } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
+import { notifyPendingRequestsChanged } from "../../utils/pendingRequests";
 import "../../styles/Admin/AdminPages.css";
 import { Check, ChevronDown, ClipboardList, FilePenLine, HardHat, LoaderCircle, Timer, X } from "lucide-react";
 
@@ -54,6 +55,7 @@ function AdminRatingEditRequests() {
       setSubmittingId(ratingId);
       await adminService.reviewRatingEditRequest(ratingId, admin._id, action);
       await fetchData();
+      notifyPendingRequestsChanged();
     } catch (err) {
       setError(err.response?.data?.message || t("common.cancel"));
     } finally {
@@ -66,6 +68,7 @@ function AdminRatingEditRequests() {
       setSubmittingId(requestId);
       await adminService.getLateSubmissionRequests(requestId, admin._id, action);
       await fetchData();
+      notifyPendingRequestsChanged();
     } catch (err) {
       setError(err.response?.data?.message || t("common.cancel"));
     } finally {
@@ -79,6 +82,7 @@ function AdminRatingEditRequests() {
       setError("");
       await adminService.approveWorker(workerId);
       setWorkers(workers.filter((w) => w._id !== workerId));
+      notifyPendingRequestsChanged();
     } catch (err) {
       setError(err.response?.data?.message || t("adminApprovals.approveFailed"));
     } finally {
@@ -92,6 +96,7 @@ function AdminRatingEditRequests() {
       setError("");
       await adminService.rejectWorker(workerId);
       setWorkers(workers.filter((w) => w._id !== workerId));
+      notifyPendingRequestsChanged();
     } catch (err) {
       setError(err.response?.data?.message || t("adminApprovals.rejectFailed"));
     } finally {

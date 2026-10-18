@@ -234,18 +234,28 @@ async function r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8(req, res) {
 async function getRatingsForWorker(req, res) {
   try {
     const { date, month } = req.query;
-    const filter = { ratedUser: req.params.userId };
+    const filter = {
+      ratedUser: req.params.userId
+    };
 
-    if (date) filter.dateKey = date;
-    else if (month) filter.dateKey = month;
+    if (date) {
+      filter.dateKey = date;
+    } else if (month) {
+      filter.dateKey = month;
+    }
 
     const ratings = await Rating.find(filter)
-      .populate("ratedBy", "name role")
+      .populate(
+        "ratedBy",
+        "name role profilePicture"
+      )
       .sort({ createdAt: -1 });
 
     res.json(ratings);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message
+    });
   }
 }
 
@@ -262,8 +272,11 @@ async function getRatingHistory(req, res) {
     if (supervisorId) filter.ratedBy = supervisorId;
 
     const ratings = await Rating.find(filter)
-      .populate("ratedBy", "name role")
-      .sort({ dateKey: -1 });
+      .populate(
+        "ratedBy",
+        "name role profilePicture"
+      )
+      .sort({ createdAt: -1 });
 
     const grouped = {};
     ratings.forEach((r) => {
